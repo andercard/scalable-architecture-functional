@@ -14,20 +14,8 @@ export const useRegister = () => {
 
   const registerForm = reactive<RegisterForm>({
     username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    email: ''
   })
-
-  const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
-    if (value === '') {
-      callback(new Error('Por favor confirma tu contraseña'))
-    } else if (value !== registerForm.password) {
-      callback(new Error('Las contraseñas no coinciden'))
-    } else {
-      callback()
-    }
-  }
 
   const rules: FormRules = {
     username: [
@@ -37,13 +25,6 @@ export const useRegister = () => {
     email: [
       { required: true, message: 'Por favor ingresa tu email', trigger: 'blur' },
       { type: 'email', message: 'Por favor ingresa un email válido', trigger: 'blur' }
-    ],
-    password: [
-      { required: true, message: 'Por favor ingresa tu contraseña', trigger: 'blur' },
-      { min: 6, message: 'La contraseña debe tener al menos 6 caracteres', trigger: 'blur' }
-    ],
-    confirmPassword: [
-      { required: true, validator: validateConfirmPassword, trigger: 'blur' }
     ]
   }
 

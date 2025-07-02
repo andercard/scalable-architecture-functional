@@ -13,17 +13,12 @@ export const useLogin = () => {
   const isLoading = computed(() => authStore.isLoading)
 
   const loginForm = reactive<LoginForm>({
-    username: '',
-    password: ''
+    username: 'demo'
   })
 
   const rules: FormRules = {
     username: [
       { required: true, message: 'Por favor ingresa tu usuario', trigger: 'blur' }
-    ],
-    password: [
-      { required: true, message: 'Por favor ingresa tu contraseña', trigger: 'blur' },
-      { min: 6, message: 'La contraseña debe tener al menos 6 caracteres', trigger: 'blur' }
     ]
   }
 

@@ -31,26 +31,6 @@
           />
         </el-form-item>
         
-        <el-form-item label="Contraseña" prop="password">
-          <el-input
-            v-model="registerForm.password"
-            type="password"
-            placeholder="Ingresa tu contraseña"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-        
-        <el-form-item label="Confirmar" prop="confirmPassword">
-          <el-input
-            v-model="registerForm.confirmPassword"
-            type="password"
-            placeholder="Confirma tu contraseña"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-        
         <el-form-item>
           <el-button
             type="primary"
@@ -71,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { User, Lock, Message } from '@element-plus/icons-vue'
+import { User, Message } from '@element-plus/icons-vue'
 import { useRegister } from '../composables/useRegister'
 
 const {

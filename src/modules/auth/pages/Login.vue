@@ -23,17 +23,6 @@
           />
         </el-form-item>
         
-        <el-form-item label="Contraseña" prop="password">
-          <el-input
-            data-test="input:password"
-            v-model="loginForm.password"
-            type="password"
-            placeholder="Ingresa tu contraseña"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-        
         <el-form-item>
           <el-button
             data-test="button:login-submit"
@@ -55,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { User, Lock } from '@element-plus/icons-vue'
+import { User } from '@element-plus/icons-vue'
 import { useLogin } from '../composables/useLogin'
 
 const {
