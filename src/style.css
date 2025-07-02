@@ -1,16 +1,104 @@
+/* Estilos globales adicionales para el tema Crunchyroll */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Variables CSS de Element Plus para el tema Crunchyroll */
+  --el-color-primary: #f47521;
+  --el-color-primary-light-3: #ff8c42;
+  --el-color-primary-light-5: #ffa366;
+  --el-color-primary-light-7: #ffb380;
+  --el-color-primary-light-8: #ffc299;
+  --el-color-primary-light-9: #ffe6d1;
+  --el-color-primary-dark-2: #d65a1a;
+  
+  --el-color-success: #67c23a;
+  --el-color-warning: #e6a23c;
+  --el-color-danger: #f56c6c;
+  --el-color-error: #f56c6c;
+  --el-color-info: #909399;
+  
+  /* Variables de fondo */
+  --el-bg-color: #1a1a1a;
+  --el-bg-color-page: #000000;
+  --el-bg-color-overlay: #2a2a2a;
+  
+  /* Variables de texto */
+  --el-text-color-primary: #ffffff;
+  --el-text-color-regular: #cccccc;
+  --el-text-color-secondary: #999999;
+  --el-text-color-placeholder: #666666;
+  --el-text-color-disabled: #666666;
+  
+  /* Variables de borde */
+  --el-border-color: #333333;
+  --el-border-color-light: #444444;
+  --el-border-color-lighter: #555555;
+  --el-border-color-extra-light: #666666;
+  
+  /* Variables de sombra */
+  --el-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --el-box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --el-box-shadow-dark: 0 8px 24px rgba(0, 0, 0, 0.5);
+  
+  /* Variables de radio de borde */
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+  --el-border-radius-circle: 100%;
+  
+  /* Variables de transición */
+  --el-transition-duration: 0.3s;
+  --el-transition-duration-fast: 0.2s;
+  
+  /* Variables específicas de componentes */
+  --el-button-hover-bg-color: #d65a1a;
+  --el-button-active-bg-color: #d65a1a;
+  --el-button-disabled-bg-color: #333333;
+  --el-button-disabled-text-color: #666666;
+  
+  --el-input-bg-color: #2a2a2a;
+  --el-input-border-color: #333333;
+  --el-input-hover-border-color: #f47521;
+  --el-input-focus-border-color: #f47521;
+  
+  --el-pagination-bg-color: transparent;
+  --el-pagination-text-color: #ffffff;
+  --el-pagination-button-color: #ffffff;
+  --el-pagination-button-bg-color: #1a1a1a;
+  --el-pagination-button-disabled-color: #666666;
+  --el-pagination-button-disabled-bg-color: #0a0a0a;
+  --el-pagination-hover-color: #ffffff;
+  --el-pagination-hover-bg-color: #f47521;
+  --el-pagination-active-bg-color: #f47521;
+  --el-pagination-active-color: #ffffff;
+  
+  --el-dropdown-menu-bg-color: #2a2a2a;
+  --el-dropdown-menu-item-color: #cccccc;
+  --el-dropdown-menu-item-hover-bg-color: #333333;
+  --el-dropdown-menu-item-hover-color: #f47521;
+  
+  --el-card-bg-color: #1a1a1a;
+  --el-card-border-color: #333333;
+  
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: #cccccc;
+  --el-menu-hover-bg-color: transparent;
+  --el-menu-hover-text-color: #f47521;
+  --el-menu-active-color: #f47521;
+  
+  --el-avatar-bg-color: #2a2a2a;
+  --el-avatar-text-color: #ffffff;
 }
 
 a {
@@ -18,6 +106,7 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -30,9 +119,11 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Mejoras en la tipografía */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 button {
@@ -46,9 +137,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -60,9 +153,227 @@ button:focus-visible {
 
 #app {
   max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
+}
+
+/* Mejoras en los botones de Element Plus */
+.el-button {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Mejoras en los inputs */
+.el-input__inner {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Mejoras en el menú */
+.el-menu-item {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+}
+
+/* Efectos de hover mejorados */
+.el-button:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Mejoras en las tarjetas */
+.el-card {
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--border-color);
+  background: var(--background-card);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Mejoras en los dropdowns */
+.el-dropdown-menu {
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.el-dropdown-menu__item {
+  color: var(--text-secondary);
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+}
+
+.el-dropdown-menu__item:hover {
+  background: var(--background-hover);
+  color: var(--primary-color);
+}
+
+/* Mejoras en los avatares */
+.el-avatar {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+}
+
+/* Animaciones suaves */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Scrollbar personalizada mejorada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+  border: 2px solid var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Mejoras en el focus */
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Estilos específicos para la paginación de Element Plus */
+.el-pagination {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  margin: 2rem 0;
+}
+
+/* Forzar colores para todos los botones de paginación */
+.el-pagination .el-pager li,
+.el-pagination .btn-prev,
+.el-pagination .btn-next {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+  border-radius: 8px !important;
+  margin: 0 4px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  text-align: center !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+
+/* Hover para todos los botones */
+.el-pagination .el-pager li:hover,
+.el-pagination .btn-prev:hover,
+.el-pagination .btn-next:hover {
+  background-color: #f47521 !important;
+  color: #ffffff !important;
+  border-color: #f47521 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Estado activo */
+.el-pagination .el-pager li.is-active {
+  background-color: #f47521 !important;
+  color: #ffffff !important;
+  border-color: #f47521 !important;
+  box-shadow: 0 2px 8px rgba(244, 117, 33, 0.3) !important;
+}
+
+/* Estado deshabilitado */
+.el-pagination .el-pager li.is-disabled,
+.el-pagination .btn-prev.is-disabled,
+.el-pagination .btn-next.is-disabled {
+  background-color: #0a0a0a !important;
+  color: #666666 !important;
+  border-color: #333333 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* Botón "more" (puntos suspensivos) */
+.el-pagination .el-pager .more {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+/* Texto de total y jumper */
+.el-pagination .el-pagination__total,
+.el-pagination .el-pagination__jump {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.el-pagination .el-pagination__total {
+  margin-right: 1rem !important;
+}
+
+/* Input del jumper */
+.el-pagination .el-pagination__jump .el-input__inner {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  width: 50px !important;
+  text-align: center !important;
+}
+
+.el-pagination .el-pagination__jump .el-input__inner:focus {
+  border-color: #f47521 !important;
+  box-shadow: 0 0 0 2px rgba(244, 117, 33, 0.2) !important;
+}
+
+/* Estilos adicionales para asegurar que no haya conflictos */
+.el-pagination * {
+  box-sizing: border-box !important;
+}
+
+.el-pagination .el-pager li,
+.el-pagination .btn-prev,
+.el-pagination .btn-next {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+/* Eliminar cualquier estilo de fondo que pueda venir por defecto */
+.el-pagination .el-pager li:not(.is-active):not(:hover),
+.el-pagination .btn-prev:not(:hover):not(.is-disabled),
+.el-pagination .btn-next:not(:hover):not(.is-disabled) {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+/* Mejoras en la accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Responsive - Mobile First */
+@media (min-width: 768px) {
+  #app {
+    padding: 2rem;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -70,9 +381,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+  
   a:hover {
     color: #747bff;
   }
+  
   button {
     background-color: #f9f9f9;
   }

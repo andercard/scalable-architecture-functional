@@ -1,11 +1,11 @@
 // Archivo de rutas principal
-import { RouteRecordRaw } from 'vue-router'
-import booksRoutes from '../modules/books/routes'
-import userRoutes from '../modules/user/routes'
+import type { RouteRecordRaw } from 'vue-router'
+import { animeRoutes } from '@modules/anime/routes/index'
+import { authRoutes } from '@modules/auth/routes/index'
 
 const routes: RouteRecordRaw[] = [
-  ...booksRoutes,
-  ...userRoutes,
+  ...animeRoutes,
+  ...authRoutes,
 ]
 
 export default routes 

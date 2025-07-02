@@ -1,0 +1,66 @@
+<template>
+  <div class="anime-favorites">
+    <h1>Mis Favoritos</h1>
+    <div v-if="isLoading" class="loading">
+      <p>Cargando favoritos...</p>
+    </div>
+    <div v-else-if="error" class="error">
+      <p>{{ error }}</p>
+    </div>
+    <div v-else-if="favorites.length === 0" class="empty">
+      <p>No tienes animes favoritos aún.</p>
+      <router-link to="/" class="browse-link">
+        Explorar animes
+      </router-link>
+    </div>
+    <div v-else class="favorites-grid">
+      <div 
+        v-for="anime in favorites" 
+        :key="anime.mal_id" 
+        class="favorite-item"
+      >
+        <AnimeCard
+          :anime="anime"
+          @click="goToDetail(anime.mal_id)"
+        />
+        <el-button
+          type="danger"
+          size="small"
+          @click="removeFromFavorites(anime.mal_id)"
+          class="remove-btn"
+        >
+          <el-icon><Delete /></el-icon>
+          Eliminar
+        </el-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useAnimeFavorites } from '../composables/useAnimeFavorites'
+import AnimeCard from '../components/AnimeCard.vue'
+import { Delete } from '@element-plus/icons-vue'
+import type { AnimeFavoritesProps } from '../types'
+
+const props = withDefaults(defineProps<AnimeFavoritesProps>(), {
+  // Props por defecto si las hay
+})
+
+const emit = defineEmits<{
+  'favorite-removed': [animeId: number]
+  'favorite-added': [animeId: number]
+}>()
+
+const {
+  favorites,
+  isLoading,
+  error,
+  goToDetail,
+  removeFromFavorites
+} = useAnimeFavorites(props, emit)
+</script>
+
+<style scoped>
+@import '../styles/AnimeFavorites.styles.scss';
+</style> 

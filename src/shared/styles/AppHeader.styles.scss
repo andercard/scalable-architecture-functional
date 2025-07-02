@@ -1,0 +1,115 @@
+.app-header {
+  background: #000000;
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--header-height);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.header-left .logo {
+  text-decoration: none;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.header-left .logo h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  letter-spacing: -0.5px;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  
+  .el-button {
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    padding: var(--spacing-xs) var(--spacing-md);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    &.el-button--primary {
+      background: var(--primary-color);
+      border: none;
+      color: var(--text-primary);
+      
+      &:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(244, 117, 33, 0.3);
+      }
+    }
+    
+    &.el-button--default {
+      background: transparent;
+      border: 2px solid var(--text-secondary);
+      color: var(--text-secondary);
+      
+      &:hover {
+        background: var(--text-secondary);
+        color: var(--background-dark);
+        border-color: var(--text-secondary);
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+.el-dropdown {
+  cursor: pointer;
+  
+  .el-avatar {
+    border: 2px solid var(--primary-color);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(244, 117, 33, 0.3);
+    }
+  }
+}
+
+/* Responsive - Mobile First */
+@media (min-width: 768px) {
+  .header-content {
+    padding: 0 var(--spacing-lg);
+  }
+  
+  .header-left .logo h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header-right {
+    gap: var(--spacing-md);
+    
+    .el-button {
+      font-size: 13px;
+      padding: var(--spacing-sm) var(--spacing-lg);
+    }
+  }
+}
+
+ 

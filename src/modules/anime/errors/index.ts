@@ -1,0 +1,1 @@
+export { ErrorAnime } from './anime.errors' 
