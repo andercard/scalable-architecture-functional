@@ -130,18 +130,18 @@
             <div v-if="characters.length > 0" class="characters-grid">
               <div 
                 v-for="character in characters" 
-                :key="character.mal_id"
+                :key="character.character.mal_id"
                 class="character-card"
               >
                 <div class="character-image">
                   <img 
-                    :src="character.images?.jpg?.image_url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDE1MCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMjAwIiBmaWxsPSIjOGI1Y2Y2Ii8+Cjx0ZXh0IHg9Ijc1IiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+'" 
-                    :alt="character.name"
+                    :src="character.character.images?.jpg?.image_url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDE1MCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMjAwIiBmaWxsPSIjOGI1Y2Y2Ii8+Cjx0ZXh0IHg9Ijc1IiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+'" 
+                    :alt="character.character.name"
                     @error="handleImageError"
                   />
                 </div>
                 <div class="character-info">
-                  <h3 class="character-name">{{ character.name }}</h3>
+                  <h3 class="character-name">{{ character.character.name }}</h3>
                   <p class="character-role">{{ character.role }}</p>
                   <p v-if="character.voice_actors.length" class="character-voice">
                     Voz: {{ character.voice_actors[0].person.name }}
@@ -151,6 +151,7 @@
             </div>
             <div v-else class="characters-empty">
               <p>No hay información de personajes disponible.</p>
+              <p v-if="charactersError">Error: {{ charactersError }}</p>
             </div>
           </section>
 
@@ -193,6 +194,7 @@ const {
   ratingStars,
   heroStyle,
   characters,
+  charactersError,
   toggleFavorite,
   retry,
   formatNumber,

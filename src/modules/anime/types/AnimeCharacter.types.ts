@@ -1,11 +1,13 @@
 export interface AnimeCharacter {
-  mal_id: number
-  url: string
-  images: {
-    jpg: { image_url: string }
-    webp?: { image_url: string }
+  character: {
+    mal_id: number
+    url: string
+    images: {
+      jpg: { image_url: string }
+      webp?: { image_url: string }
+    }
+    name: string
   }
-  name: string
   role: string
   voice_actors: {
     person: {
