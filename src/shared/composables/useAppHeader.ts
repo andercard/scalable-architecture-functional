@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { useAuthStore } from '@modules/auth/stores/authStore'
+import { useAuthStore } from '@modules/auth/stores/auth.store'
 
 export const useAppHeader = () => {
   const router = useRouter()

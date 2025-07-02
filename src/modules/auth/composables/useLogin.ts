@@ -1,7 +1,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '../stores/authStore'
+import { useAuthStore } from '../stores/auth.store'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { LoginForm } from '../types/Login.types'
 

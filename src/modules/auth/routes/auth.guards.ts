@@ -1,5 +1,5 @@
 import type { RouteLocationNormalized, RouteLocationRaw } from 'vue-router'
-import { useAuthStore } from '../stores/authStore'
+import { useAuthStore } from '../stores/auth.store'
 import { ElMessage } from 'element-plus'
 
 // Tipo para los guards

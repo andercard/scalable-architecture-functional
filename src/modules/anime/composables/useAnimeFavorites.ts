@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAnimeStore } from '../stores/animeStore'
+import { useAnimeStore } from '../stores/anime.store'
 import type { AnimeFavoritesProps, AnimeFavoritesEmits, Anime } from '../types'
 
 export const useAnimeFavorites = (

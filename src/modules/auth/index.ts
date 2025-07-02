@@ -1,5 +1,5 @@
 // Exportar stores
-export { useAuthStore } from './stores/authStore'
+export { useAuthStore } from './stores/auth.store'
 
 // Exportar tipos
 export type { User, LoginCredentials, RegisterCredentials, AuthState, AuthResponse } from './types/index'

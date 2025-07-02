@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, watch } from 'vue'
-import { useAnimeStore } from '../stores/animeStore'
+import { useAnimeStore } from '../stores/anime.store'
 import { useDebounceFn } from '@vueuse/core'
 
 export const useAnimeList = () => {

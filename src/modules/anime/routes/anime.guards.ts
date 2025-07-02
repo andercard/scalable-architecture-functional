@@ -1,5 +1,5 @@
 import type { RouteLocationNormalized, RouteLocationRaw } from 'vue-router'
-import { useAnimeStore } from '../stores/animeStore'
+import { useAnimeStore } from '../stores/anime.store'
 import { ElMessage } from 'element-plus'
 
 // Tipo para los guards
