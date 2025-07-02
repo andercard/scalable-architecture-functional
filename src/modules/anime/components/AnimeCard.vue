@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { useAnimeCard } from '../composables/useAnimeCard'
-import BaseCard from '@shared/components/BaseCard.vue'
+import BaseCard from '@shared/common/components/BaseCard.vue'
 import type { AnimeCardProps, AnimeCardEmits } from '../types/AnimeCard.types'
 
 const props = withDefaults(defineProps<AnimeCardProps>(), {

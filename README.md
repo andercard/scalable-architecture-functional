@@ -15,38 +15,82 @@ Una aplicación web moderna para explorar animes de Attack on Titan y Jujutsu Ka
 
 ## 🏗️ Arquitectura del Proyecto
 
+Este proyecto sigue una arquitectura modular inspirada en los lineamientos de frontend B2B, separando claramente la infraestructura, los módulos de negocio y los recursos compartidos.
+
+### Estructura principal
+
 ```
 src/
-├── core/                  # Fundamentos de la arquitectura
-│   ├── api/              # Configuración de API y interceptors
-│   └── either/           # Patrón Either para manejo de errores
-├── shared/               # Recursos compartidos
-│   ├── components/       # Componentes reutilizables
-│   ├── composables/      # Composables globales
-│   ├── errors/           # Manejo de errores global
-│   ├── types/            # Tipos TypeScript globales
-│   └── utils/            # Utilidades globales
-├── modules/              # Módulos de la aplicación
-│   ├── anime/            # Módulo de anime
-│   │   ├── components/   # Componentes específicos del módulo
-│   │   ├── composables/  # Composables del módulo
-│   │   ├── errors/       # Errores específicos del módulo
-│   │   ├── pages/        # Páginas del módulo
-│   │   ├── routes/       # Rutas del módulo
-│   │   ├── services/     # Servicios y APIs
-│   │   ├── stores/       # Stores de Pinia
-│   │   ├── styles/       # Estilos del módulo
-│   │   └── types/        # Tipos específicos del módulo
-│   └── auth/             # Módulo de autenticación
-│       ├── composables/  # Composables de auth
-│       ├── pages/        # Páginas de auth
-│       ├── routes/       # Rutas de auth
-│       ├── stores/       # Stores de auth
-│       ├── styles/       # Estilos de auth
-│       └── types/        # Tipos de auth
-├── router/               # Configuración de rutas
-└── main.ts              # Punto de entrada
+├── core/      # Infraestructura técnica y servicios base
+├── modules/   # Módulos de negocio o features
+├── shared/    # Recursos y utilidades compartidas
 ```
+
+---
+
+## ¿Qué va en cada carpeta?
+
+### 1. `core/`
+Infraestructura fundamental de la aplicación. Aquí se ubican:
+- **API**: Configuración de instancias, interceptores, servicios base.
+- **Router**: Definición de rutas, guards globales.
+- **Either**: Utilidades de manejo de errores y resultados.
+- **Otros servicios base**: Cualquier recurso técnico que no dependa de un dominio de negocio.
+
+> **Ejemplo:**
+> - `core/api/`
+> - `core/router/`
+> - `core/either/`
+
+### 2. `modules/`
+Cada módulo representa una feature o dominio de negocio. Aquí se ubican:
+- **Páginas**: Vistas principales de la feature.
+- **Componentes**: Componentes específicos del dominio.
+- **Composables**: Lógica reutilizable dentro del módulo.
+- **Stores**: Estado y lógica de negocio del módulo.
+- **Servicios**: Llamadas a API específicas del dominio.
+- **Tipos**: Tipos y contratos del dominio.
+- **Estilos**: Estilos propios del módulo.
+
+> **Ejemplo:**
+> - `modules/anime/`
+> - `modules/auth/`
+
+### 3. `shared/`
+Contenedor de recursos reutilizables en toda la aplicación, organizados por responsabilidad:
+- **common/**: Componentes, utilidades y tipos genéricos (ej: BaseCard, formateadores, logger, errores comunes).
+- **layout/**: Componentes y lógica de estructura global de la app (ej: AppHeader, navegación principal).
+
+> **Ejemplo:**
+> - `shared/common/components/BaseCard.vue`
+> - `shared/layout/components/AppHeader.vue`
+
+---
+
+## Principios
+- **Separación de responsabilidades**: Cada carpeta tiene un propósito claro.
+- **Escalabilidad**: Permite agregar nuevos módulos y recursos compartidos fácilmente.
+- **Reutilización**: Los recursos en `shared/` pueden ser usados por cualquier módulo.
+- **Mantenibilidad**: Cambios en infraestructura, negocio o recursos compartidos no se mezclan.
+
+---
+
+## Ejemplo de importaciones
+
+```ts
+// Importar un componente de layout global
+import { AppHeader } from '@shared/layout'
+
+// Importar un componente común
+import { BaseCard } from '@shared/common'
+
+// Importar un store de un módulo
+import { useAnimeStore } from '@modules/anime/stores/anime.store'
+```
+
+---
+
+¿Dudas sobre la arquitectura? Consulta el archivo `src/shared/README.md` para más detalles sobre los recursos compartidos.
 
 ## 🚀 Tecnologías Utilizadas
 

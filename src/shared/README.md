@@ -1,52 +1,108 @@
-# Shared
+# Shared Module
 
-Este directorio contiene componentes, utilidades y composables reutilizables en toda la aplicación.
+Contenedor de elementos compartidos en toda la aplicación, organizados por responsabilidad.
 
 ## Estructura
 
 ```
-src/shared/
-├── components/        # Componentes UI reutilizables
-│   ├── AppHeader.vue  # Header principal de la aplicación
-│   └── BaseCard.vue   # Componente base para tarjetas
-├── composables/       # Composables Vue reutilizables
-│   ├── useAppHeader.ts # Lógica del header
-│   └── useBaseCard.ts  # Lógica de tarjetas base
-├── errors/            # Manejo de errores global
-│   ├── getReasonMessage.ts # Mapeo de errores por reason
-│   └── index.ts       # Exports de errores
-├── styles/            # Estilos compartidos
-│   ├── AppHeader.styles.scss
-│   └── BaseCard.styles.scss
-├── types/             # Tipos TypeScript globales
-│   ├── AppHeader.types.ts
-│   ├── shared.types.ts
+shared/
+├── common/              # Componentes y utilidades genéricas
+│   ├── components/
+│   │   └── BaseCard.vue
+│   ├── composables/
+│   │   └── useBaseCard.ts
+│   ├── types.ts
+│   ├── errors.ts
+│   ├── utils/
+│   │   ├── format.ts
+│   │   └── logger.ts
+│   ├── styles/
+│   │   └── BaseCard.styles.scss
 │   └── index.ts
-├── utils/             # Utilidades globales
-│   ├── format.ts      # Funciones de formateo
-│   └── logger.ts      # Sistema de logging
-└── README.md          # Esta documentación
+├── layout/              # Componentes de estructura de la aplicación
+│   ├── components/
+│   │   └── AppHeader.vue
+│   ├── composables/
+│   │   └── useAppHeader.ts
+│   ├── types/
+│   │   ├── AppHeader.types.ts
+│   │   └── index.ts
+│   ├── styles/
+│   │   ├── AppHeader.styles.scss
+│   │   └── index.scss
+│   ├── index.ts
+│   └── README.md
+└── index.ts
 ```
-
-## Propósito
-
-El directorio `shared` contiene recursos que:
-
-- **No pertenecen a un dominio específico**: Componentes y utilidades genéricas
-- **Se reutilizan en múltiples módulos**: Header, tarjetas base, formateo
-- **Proporcionan funcionalidad cross-cutting**: Logging, manejo de errores
 
 ## Uso
 
+### Importar desde common
 ```typescript
-// Importar componentes
-import BaseCard from '@shared/components/BaseCard.vue'
-import AppHeader from '@shared/components/AppHeader.vue'
+import { BaseCard, useBaseCard, formatDate } from '@shared/common'
+```
 
-// Importar utilidades
-import { formatDate, truncateText } from '@shared/utils/format'
-import { logger } from '@shared/utils/logger'
+### Importar desde layout
+```typescript
+import { AppHeader, useAppHeader } from '@shared/layout'
+```
 
-// Importar tipos
-import type { BaseCardProps } from '@shared/types'
-``` 
+### Importar todo
+```typescript
+import { BaseCard, AppHeader, formatDate } from '@shared'
+```
+
+## Submódulos
+
+### Common
+Componentes y utilidades genéricas reutilizables:
+- **BaseCard**: Card base reutilizable
+- **formatDate**: Utilidades de formateo
+- **logger**: Sistema de logging
+- **Tipos comunes**: BaseEntity, PaginatedResponse, etc.
+
+### Layout
+Componentes de estructura de la aplicación:
+- **AppHeader**: Header principal con navegación
+- **useAppHeader**: Lógica del header
+
+## Principios de Organización
+
+1. **Separación por responsabilidad**: Common vs Layout
+2. **Reutilización**: Common para elementos genéricos
+3. **Estructura**: Layout para componentes estructurales
+4. **Escalabilidad**: Fácil agregar nuevos submódulos
+
+## Componentes
+
+### AppHeader
+Header principal de la aplicación con navegación y funcionalidades de usuario.
+
+### BaseCard
+Card base reutilizable para mostrar contenido en diferentes partes de la aplicación.
+
+## Composable
+
+### useAppHeader
+Composable que maneja la lógica del header, incluyendo navegación y estado del usuario.
+
+### useBaseCard
+Composable que maneja la lógica de las cards base.
+
+## Tipos
+
+### AppHeaderProps
+Propiedades del componente AppHeader.
+
+### BaseEntity
+Interfaz base para entidades con id.
+
+### PaginatedResponse
+Interfaz para respuestas paginadas de la API.
+
+### LoadingState
+Estado de carga para componentes.
+
+## Estilos
+
+Los estilos están organizados por módulo y se importan automáticamente al usar los componentes. 

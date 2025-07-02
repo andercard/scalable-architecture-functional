@@ -1,10 +1,24 @@
-import type { BaseEntity, PaginatedResponse } from '@shared/types'
+import type { BaseEntity, PaginatedResponse } from '@shared/common/types'
 
 // Re-exportar tipos específicos de páginas
 export type { AnimeFavoritesProps, AnimeFavoritesEmits } from './AnimeFavorites.types'
 
 // Tipos específicos del módulo de anime
 export interface Anime extends BaseEntity {
+  mal_id: number
+  title: string
+  images: {
+    jpg: {
+      image_url: string
+      small_image_url: string
+      large_image_url: string
+    }
+    webp?: {
+      image_url: string
+      small_image_url: string
+      large_image_url: string
+    }
+  }
   type: string
   source: string
   episodes: number | null

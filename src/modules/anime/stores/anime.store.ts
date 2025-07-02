@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { animeApi } from '../services/anime.services'
 import type { Anime, AnimeSearchParams } from '../types'
-import type { LoadingState } from '@shared/types'
-import { getReasonMessage } from '@shared/errors'
+import type { LoadingState } from '@shared/common/types'
+import { getReasonMessage } from '@shared/common/getReasonMessage'
 import { ErrorAnime } from '../errors'
 
 /**
