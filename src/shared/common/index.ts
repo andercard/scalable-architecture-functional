@@ -8,7 +8,18 @@ export { useBaseCard } from './composables/useBaseCard'
 
 // Utilidades
 export { formatDate, truncateText } from './utils/format'
-export { logger } from './utils/logger'
+export { 
+  logger,
+  debug,
+  info,
+  warn,
+  error,
+  apiRequest,
+  apiResponse,
+  apiError,
+  userAction,
+  componentLifecycle
+} from './utils/logger'
 
 // Errores
 export { getReasonMessage } from './getReasonMessage'
