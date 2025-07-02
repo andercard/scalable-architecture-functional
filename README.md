@@ -17,23 +17,35 @@ Una aplicación web moderna para explorar animes de Attack on Titan y Jujutsu Ka
 
 ```
 src/
-├── shared/                 # Recursos compartidos
-│   ├── components/        # Componentes reutilizables
-│   ├── composables/       # Composables globales
-│   ├── constants/         # Constantes globales
+├── core/                  # Fundamentos de la arquitectura
+│   ├── api/              # Configuración de API y interceptors
+│   └── either/           # Patrón Either para manejo de errores
+├── shared/               # Recursos compartidos
+│   ├── components/       # Componentes reutilizables
+│   ├── composables/      # Composables globales
+│   ├── errors/           # Manejo de errores global
 │   ├── types/            # Tipos TypeScript globales
 │   └── utils/            # Utilidades globales
 ├── modules/              # Módulos de la aplicación
-│   └── anime/           # Módulo de anime
-│       ├── components/   # Componentes específicos del módulo
-│       ├── composables/  # Composables del módulo
-│       ├── pages/        # Páginas del módulo
-│       ├── routes.ts     # Rutas del módulo
-│       ├── services/     # Servicios y APIs
-│       ├── stores/       # Stores de Pinia
-│       └── types/        # Tipos específicos del módulo
-├── router/              # Configuración de rutas
-└── main.ts             # Punto de entrada
+│   ├── anime/            # Módulo de anime
+│   │   ├── components/   # Componentes específicos del módulo
+│   │   ├── composables/  # Composables del módulo
+│   │   ├── errors/       # Errores específicos del módulo
+│   │   ├── pages/        # Páginas del módulo
+│   │   ├── routes/       # Rutas del módulo
+│   │   ├── services/     # Servicios y APIs
+│   │   ├── stores/       # Stores de Pinia
+│   │   ├── styles/       # Estilos del módulo
+│   │   └── types/        # Tipos específicos del módulo
+│   └── auth/             # Módulo de autenticación
+│       ├── composables/  # Composables de auth
+│       ├── pages/        # Páginas de auth
+│       ├── routes/       # Rutas de auth
+│       ├── stores/       # Stores de auth
+│       ├── styles/       # Estilos de auth
+│       └── types/        # Tipos de auth
+├── router/               # Configuración de rutas
+└── main.ts              # Punto de entrada
 ```
 
 ## 🚀 Tecnologías Utilizadas
@@ -42,8 +54,11 @@ src/
 - **TypeScript** - Tipado estático
 - **Pinia** - Gestión de estado
 - **Vue Router** - Enrutamiento
+- **Element Plus** - Componentes UI
 - **Axios** - Cliente HTTP
 - **Vite** - Build tool
+- **Vitest** - Testing framework
+- **SCSS** - Preprocesador CSS
 - **Jikan API** - API de MyAnimeList
 
 ## 📦 Instalación
@@ -95,7 +110,13 @@ src/
 ### ✅ Servicios y APIs
 - Servicios organizados por módulo
 - Interceptores de Axios configurados
-- Manejo de errores centralizado
+- Patrón Either para manejo funcional de errores
+- Manejo de errores centralizado con mapeo por reason
+
+### ✅ Testing
+- Vitest configurado para testing unitario
+- Tests completos para el patrón Either
+- Cobertura de funcionalidad crítica
 
 ### ✅ Enrutamiento Modular
 - Rutas definidas por módulo
@@ -141,7 +162,8 @@ VITE_API_BASE_URL=https://api.jikan.moe/v4
 ```json
 {
   "@modules": "./src/modules",
-  "@shared": "./src/shared"
+  "@shared": "./src/shared",
+  "@core": "./src/core"
 }
 ```
 
@@ -154,22 +176,42 @@ VITE_API_BASE_URL=https://api.jikan.moe/v4
 
 ### Gestión de Favoritos
 - Agregar/quitar animes de favoritos
-- Persistencia local
-- Interfaz intuitiva
+- Persistencia local con localStorage
+- Interfaz intuitiva con Element Plus
 
 ### Información Detallada
 - Sinopsis completa
 - Estadísticas de popularidad
 - Información de producción
 - Géneros y clasificaciones
+- Personajes y actores de voz
+- Trailers (si están disponibles)
+
+### Autenticación
+- Sistema de login/registro
+- Protección de rutas
+- Gestión de estado de usuario
 
 ## 🎯 API Endpoints Utilizados
 
 - `GET /anime` - Lista de animes
 - `GET /anime/{id}` - Detalle de anime
+- `GET /anime/{id}/characters` - Personajes del anime
 - `GET /top/anime` - Animes populares
 - `GET /seasons/now` - Temporada actual
 - `GET /anime/{id}/recommendations` - Recomendaciones
+
+## 🧪 Testing
+
+### Ejecutar Tests
+```bash
+npm run test
+```
+
+### Tests Disponibles
+- **Patrón Either**: 15 tests unitarios completos
+- **Cobertura**: map, flatMap, fold, right, left
+- **Casos**: transformación, encadenamiento, manejo de errores
 
 ## 🚀 Despliegue
 

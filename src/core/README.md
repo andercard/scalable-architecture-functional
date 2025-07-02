@@ -6,10 +6,17 @@ Esta carpeta contiene los fundamentos de la arquitectura de la aplicación, inde
 
 ```
 src/core/
+├── api/              # Configuración de API y interceptors
+│   ├── index.ts      # Exports principales de API
+│   ├── instance.ts   # Instancia de Axios configurada
+│   ├── interceptors.request.ts  # Interceptores de request
+│   └── interceptors.response.ts # Interceptores de response
 ├── either/           # Patrón Either para manejo funcional de errores
 │   ├── types.ts      # Tipos del patrón Either
 │   ├── utils.ts      # Utilidades para manejo de Either
-│   └── index.ts      # Exports principales
+│   ├── index.ts      # Exports principales
+│   ├── index.spec.ts # Tests unitarios
+│   └── README.md     # Documentación detallada
 └── README.md         # Esta documentación
 ```
 
@@ -30,11 +37,15 @@ El `core` contiene:
 
 ```typescript
 // Importar desde el core
-import { Either, left, right, extractData } from '@core/either'
+import { Either, left, right } from '@core/either'
+import { ApiInstance } from '@core/api'
 
 // Usar en servicios
-const result: Either<Error, Data> = await service.getData()
-const data = extractData(result, handleError)
+const result: Either<ApiFailure, ApiSuccess<Data>> = await service.getData()
+result.fold(
+  (failure) => handleError(failure),
+  (success) => handleSuccess(success.data)
+)
 ```
 
 ## Principios
@@ -46,4 +57,10 @@ const data = extractData(result, handleError)
 
 ## Carpeta api
 
-Contiene la lógica centralizada para la creación de instancias de cliente HTTP, interceptores funcionales y guardianes de módulos. Permite desacoplar la infraestructura de red del resto de la aplicación y facilita el cambio de cliente HTTP o la extensión de lógica cross-module. 
+Contiene la lógica centralizada para la creación de instancias de cliente HTTP, interceptores funcionales y guardianes de módulos. Permite desacoplar la infraestructura de red del resto de la aplicación y facilita el cambio de cliente HTTP o la extensión de lógica cross-module.
+
+### Características
+- Instancia de Axios configurada con interceptors
+- Manejo automático de errores con patrón Either
+- Logging centralizado de requests y responses
+- Configuración de base URL y headers 
