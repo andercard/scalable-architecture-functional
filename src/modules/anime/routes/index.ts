@@ -1,7 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { animePublicRoutes } from './public'
-import { animePrivateRoutes } from './private'
+import { animePublicRoutes } from './routes.public'
+import { animePrivateRoutes } from './routes.private'
 
+/**
+ * Rutas del módulo anime
+ * Combina rutas públicas y privadas
+ */
 export const animeRoutes: RouteRecordRaw[] = [
   ...animePublicRoutes,
   ...animePrivateRoutes
@@ -10,5 +14,5 @@ export const animeRoutes: RouteRecordRaw[] = [
 // Exportaciones individuales para casos específicos
 export { animePublicRoutes, animePrivateRoutes }
 
-// Exportación por defecto para compatibilidad
-export default animeRoutes 
+// Re-exportar guards para uso en otros módulos
+export * from './anime.guards' 

@@ -1,3 +1,4 @@
+// @ts-ignore
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import { requestInterceptor, requestErrorInterceptor } from './interceptors.request'
@@ -5,6 +6,7 @@ import { responseInterceptor, responseErrorInterceptor } from './interceptors.re
 
 export type HttpClient = AxiosInstance
 
+// @ts-ignore
 export const ApiInstance = axios.create({
   baseURL: 'https://api.jikan.moe/v4',
   headers: {

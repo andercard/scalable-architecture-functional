@@ -24,7 +24,9 @@ export const useAnimeDetail = () => {
   )
 
   const heroStyle = computed(() => ({
-    backgroundImage: `url(${anime.value?.images.jpg.large_image_url})`
+    backgroundImage: anime.value?.images?.jpg?.large_image_url 
+      ? `url(${anime.value.images.jpg.large_image_url})`
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   }))
 
   const loadCharacters = async (animeId: number) => {
@@ -45,7 +47,8 @@ export const useAnimeDetail = () => {
 
   const handleImageError = (event: Event) => {
     const img = event.target as HTMLImageElement
-    img.src = 'https://via.placeholder.com/150x200/8b5cf6/ffffff?text=No+Image'
+    // Usar una imagen base64 como fallback
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDE1MCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMjAwIiBmaWxsPSIjOGI1Y2Y2Ii8+Cjx0ZXh0IHg9Ijc1IiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+'
   }
 
   const toggleFavorite = () => {

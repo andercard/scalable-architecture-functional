@@ -14,7 +14,9 @@ src/modules/auth/
 │   └── Register.vue    # Página de registro
 ├── routes/             # Configuración de rutas
 │   ├── index.ts        # Exports de rutas
-│   └── public.ts       # Rutas públicas de auth
+│   ├── routes.private.ts # Rutas protegidas
+│   ├── routes.public.ts  # Rutas públicas
+│   └── auth.guards.ts  # Guards de autenticación
 ├── stores/             # Stores de Pinia
 │   └── authStore.ts    # Store de autenticación
 ├── styles/             # Estilos del módulo
@@ -37,6 +39,7 @@ src/modules/auth/
 - **Gestión de Estado**: Persistencia de sesión
 - **Protección de Rutas**: Guards de navegación
 - **Logout**: Cierre de sesión seguro
+- **Guards Personalizados**: Rate limiting y validaciones
 
 ### 🏗️ Arquitectura
 - **Store Pinia**: Gestión centralizada del estado de usuario
@@ -92,6 +95,22 @@ const success = await authStore.login(credentials)
 authStore.logout()
 ```
 
+### Usar Guards de Autenticación
+```typescript
+import { 
+  authRateLimitGuard, 
+  authRegistrationGuard,
+  authRequiresAuthGuard,
+  authRequiresGuestGuard
+} from '@modules/auth/routes/auth.guards'
+
+// Guards específicos para diferentes casos
+// - authRequiresAuthGuard: Verifica que el usuario esté autenticado
+// - authRequiresGuestGuard: Verifica que el usuario NO esté autenticado
+// - authRateLimitGuard: Previene spam de intentos de login
+// - authRegistrationGuard: Valida registro de usuarios
+```
+
 ## Configuración de Rutas
 
 ### Rutas Públicas
@@ -115,24 +134,28 @@ const publicRoutes = [
 
 ### Protección de Rutas
 ```typescript
-// En router/guards.ts
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  
-  // Ruta requiere autenticación
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-    return
+// Los guards se ejecutan automáticamente desde el core
+// Para rutas que requieren autenticación:
+{
+  path: '/protected',
+  name: 'Protected',
+  component: () => import('@modules/auth/pages/Protected.vue'),
+  meta: { 
+    requiresAuth: true,
+    guards: ['authRequiresAuthGuard']
   }
-  
-  // Ruta requiere ser invitado
-  if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'AnimeList' })
-    return
+}
+
+// Para rutas que requieren ser invitado:
+{
+  path: '/login',
+  name: 'Login',
+  component: () => import('@modules/auth/pages/Login.vue'),
+  meta: { 
+    requiresGuest: true,
+    guards: ['authRequiresGuestGuard', 'authRateLimitGuard']
   }
-  
-  next()
-})
+}
 ```
 
 ## Validación de Formularios
@@ -162,6 +185,55 @@ const validateConfirmPassword = (rule: any, value: string, callback: any) => {
     callback()
   }
 }
+```
+
+## Guards de Autenticación
+
+### Tipos de Guards Disponibles
+
+#### `authRequiresAuthGuard`
+- **Propósito**: Verifica que el usuario esté autenticado
+- **Uso**: Para rutas que requieren login
+- **Comportamiento**: Redirige a Login si no está autenticado
+
+#### `authRequiresGuestGuard`
+- **Propósito**: Verifica que el usuario NO esté autenticado
+- **Uso**: Para páginas de login/registro
+- **Comportamiento**: Redirige a AnimeList si ya está autenticado
+
+#### `authRateLimitGuard`
+- **Propósito**: Previene spam de intentos de login
+- **Uso**: En páginas de autenticación
+- **Comportamiento**: Bloquea después de 5 intentos en 1 minuto
+
+#### `authRegistrationGuard`
+- **Propósito**: Valida el proceso de registro
+- **Uso**: En páginas de registro
+- **Comportamiento**: Verifica que el usuario no esté ya registrado
+
+### Configuración en Rutas
+```typescript
+// Ejemplo de uso en routes.public.ts
+export const authPublicRoutes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../pages/Login.vue'),
+    meta: {
+      requiresGuest: true,
+      guards: ['authRequiresGuestGuard', 'authRateLimitGuard']
+    }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../pages/Register.vue'),
+    meta: {
+      requiresGuest: true,
+      guards: ['authRequiresGuestGuard', 'authRegistrationGuard']
+    }
+  }
+]
 ```
 
 ## Estado de Usuario

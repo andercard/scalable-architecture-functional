@@ -1,12 +1,18 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { authPublicRoutes } from './public'
+import { authPublicRoutes } from './routes.public'
+import { authPrivateRoutes } from './routes.private'
 
+/**
+ * Rutas del módulo auth
+ * Combina rutas públicas y privadas
+ */
 export const authRoutes: RouteRecordRaw[] = [
-  ...authPublicRoutes
+  ...authPublicRoutes,
+  ...authPrivateRoutes
 ]
 
-// Exportaciones individuales
-export { authPublicRoutes }
+// Exportaciones individuales para casos específicos
+export { authPublicRoutes, authPrivateRoutes }
 
-// Exportación por defecto
-export default authRoutes 
+// Re-exportar guards para uso en otros módulos
+export * from './auth.guards' 

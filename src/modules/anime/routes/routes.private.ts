@@ -1,5 +1,9 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+/**
+ * Rutas privadas del módulo anime
+ * Requieren autenticación
+ */
 export const animePrivateRoutes: RouteRecordRaw[] = [
   {
     path: '/anime/favorites',
@@ -7,7 +11,10 @@ export const animePrivateRoutes: RouteRecordRaw[] = [
     component: () => import('../pages/AnimeFavorites.vue'),
     meta: {
       requiresAuth: true,
-      title: 'Mis Favoritos'
+      title: 'Mis Favoritos',
+      description: 'Gestiona tus animes favoritos',
+      // Usar guards específicos para verificar favoritos
+      guards: ['animeFavoritesGuard']
     }
   }
 ] 

@@ -24,8 +24,9 @@ src/modules/anime/
 │   └── AnimeList.vue      # Página principal de listado
 ├── routes/             # Configuración de rutas
 │   ├── index.ts        # Exports de rutas
-│   ├── private.ts      # Rutas protegidas
-│   └── public.ts       # Rutas públicas
+│   ├── routes.private.ts # Rutas protegidas
+│   ├── routes.public.ts  # Rutas públicas
+│   └── example.guard.ts  # Guards personalizados
 ├── services/           # Servicios de API
 │   └── anime.services.ts # Servicios de anime con Either
 ├── stores/             # Stores de Pinia
@@ -55,6 +56,7 @@ src/modules/anime/
 - **Detalles Completos**: Información, personajes, trailers
 - **Sistema de Favoritos**: Persistencia local con localStorage
 - **Autenticación**: Protección de rutas y funcionalidades
+- **Guards Personalizados**: Control de acceso y validaciones
 
 ### 🏗️ Arquitectura
 - **Patrón Either**: Manejo funcional de errores
@@ -98,6 +100,21 @@ import { useAnimeStore } from '@modules/anime/stores/animeStore'
 
 const animeStore = useAnimeStore()
 await animeStore.loadAnimeList()
+```
+
+### Usar Guards Personalizados
+```typescript
+import { animeFavoritesGuard, createAnimeGuard } from '@modules/anime/routes'
+
+// Guard específico
+router.beforeEach(animeFavoritesGuard)
+
+// Guard con configuración
+const customGuard = createAnimeGuard({
+  requireAuth: true,
+  requireFavorites: true,
+  maxFavorites: 50
+})
 ```
 
 ## API Integration
