@@ -1,4 +1,3 @@
-// Este archivo será movido a src/modules/auth/sections/RegisterBasicSection/RegisterBasicSection.vue
 <template>
   <div class="register-section">
     <div class="section-header">
