@@ -1,5 +1,5 @@
 import { reactive, ref, computed } from 'vue'
-import type { RegisterForm, RegisterSection, RegisterFormProvider } from '../types/Register.types'
+import type { RegisterForm, RegisterSection, RegisterFormProvider } from '../pages/Register/Register.types'
 
 const initialForm: RegisterForm = {
   username: '',
@@ -31,18 +31,18 @@ const initialSections: RegisterSection[] = [
 
 export function useRegisterFormProvider(): RegisterFormProvider {
   const form = reactive({ ...initialForm })
-  const sections = reactive([...initialSections])
+  const sections = reactive<RegisterSection[]>([...initialSections])
   const currentSection = ref(0)
   const isLoading = ref(false)
 
-  const isFormValid = computed(() => sections.every(s => s.isValid))
+  const isFormValid = computed(() => sections.every((s: RegisterSection) => s.isValid))
 
   function updateField<K extends keyof RegisterForm>(field: K, value: RegisterForm[K]) {
     form[field] = value
   }
 
   function updateSection(sectionId: string, updates: Partial<RegisterSection>) {
-    const section = sections.find(s => s.id === sectionId)
+    const section = sections.find((s: RegisterSection) => s.id === sectionId)
     if (section) Object.assign(section, updates)
   }
 
@@ -60,7 +60,7 @@ export function useRegisterFormProvider(): RegisterFormProvider {
 
   function validateSection(sectionId: string) {
     // Aquí iría la lógica de validación real por sección
-    const section = sections.find(s => s.id === sectionId)
+    const section = sections.find((s: RegisterSection) => s.id === sectionId)
     if (section) section.isValid = true
     return !!section?.isValid
   }
