@@ -4,7 +4,7 @@ import { animeApi } from '../services/anime.services'
 import type { Anime, AnimeSearchParams } from '../types'
 import type { LoadingState } from '@shared/common/types'
 import { getReasonMessage } from '@shared/common/getReasonMessage'
-import { ErrorAnime } from '../errors'
+import { ErrorAnimeMessages } from '../errors'
 
 /**
  * Store de Pinia para el módulo de anime
@@ -73,8 +73,8 @@ export const useAnimeStore = defineStore('anime', () => {
     loadingState.value.isLoading = false
   }
 
-  const handleApiError = (failure: any) => {
-    const errorMessage = getReasonMessage(failure, ErrorAnime) || ErrorAnime.DEFAULT
+  const handleApiError = (failure: unknown) => {
+    const errorMessage = getReasonMessage(failure, ErrorAnimeMessages) || ErrorAnimeMessages.DEFAULT
     setError(errorMessage)
   }
 

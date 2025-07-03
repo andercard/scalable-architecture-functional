@@ -1,1 +1,1 @@
-export { ErrorAnime } from './anime.errors' 
+export { ErrorAnimeMessages } from './anime.errors' 

@@ -42,9 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeGrid } from '../composables/useAnimeGrid'
-import AnimeCard from './AnimeCard.vue'
-import type { AnimeGridProps, AnimeGridEmits } from '../types/AnimeGrid.types'
+import { useAnimeGrid } from './useAnimeGrid'
+import type { AnimeGridProps, AnimeGridEmits } from './animeGrid.types'
+import AnimeCard from '../AnimeCard/index.vue'
 
 const props = withDefaults(defineProps<AnimeGridProps>(), {
   loading: false,
@@ -65,5 +65,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/AnimeGrid.styles.scss';
+@import './AnimeGrid.styles.scss';
 </style> 

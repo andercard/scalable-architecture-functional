@@ -47,9 +47,9 @@
 import { User } from '@element-plus/icons-vue'
 import { useLogin } from './useLogin'
 
-const { loginForm, rules, isLoading, handleLogin } = useLogin()
+const { loginForm, loginFormRef, rules, isLoading, handleLogin } = useLogin()
 </script>
 
 <style scoped>
-@import '../styles/Login.styles.scss';
+@import './Login.styles.scss';
 </style> 

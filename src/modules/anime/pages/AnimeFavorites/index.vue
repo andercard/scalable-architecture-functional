@@ -38,19 +38,11 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeFavorites } from '../composables/useAnimeFavorites'
-import AnimeCard from '../components/AnimeCard.vue'
+import { useAnimeFavorites } from './useAnimeFavorites'
+import AnimeCard from '../../components/AnimeCard/index.vue'
 import { Delete } from '@element-plus/icons-vue'
-import type { AnimeFavoritesProps } from '../types'
 
-const props = withDefaults(defineProps<AnimeFavoritesProps>(), {
-  // Props por defecto si las hay
-})
-
-const emit = defineEmits<{
-  'favorite-removed': [animeId: number]
-  'favorite-added': [animeId: number]
-}>()
+const emit = defineEmits({})
 
 const {
   favorites,
@@ -58,9 +50,9 @@ const {
   error,
   goToDetail,
   removeFromFavorites
-} = useAnimeFavorites(props, emit)
+} = useAnimeFavorites(emit)
 </script>
 
 <style scoped>
-@import '../styles/AnimeFavorites.styles.scss';
+@import './AnimeFavorites.styles.scss';
 </style> 

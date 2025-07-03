@@ -1,11 +1,10 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAnimeStore } from '../stores/anime.store'
-import type { AnimeFavoritesProps, AnimeFavoritesEmits, Anime } from '../types'
+import { useAnimeStore } from '../../stores/anime.store'
+import type { Anime } from '../../types'
 
 export const useAnimeFavorites = (
-  _props: AnimeFavoritesProps,
-  _emit: <T extends keyof AnimeFavoritesEmits>(event: T, ...args: AnimeFavoritesEmits[T]) => void
+  emit: (event: string, ...args: unknown[]) => void
 ) => {
   const router = useRouter()
   const animeStore = useAnimeStore()

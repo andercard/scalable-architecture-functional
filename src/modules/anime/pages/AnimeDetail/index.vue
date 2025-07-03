@@ -85,12 +85,12 @@
               
               <div v-if="anime.producers.length" class="info-item">
                 <span class="info-label">Productores:</span>
-                <span class="info-value">{{ anime.producers.map(p => p.name).join(', ') }}</span>
+                <span class="info-value">{{ getProducerNames(anime.producers) }}</span>
               </div>
               
               <div v-if="anime.studios.length" class="info-item">
                 <span class="info-label">Estudios:</span>
-                <span class="info-value">{{ anime.studios.map(s => s.name).join(', ') }}</span>
+                <span class="info-value">{{ getStudioNames(anime.studios) }}</span>
               </div>
               
               <div v-if="anime.source" class="info-item">
@@ -184,7 +184,13 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeDetail } from '../composables/useAnimeDetail'
+import { useAnimeDetail } from './useAnimeDetail'
+
+const getProducerNames = (producers: { name: string }[]) =>
+  producers.map((p: { name: string }) => p.name).join(', ')
+
+const getStudioNames = (studios: { name: string }[]) =>
+  studios.map((s: { name: string }) => s.name).join(', ')
 
 const {
   anime,
@@ -204,5 +210,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/AnimeDetail.styles.scss';
+@import './AnimeDetail.styles.scss';
 </style> 

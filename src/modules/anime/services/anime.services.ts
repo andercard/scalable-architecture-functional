@@ -1,14 +1,15 @@
 import { ApiInstance as http } from '@core/api'
 import { executeRequest } from '@core/either'
 import type { 
-  AnimeListResponse, 
   AnimeDetailResponse, 
   AnimeSearchParams,
-  AnimeRecommendationsResponse,
   AnimeStats,
-  AnimeCharactersResponse
+  AnimeCharactersResponse,
+  Anime,
+  AnimeRecommendation
 } from '../types'
 import type { ApiResult } from '@core/either'
+import type { PaginatedResponse } from '@shared/common/types'
 
 /**
  * Cliente de API para el módulo de anime
@@ -20,9 +21,9 @@ export const animeApi = {
    * @param params - Parámetros de búsqueda y paginación
    * @returns Promise con Either que contiene la lista de animes o un error
    */
-  getAnimeList(params: AnimeSearchParams = {}): Promise<ApiResult<AnimeListResponse>> {
+  getAnimeList(params: AnimeSearchParams = {}): Promise<ApiResult<PaginatedResponse<Anime>>> {
     return executeRequest(() => 
-      http.get<AnimeListResponse>('/anime', { params })
+      http.get<PaginatedResponse<Anime>>('/anime', { params })
     )
   },
 
@@ -43,9 +44,9 @@ export const animeApi = {
    * @param limit - Límite de resultados por página
    * @returns Promise con Either que contiene la lista de animes populares o un error
    */
-  getTopAnime(page: number = 1, limit: number = 20): Promise<ApiResult<AnimeListResponse>> {
+  getTopAnime(page: number = 1, limit: number = 20): Promise<ApiResult<PaginatedResponse<Anime>>> {
     return executeRequest(() => 
-      http.get<AnimeListResponse>('/top/anime', {
+      http.get<PaginatedResponse<Anime>>('/top/anime', {
         params: { page, limit }
       })
     )
@@ -57,9 +58,9 @@ export const animeApi = {
    * @param limit - Límite de resultados por página
    * @returns Promise con Either que contiene la lista de animes de la temporada o un error
    */
-  getSeasonalAnime(page: number = 1, limit: number = 20): Promise<ApiResult<AnimeListResponse>> {
+  getSeasonalAnime(page: number = 1, limit: number = 20): Promise<ApiResult<PaginatedResponse<Anime>>> {
     return executeRequest(() => 
-      http.get<AnimeListResponse>('/seasons/now', {
+      http.get<PaginatedResponse<Anime>>('/seasons/now', {
         params: { page, limit }
       })
     )
@@ -70,9 +71,9 @@ export const animeApi = {
    * @param id - ID del anime
    * @returns Promise con Either que contiene las recomendaciones o un error
    */
-  getAnimeRecommendations(id: number): Promise<ApiResult<AnimeRecommendationsResponse>> {
+  getAnimeRecommendations(id: number): Promise<ApiResult<PaginatedResponse<AnimeRecommendation>>> {
     return executeRequest(() => 
-      http.get<AnimeRecommendationsResponse>(`/anime/${id}/recommendations`)
+      http.get<PaginatedResponse<AnimeRecommendation>>(`/anime/${id}/recommendations`)
     )
   },
 
@@ -95,9 +96,9 @@ export const animeApi = {
    * @param limit - Límite de resultados por página
    * @returns Promise con Either que contiene los resultados de búsqueda o un error
    */
-  searchAnime(query: string, page: number = 1, limit: number = 20): Promise<ApiResult<AnimeListResponse>> {
+  searchAnime(query: string, page: number = 1, limit: number = 20): Promise<ApiResult<PaginatedResponse<Anime>>> {
     return executeRequest(() => 
-      http.get<AnimeListResponse>('/anime', {
+      http.get<PaginatedResponse<Anime>>('/anime', {
         params: { q: query, page, limit }
       })
     )
@@ -110,9 +111,9 @@ export const animeApi = {
    * @param limit - Límite de resultados por página
    * @returns Promise con Either que contiene la lista de animes del género o un error
    */
-  getAnimeByGenre(genreId: number, page: number = 1, limit: number = 20): Promise<ApiResult<AnimeListResponse>> {
+  getAnimeByGenre(genreId: number, page: number = 1, limit: number = 20): Promise<ApiResult<PaginatedResponse<Anime>>> {
     return executeRequest(() => 
-      http.get<AnimeListResponse>('/anime', {
+      http.get<PaginatedResponse<Anime>>('/anime', {
         params: { genres: genreId, page, limit }
       })
     )

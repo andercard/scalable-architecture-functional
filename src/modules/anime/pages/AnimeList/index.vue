@@ -65,8 +65,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeList } from '../composables/useAnimeList'
-import AnimeGrid from '../components/AnimeGrid.vue'
+import { useAnimeList } from './useAnimeList'
+import AnimeGrid from '../../components/AnimeGrid/index.vue'
 
 const {
   searchQuery,
@@ -87,5 +87,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/AnimeList.styles.scss';
+@import './AnimeList.styles.scss';
 </style> 

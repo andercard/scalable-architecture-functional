@@ -1,9 +1,9 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAnimeStore } from '../stores/anime.store'
+import { useAnimeStore } from '../../stores/anime.store'
 import { formatRating, formatNumber, getGenreColor } from '@shared/common/utils/format'
-import { animeApi } from '../services/anime.services'
-import type { AnimeCharacter } from '../types'
+import { animeApi } from '../../services/anime.services'
+import type { AnimeCharacter } from '../../types'
 
 export const useAnimeDetail = () => {
   const route = useRoute()

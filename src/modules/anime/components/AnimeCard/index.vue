@@ -43,9 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeCard } from '../composables/useAnimeCard'
+import { useAnimeCard } from './useAnimeCard'
 import BaseCard from '@shared/common/components/BaseCard.vue'
-import type { AnimeCardProps, AnimeCardEmits } from '../types/AnimeCard.types'
+import type { AnimeCardProps, AnimeCardEmits } from './animeCard.types'
 
 const props = withDefaults(defineProps<AnimeCardProps>(), {
   loading: false
@@ -64,5 +64,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/AnimeCard.styles.scss';
+@import './AnimeCard.styles.scss';
 </style> 

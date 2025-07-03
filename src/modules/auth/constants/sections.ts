@@ -1,4 +1,4 @@
-import type { RegisterSection } from '../types/Register.types'
+import type { RegisterSection } from '../pages/Register/Register.types'
 
 export const REGISTER_SECTIONS: RegisterSection[] = [
   {

@@ -3,7 +3,7 @@
  * Mapeo de reasons a mensajes de usuario
  */
 
-export type ErrorAnime =
+export type ErrorAnimeType =
   | 'ANIME_NOT_FOUND'
   | 'ANIME_SEARCH_FAILED'
   | 'ANIME_DETAILS_FAILED'
@@ -12,7 +12,7 @@ export type ErrorAnime =
   | 'RATE_LIMIT_EXCEEDED'
   | 'DEFAULT'
 
-export const ErrorAnime: Record<ErrorAnime, string> = {
+export const ErrorAnimeMessages: Record<ErrorAnimeType, string> = {
   ANIME_NOT_FOUND: 'El anime no fue encontrado',
   ANIME_SEARCH_FAILED: 'Error al buscar animes',
   ANIME_DETAILS_FAILED: 'Error al cargar los detalles del anime',

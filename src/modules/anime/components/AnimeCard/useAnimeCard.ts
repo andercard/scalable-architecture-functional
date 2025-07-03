@@ -1,9 +1,9 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { useAnimeStore } from '../stores/anime.store'
+import { useAnimeStore } from '../../stores/anime.store'
 import { useAuthStore } from '@modules/auth/stores/auth.store'
-import type { AnimeCardProps, AnimeCardEmits } from '../types/AnimeCard.types'
+import type { AnimeCardProps, AnimeCardEmits } from './animeCard.types'
 
 export const useAnimeCard = (props: AnimeCardProps, emit: AnimeCardEmits) => {
   const router = useRouter()
@@ -41,8 +41,9 @@ export const useAnimeCard = (props: AnimeCardProps, emit: AnimeCardEmits) => {
     ElMessage({
       message: 'Debes iniciar sesión para agregar animes a favoritos',
       type: 'warning',
-      duration: 3000
+      duration: 2000
     })
+    router.push('/login')
   }
 
   return {

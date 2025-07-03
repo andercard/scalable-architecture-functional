@@ -1,4 +1,4 @@
-import type { Anime } from './index'
+import type { Anime } from '../../types'
 
 export interface AnimeGridProps {
   animes: Anime[]

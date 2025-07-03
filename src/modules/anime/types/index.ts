@@ -1,8 +1,5 @@
 import type { BaseEntity, PaginatedResponse } from '@shared/common/types'
 
-// Re-exportar tipos específicos de páginas
-export type { AnimeFavoritesProps, AnimeFavoritesEmits } from './AnimeFavorites.types'
-
 // Tipos específicos del módulo de anime
 export interface Anime extends BaseEntity {
   mal_id: number
@@ -90,13 +87,9 @@ export interface AnimeSearchParams {
   end_date?: string
 }
 
-export interface AnimeListResponse extends PaginatedResponse<Anime> {}
-
 export interface AnimeDetailResponse {
   data: Anime
 }
-
-export interface AnimeRecommendationsResponse extends PaginatedResponse<AnimeRecommendation> {}
 
 export interface AnimeRecommendation {
   mal_id: string

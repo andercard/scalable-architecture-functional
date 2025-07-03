@@ -8,7 +8,7 @@ export const animePrivateRoutes: RouteRecordRaw[] = [
   {
     path: '/anime/favorites',
     name: 'AnimeFavorites',
-    component: () => import('../pages/AnimeFavorites.vue'),
+    component: () => import('../pages/AnimeFavorites/index.vue'),
     meta: {
       requiresAuth: true,
       title: 'Mis Favoritos',
