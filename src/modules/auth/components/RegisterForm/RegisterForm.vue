@@ -1,3 +1,4 @@
+// Este archivo ha sido movido a src/modules/auth/components/RegisterForm/RegisterForm.vue
 <template>
   <div class="register-form-container">
     <el-card class="register-card" shadow="hover">
@@ -81,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterForm } from '../composables/useRegisterForm'
+import { useRegisterForm } from './useRegisterForm'
 
 const {
   ArrowLeft,
@@ -101,5 +102,5 @@ const {
 </script>
 
 <style scoped lang="scss">
-@import '../styles/RegisterForm.styles.scss';
+@import './RegisterForm.styles.scss';
 </style> 

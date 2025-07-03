@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import RegisterForm from '../components/RegisterForm.vue'
+import RegisterForm from '../../components/RegisterForm/RegisterForm.vue'
 </script>
 
 <style scoped>
-@import '../styles/Register.styles.scss';
+@import './Register.styles.scss';
 </style> 

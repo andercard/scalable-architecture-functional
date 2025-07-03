@@ -45,15 +45,9 @@
 
 <script setup lang="ts">
 import { User } from '@element-plus/icons-vue'
-import { useLogin } from '../composables/useLogin'
+import { useLogin } from './useLogin'
 
-const {
-  loginFormRef,
-  loginForm,
-  isLoading,
-  rules,
-  handleLogin
-} = useLogin()
+const { loginForm, rules, isLoading, handleLogin } = useLogin()
 </script>
 
 <style scoped>

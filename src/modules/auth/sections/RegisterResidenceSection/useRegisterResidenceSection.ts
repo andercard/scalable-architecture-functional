@@ -1,14 +1,14 @@
 import { ref, computed } from 'vue'
 import { Location } from '@element-plus/icons-vue'
-import { useRegisterFormProvider } from './useRegisterFormProvider'
-import { COUNTRIES } from '../constants/countries'
+import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
+import { COUNTRIES } from '../../constants/countries'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const { form, sections } = useRegisterFormProvider()
 
 const formRef = ref<FormInstance>()
 
-const section = computed(() => sections.find(s => s.id === 'residence')!)
+const section = computed(() => sections.find((s: { id: string }) => s.id === 'residence')!)
 
 const countries = COUNTRIES
 

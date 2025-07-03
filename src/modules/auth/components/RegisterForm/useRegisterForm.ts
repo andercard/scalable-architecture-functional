@@ -1,10 +1,10 @@
 import { computed } from 'vue'
 import { ArrowLeft, ArrowRight, Check } from '@element-plus/icons-vue'
-import { useRegisterFormProvider } from './useRegisterFormProvider'
-import RegisterBasicSection from '../components/RegisterBasicSection.vue'
-import RegisterResidenceSection from '../components/RegisterResidenceSection.vue'
-import RegisterContactSection from '../components/RegisterContactSection.vue'
-import RegisterPreferencesSection from '../components/RegisterPreferencesSection.vue'
+import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
+import RegisterBasicSection from '../../sections/RegisterBasicSection/RegisterBasicSection.vue'
+import RegisterResidenceSection from '../../sections/RegisterResidenceSection/RegisterResidenceSection.vue'
+import RegisterContactSection from '../../sections/RegisterContactSection/RegisterContactSection.vue'
+import RegisterPreferencesSection from '../../sections/RegisterPreferencesSection/RegisterPreferencesSection.vue'
 
 export function useRegisterForm() {
   const {

@@ -1,3 +1,4 @@
+// Este archivo será movido a src/modules/auth/sections/RegisterPreferencesSection/RegisterPreferencesSection.vue
 <template>
   <div class="register-section">
     <div class="section-header">
@@ -49,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterPreferencesSection } from '../composables/useRegisterPreferencesSection'
+import { useRegisterPreferencesSection } from './useRegisterPreferencesSection'
 
 const {
   form,
@@ -62,5 +63,5 @@ const {
 </script>
 
 <style scoped lang="scss">
-@import '../styles/RegisterPreferencesSection.styles.scss';
+@import './RegisterPreferencesSection.styles.scss';
 </style> 

@@ -1,3 +1,4 @@
+// Este archivo será movido a src/modules/auth/sections/RegisterBasicSection/RegisterBasicSection.vue
 <template>
   <div class="register-section">
     <div class="section-header">
@@ -86,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterBasicSection } from '../composables/useRegisterBasicSection'
+import { useRegisterBasicSection } from './useRegisterBasicSection'
 
 const {
   form,
@@ -100,5 +101,5 @@ const {
 </script>
 
 <style scoped lang="scss">
-@import '../styles/RegisterBasicSection.styles.scss';
+@import './RegisterBasicSection.styles.scss';
 </style> 

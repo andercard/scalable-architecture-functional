@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { Phone, User } from '@element-plus/icons-vue'
-import { useRegisterFormProvider } from './useRegisterFormProvider'
+import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
 import type { FormInstance, FormRules } from 'element-plus'
 
 export const useRegisterContactSection = () => {
@@ -8,7 +8,7 @@ export const useRegisterContactSection = () => {
 
   const formRef = ref<FormInstance>()
 
-  const section = computed(() => sections.find(s => s.id === 'contact')!)
+  const section = computed(() => sections.find((s: { id: string }) => s.id === 'contact')!)
 
   const rules: FormRules = {
     phone: [

@@ -8,7 +8,7 @@ export const authPublicRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../pages/Login.vue'),
+    component: () => import('../pages/Login/Login.vue'),
     meta: {
       requiresGuest: true,
       title: 'Iniciar Sesión',
@@ -19,7 +19,7 @@ export const authPublicRoutes: RouteRecordRaw[] = [
   {
     path: '/register',
     name: 'Register',
-    component: () => import('../pages/Register.vue'),
+    component: () => import('../pages/Register/Register.vue'),
     meta: {
       requiresGuest: true,
       title: 'Registrarse',

@@ -1,3 +1,4 @@
+// Este archivo será movido a src/modules/auth/sections/RegisterResidenceSection/RegisterResidenceSection.vue
 <template>
   <div class="register-section">
     <div class="section-header">
@@ -77,9 +78,9 @@ import {
   countries,
   rules,
   Location
-} from '../composables/useRegisterResidenceSection'
+} from './useRegisterResidenceSection'
 </script>
 
 <style scoped lang="scss">
-@import '../styles/RegisterResidenceSection.styles.scss';
+@import './RegisterResidenceSection.styles.scss';
 </style> 

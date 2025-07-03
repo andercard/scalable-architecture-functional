@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { User, Message, Lock } from '@element-plus/icons-vue'
-import { useRegisterFormProvider } from './useRegisterFormProvider'
+import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
 import type { FormInstance, FormRules } from 'element-plus'
 
 export const useRegisterBasicSection = () => {
@@ -8,7 +8,7 @@ export const useRegisterBasicSection = () => {
 
   const formRef = ref<FormInstance>()
 
-  const section = computed(() => sections.find(s => s.id === 'basic')!)
+  const section = computed(() => sections.find((s: { id: string }) => s.id === 'basic')!)
 
   const rules: FormRules = {
     firstName: [

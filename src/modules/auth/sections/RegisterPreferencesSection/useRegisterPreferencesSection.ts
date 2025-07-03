@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { useRegisterFormProvider } from './useRegisterFormProvider'
+import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
 import type { FormInstance, FormRules } from 'element-plus'
 
 export const useRegisterPreferencesSection = () => {
@@ -7,7 +7,7 @@ export const useRegisterPreferencesSection = () => {
 
   const formRef = ref<FormInstance>()
 
-  const section = computed(() => sections.find(s => s.id === 'preferences')!)
+  const section = computed(() => sections.find((s: { id: string }) => s.id === 'preferences')!)
 
   const showTerms = () => {
     // Aquí se abriría un modal con los términos y condiciones
