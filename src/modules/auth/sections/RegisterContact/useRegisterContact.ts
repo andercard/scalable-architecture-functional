@@ -3,7 +3,7 @@ import { Phone, User } from '@element-plus/icons-vue'
 import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
 import type { FormInstance, FormRules } from 'element-plus'
 
-export const useRegisterContactSection = () => {
+export const useRegisterContact = () => {
   const { form, sections } = useRegisterFormProvider()
 
   const formRef = ref<FormInstance>()

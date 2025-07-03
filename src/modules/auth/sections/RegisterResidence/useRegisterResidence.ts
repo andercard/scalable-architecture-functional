@@ -32,12 +32,14 @@ const rules: FormRules = {
   ]
 }
 
-export {
-  form,
-  sections,
-  formRef,
-  section,
-  countries,
-  rules,
-  Location
+export const useRegisterResidence = () => {
+  return {
+    form,
+    sections,
+    formRef,
+    section,
+    countries,
+    rules,
+    Location
+  }
 } 

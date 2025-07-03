@@ -71,16 +71,18 @@
 </template>
 
 <script setup lang="ts">
-import {
+import { useRegisterResidence } from './useRegisterResidence'
+
+const {
   form,
   formRef,
   section,
   countries,
   rules,
   Location
-} from './useRegisterResidenceSection'
+} = useRegisterResidence()
 </script>
 
 <style scoped lang="scss">
-@import './RegisterResidenceSection.styles.scss';
+@import './RegisterResidence.styles.scss';
 </style> 

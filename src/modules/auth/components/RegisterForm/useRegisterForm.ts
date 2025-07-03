@@ -1,10 +1,10 @@
 import { computed } from 'vue'
 import { ArrowLeft, ArrowRight, Check } from '@element-plus/icons-vue'
 import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
-import RegisterBasicSection from '../../sections/RegisterBasicSection/RegisterBasicSection.vue'
-import RegisterResidenceSection from '../../sections/RegisterResidenceSection/RegisterResidenceSection.vue'
-import RegisterContactSection from '../../sections/RegisterContactSection/RegisterContactSection.vue'
-import RegisterPreferencesSection from '../../sections/RegisterPreferencesSection/RegisterPreferencesSection.vue'
+import RegisterBasic from '../../sections/RegisterBasic/RegisterBasic.vue'
+import RegisterResidence from '../../sections/RegisterResidence/RegisterResidence.vue'
+import RegisterContact from '../../sections/RegisterContact/RegisterContact.vue'
+import RegisterPreferences from '../../sections/RegisterPreferences/RegisterPreferences.vue'
 
 export function useRegisterForm() {
   const {
@@ -19,10 +19,10 @@ export function useRegisterForm() {
   } = useRegisterFormProvider()
 
   const sectionComponents = {
-    basic: RegisterBasicSection,
-    residence: RegisterResidenceSection,
-    contact: RegisterContactSection,
-    preferences: RegisterPreferencesSection
+    basic: RegisterBasic,
+    residence: RegisterResidence,
+    contact: RegisterContact,
+    preferences: RegisterPreferences
   }
 
   const currentSectionComponent = computed(() => {

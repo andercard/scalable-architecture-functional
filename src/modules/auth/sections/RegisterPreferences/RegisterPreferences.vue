@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterPreferencesSection } from './useRegisterPreferencesSection'
+import { useRegisterPreferences } from './useRegisterPreferences'
 
 const {
   form,
@@ -59,9 +59,9 @@ const {
   showTerms,
   showPrivacy,
   rules
-} = useRegisterPreferencesSection()
+} = useRegisterPreferences()
 </script>
 
 <style scoped lang="scss">
-@import './RegisterPreferencesSection.styles.scss';
+@import './RegisterPreferences.styles.scss';
 </style> 

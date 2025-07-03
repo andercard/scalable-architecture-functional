@@ -1,4 +1,3 @@
-// Este archivo será movido a src/modules/auth/sections/RegisterContactSection/RegisterContactSection.vue
 <template>
   <div class="register-section">
     <div class="section-header">
@@ -41,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterContactSection } from './useRegisterContactSection'
+import { useRegisterContact } from './useRegisterContact'
 
 const {
   form,
@@ -50,9 +49,9 @@ const {
   rules,
   Phone,
   User
-} = useRegisterContactSection()
+} = useRegisterContact()
 </script>
 
 <style scoped lang="scss">
-@import './RegisterContactSection.styles.scss';
+@import './RegisterContact.styles.scss';
 </style> 

@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRegisterBasicSection } from './useRegisterBasicSection'
+import { useRegisterBasic } from './useRegisterBasic'
 
 const {
   form,
@@ -97,9 +97,9 @@ const {
   User,
   Message,
   Lock
-} = useRegisterBasicSection()
+} = useRegisterBasic()
 </script>
 
 <style scoped lang="scss">
-@import './RegisterBasicSection.styles.scss';
+@import './RegisterBasic.styles.scss';
 </style> 

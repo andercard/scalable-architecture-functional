@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { useRegisterFormProvider } from '../../composables/useRegisterFormProvider'
 import type { FormInstance, FormRules } from 'element-plus'
 
-export const useRegisterPreferencesSection = () => {
+export const useRegisterPreferences = () => {
   const { form, sections } = useRegisterFormProvider()
 
   const formRef = ref<FormInstance>()
