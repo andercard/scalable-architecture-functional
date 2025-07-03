@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { Star, SwitchButton } from '@element-plus/icons-vue'
-import { useAppHeader } from '../composables/useAppHeader'
+import { useAppHeader } from './useAppHeader'
 
 const {
   isAuthenticated,
@@ -60,5 +60,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/AppHeader.styles.scss';
+@import './AppHeader.styles.scss';
 </style> 

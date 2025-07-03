@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from '@shared/layout/components/AppHeader.vue'
+import AppHeader from '@shared/layout/components/AppHeader/index.vue'
 </script>
 
 <style>

@@ -63,7 +63,7 @@ Contenedor de recursos reutilizables en toda la aplicación, organizados por res
 
 > **Ejemplo:**
 > - `shared/common/components/BaseCard.vue`
-> - `shared/layout/components/AppHeader.vue`
+> - `shared/layout/components/AppHeader/index.vue`
 
 ---
 
