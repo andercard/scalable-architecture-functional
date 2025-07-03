@@ -285,4 +285,130 @@ El módulo incluye:
 ### Demo Credenciales
 Para propósitos de demostración:
 - **Usuario**: `demo`
-- **Contraseña**: `demo123` 
+- **Contraseña**: `demo123`
+
+## Arquitectura del Formulario de Registro
+
+El formulario de registro utiliza una arquitectura escalable basada en **Provider/Inject** con las siguientes características:
+
+### Características Principales
+
+- **Formulario Multi-Sección**: Dividido en 4 secciones lógicas
+- **Provider/Inject Pattern**: Estado compartido entre componentes
+- **Validación por Sección**: Cada sección se valida independientemente
+- **Navegación Intuitiva**: Progreso visual y navegación entre secciones
+- **Escalable**: Fácil agregar nuevas secciones
+- **Testeable**: Cada componente es independiente y testeable
+
+### Estructura de Archivos
+
+```
+auth/
+├── components/
+│   ├── RegisterForm.vue              # Componente principal (orquestador)
+│   ├── RegisterBasicSection.vue      # Sección: Datos básicos
+│   ├── RegisterResidenceSection.vue  # Sección: Residencia
+│   ├── RegisterContactSection.vue    # Sección: Información de contacto
+│   ├── RegisterPreferencesSection.vue # Sección: Preferencias
+│   └── index.ts                      # Exportaciones
+├── composables/
+│   ├── useRegisterForm.ts            # Provider/Inject logic
+│   └── useRegister.ts                # Lógica anterior (legacy)
+├── types/
+│   ├── Register.types.ts             # Tipos del formulario
+│   └── Auth.types.ts                 # Tipos de autenticación
+└── stores/
+    └── auth.store.ts                 # Estado global de auth
+```
+
+### Secciones del Formulario
+
+1. **Datos Básicos** (`basic`)
+   - Nombre y apellido
+   - Usuario y email
+   - Contraseña y confirmación
+   - Fecha de nacimiento
+
+2. **Residencia** (`residence`)
+   - País, estado, ciudad
+   - Dirección completa
+   - Código postal
+
+3. **Información de Contacto** (`contact`)
+   - Teléfono personal
+   - Contacto de emergencia
+   - Teléfono de emergencia
+
+4. **Preferencias** (`preferences`)
+   - Newsletter
+   - Marketing
+   - Términos y condiciones
+
+### Provider/Inject Pattern
+
+El composable `useRegisterForm.ts` proporciona:
+
+```typescript
+interface RegisterFormProvider {
+  form: RegisterForm                    // Estado del formulario
+  sections: RegisterSection[]           // Configuración de secciones
+  currentSection: Ref<number>           // Sección actual
+  isFormValid: ComputedRef<boolean>     // Validación global
+  isLoading: Ref<boolean>               // Estado de carga
+  updateField: Function                 // Actualizar campo
+  updateSection: Function               // Actualizar sección
+  nextSection: Function                 // Siguiente sección
+  previousSection: Function             // Sección anterior
+  goToSection: Function                 // Ir a sección específica
+  validateSection: Function             // Validar sección
+  validateForm: Function                // Validar formulario completo
+  submitForm: Function                  // Enviar formulario
+}
+```
+
+### Uso
+
+```vue
+<template>
+  <RegisterForm />
+</template>
+
+<script setup>
+import { RegisterForm } from '@/modules/auth/components'
+</script>
+```
+
+### Validación
+
+- **Validación por Sección**: Cada sección valida sus campos independientemente
+- **Validación Global**: El formulario completo se valida antes del envío
+- **Validación en Tiempo Real**: Los campos se validan al cambiar
+- **Estado Visual**: Indicadores de progreso y completitud
+
+### Escalabilidad
+
+Para agregar una nueva sección:
+
+1. Crear el componente de la sección
+2. Agregar la configuración en `sections` array
+3. Implementar la validación en `validateSection`
+4. Agregar los campos al tipo `RegisterForm`
+5. Actualizar el store si es necesario
+
+### Testing
+
+Cada componente es testeable de forma independiente:
+
+- **Componentes de Sección**: Pruebas unitarias de validación
+- **Provider**: Pruebas de estado y lógica de negocio
+- **Formulario Principal**: Pruebas de integración
+- **Store**: Pruebas de persistencia y API
+
+### Ventajas de esta Arquitectura
+
+- ✅ **Separación de Responsabilidades**: Cada componente tiene una responsabilidad específica
+- ✅ **Reutilización**: Los componentes de sección pueden reutilizarse
+- ✅ **Mantenibilidad**: Cambios en una sección no afectan otras
+- ✅ **Testeabilidad**: Cada parte es testeable independientemente
+- ✅ **Escalabilidad**: Fácil agregar nuevas secciones
+- ✅ **UX Mejorada**: Progreso visual y navegación intuitiva 

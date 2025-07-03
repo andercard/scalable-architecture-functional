@@ -34,6 +34,7 @@
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
     "vitest": "^3.2.4",
+    "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^2.2.10"
   },
   "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"

@@ -1,2 +1,46 @@
 /* Importar estilos de Element Plus */
-@use "element-plus/theme-chalk/src/index.scss" as *; 
+@use "element-plus/theme-chalk/src/index.scss" as *;
+
+/* Correcciones de estilos para botones secundarios */
+.el-button--default {
+  background-color: #f5f7fa !important;
+  border-color: #dcdfe6 !important;
+  color: #606266 !important;
+  
+  &:hover {
+    background-color: #ecf5ff !important;
+    border-color: #c6e2ff !important;
+    color: #409eff !important;
+  }
+  
+  &:active {
+    background-color: #d9ecff !important;
+    border-color: #409eff !important;
+    color: #409eff !important;
+  }
+  
+  &:disabled {
+    background-color: #f5f7fa !important;
+    border-color: #e4e7ed !important;
+    color: #c0c4cc !important;
+  }
+}
+
+/* Corrección para botones de navegación de secciones */
+.section-navigation .el-button--default {
+  background-color: #f5f7fa !important;
+  border-color: #dcdfe6 !important;
+  color: #606266 !important;
+  
+  &:hover:not(:disabled) {
+    background-color: #ecf5ff !important;
+    border-color: #c6e2ff !important;
+    color: #409eff !important;
+  }
+  
+  &.is-active {
+    background-color: #409eff !important;
+    border-color: #409eff !important;
+    color: #ffffff !important;
+  }
+} 
