@@ -3,9 +3,7 @@ import { useRouter } from 'vue-router'
 import { useAnimeStore } from '../../stores/anime.store'
 import type { Anime } from '../../types'
 
-export const useAnimeFavorites = (
-  emit: (event: string, ...args: unknown[]) => void
-) => {
+export const useAnimeFavorites = () => {
   const router = useRouter()
   const animeStore = useAnimeStore()
   

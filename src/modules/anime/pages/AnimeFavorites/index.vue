@@ -42,15 +42,13 @@ import { useAnimeFavorites } from './useAnimeFavorites'
 import AnimeCard from '../../components/AnimeCard/index.vue'
 import { Delete } from '@element-plus/icons-vue'
 
-const emit = defineEmits({})
-
 const {
   favorites,
   isLoading,
   error,
   goToDetail,
   removeFromFavorites
-} = useAnimeFavorites(emit)
+} = useAnimeFavorites()
 </script>
 
 <style scoped>
