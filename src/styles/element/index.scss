@@ -43,4 +43,25 @@
     border-color: #409eff !important;
     color: #ffffff !important;
   }
+}
+
+/* Estilos para select en tema oscuro */
+.el-select-dropdown {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.el-select-dropdown__item {
+  color: #ffffff !important;
+  
+  &:hover {
+    background: #2a2a2a !important;
+  }
+  
+  &.selected {
+    background: #8b5cf6 !important;
+    color: white !important;
+  }
 } 

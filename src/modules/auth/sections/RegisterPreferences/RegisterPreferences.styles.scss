@@ -41,31 +41,32 @@
 }
 
 .register-preferences-section {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  background: var(--background-light);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-color);
   
   .section-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-lg);
     
     h3 {
       margin: 0 0 0.5rem;
-      color: #2c3e50;
+      color: var(--text-primary);
       font-size: 1.25rem;
       font-weight: 600;
     }
     
     p {
       margin: 0;
-      color: #7f8c8d;
+      color: var(--text-secondary);
       font-size: 0.875rem;
     }
   }
   
   .section-content {
     .el-form-item {
-      margin-bottom: 1.5rem;
+      margin-bottom: var(--spacing-lg);
       
       &:last-child {
         margin-bottom: 0;
@@ -73,23 +74,23 @@
       
       .switch-label {
         margin-left: 0.5rem;
-        color: #606266;
+        color: var(--text-secondary);
         font-size: 0.875rem;
       }
     }
     
     .el-checkbox {
       .el-checkbox__label {
-        color: #606266;
+        color: var(--text-secondary);
         font-size: 0.875rem;
       }
     }
   }
 }
 
-// Responsive
+/* Responsive */
 @media (max-width: 768px) {
   .register-preferences-section {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 } 

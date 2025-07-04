@@ -28,8 +28,6 @@ export function useRegisterFormStep(emit: (event: 'registration-success', userna
       
       // Emitir el evento de éxito
       emit('registration-success', form.username)
-    } catch (error) {
-      ElMessage.error('Error al crear la cuenta. Por favor intenta nuevamente.')
     } finally {
       isLoading.value = false
     }
