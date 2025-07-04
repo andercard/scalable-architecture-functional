@@ -1,0 +1,132 @@
+.register-success-step {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.success-container {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.success-header {
+  text-align: center;
+  padding: 2rem 2rem 1rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  
+  h1 {
+    margin: 0 0 0.5rem;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  
+  p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 1rem;
+  }
+}
+
+.success-content {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.success-icon {
+  margin-bottom: 2rem;
+  animation: bounceIn 0.6s ease-out;
+}
+
+.success-message {
+  margin-bottom: 2rem;
+  
+  p {
+    margin: 0 0 1rem;
+    color: #606266;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    strong {
+      color: #303133;
+      font-weight: 600;
+    }
+  }
+  
+  .success-subtitle {
+    color: #909399;
+    font-size: 1rem;
+  }
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  
+  .el-button {
+    min-width: 140px;
+  }
+}
+
+// Animación de entrada
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .register-success-step {
+    padding: 1rem;
+  }
+  
+  .success-container {
+    border-radius: 8px;
+  }
+  
+  .success-header {
+    padding: 1.5rem 1rem 1rem;
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .success-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+    
+    .el-button {
+      width: 100%;
+    }
+  }
+} 

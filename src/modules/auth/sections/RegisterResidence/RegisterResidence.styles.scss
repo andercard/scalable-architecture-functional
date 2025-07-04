@@ -35,4 +35,63 @@
   .form-row {
     grid-template-columns: 1fr;
   }
+}
+
+.register-residence-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  
+  .section-header {
+    margin-bottom: 1.5rem;
+    
+    h3 {
+      margin: 0 0 0.5rem;
+      color: #2c3e50;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0;
+      color: #7f8c8d;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .section-content {
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .el-form-item {
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .register-residence-section {
+    padding: 1rem;
+    
+    .section-content {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  }
 } 

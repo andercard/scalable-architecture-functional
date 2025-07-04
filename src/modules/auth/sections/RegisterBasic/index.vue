@@ -1,102 +1,41 @@
 <template>
-  <div class="register-section">
+  <div class="register-basic-section" data-test="section:basic">
     <div class="section-header">
-      <h3>{{ section.title }}</h3>
-      <p>{{ section.description }}</p>
+      <h3>Datos Básicos</h3>
+      <p>Información personal básica</p>
     </div>
     
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="120px"
-      class="section-form"
-    >
+    <div class="section-content">
       <div class="form-row">
-        <el-form-item label="Nombre" prop="firstName">
+        <el-form-item label="Nombre" prop="firstName" label-position="top">
           <el-input
             v-model="form.firstName"
             placeholder="Ingresa tu nombre"
             :prefix-icon="User"
+            data-test="input:first-name"
           />
         </el-form-item>
         
-        <el-form-item label="Apellido" prop="lastName">
-          <el-input
-            v-model="form.lastName"
-            placeholder="Ingresa tu apellido"
-            :prefix-icon="User"
-          />
-        </el-form-item>
-      </div>
-      
-      <div class="form-row">
-        <el-form-item label="Usuario" prop="username">
+        <el-form-item label="Usuario" prop="username" label-position="top">
           <el-input
             v-model="form.username"
             placeholder="Ingresa tu usuario"
             :prefix-icon="User"
-          />
-        </el-form-item>
-        
-        <el-form-item label="Email" prop="email">
-          <el-input
-            v-model="form.email"
-            type="email"
-            placeholder="Ingresa tu email"
-            :prefix-icon="Message"
+            data-test="input:username"
           />
         </el-form-item>
       </div>
       
-      <div class="form-row">
-        <el-form-item label="Contraseña" prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="Ingresa tu contraseña"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-        
-        <el-form-item label="Confirmar" prop="confirmPassword">
-          <el-input
-            v-model="form.confirmPassword"
-            type="password"
-            placeholder="Confirma tu contraseña"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-      </div>
-      
-      <el-form-item label="Fecha de Nacimiento" prop="dateOfBirth">
-        <el-date-picker
-          v-model="form.dateOfBirth"
-          type="date"
-          placeholder="Selecciona tu fecha de nacimiento"
-          format="DD/MM/YYYY"
-          value-format="YYYY-MM-DD"
-          style="width: 100%"
-        />
-      </el-form-item>
-    </el-form>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRegisterBasic } from './useRegisterBasic'
+import { User } from '@element-plus/icons-vue'
+import { injectRegisterForm } from '../../composables/useRegisterFormProvider'
 
-const {
-  form,
-  formRef,
-  section,
-  rules,
-  User,
-  Message,
-  Lock
-} = useRegisterBasic()
+
+const { form } = injectRegisterForm()
 </script>
 
 <style scoped lang="scss">

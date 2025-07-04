@@ -1,64 +1,44 @@
 <template>
-  <div class="register-section">
+  <div class="register-preferences-section" data-test="section:preferences">
     <div class="section-header">
-      <h3>{{ section.title }}</h3>
-      <p>{{ section.description }}</p>
+      <h3>Preferencias</h3>
+      <p>Configuración de preferencias</p>
     </div>
     
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="120px"
-      class="section-form"
-    >
-      <el-form-item label="Newsletter" prop="newsletter">
-        <el-checkbox v-model="form.newsletter">
-          Quiero recibir noticias y actualizaciones por email
-        </el-checkbox>
+    <div class="section-content">
+      <el-form-item label="Newsletter" prop="newsletter" label-position="top">
+        <el-switch
+          v-model="form.newsletter"
+          data-test="switch:newsletter"
+        />
+        <span class="switch-label">Recibir newsletter</span>
       </el-form-item>
       
-      <el-form-item label="Marketing" prop="marketingConsent">
-        <el-checkbox v-model="form.marketingConsent">
-          Acepto recibir ofertas y promociones
-        </el-checkbox>
+      <el-form-item label="Marketing" prop="marketingConsent" label-position="top">
+        <el-switch
+          v-model="form.marketingConsent"
+          data-test="switch:marketing"
+        />
+        <span class="switch-label">Recibir ofertas de marketing</span>
       </el-form-item>
       
-      <el-form-item label="Términos y Condiciones" prop="termsAccepted">
-        <el-checkbox v-model="form.termsAccepted">
-          He leído y acepto los 
-          <el-link type="primary" href="#" @click.prevent="showTerms">
-            términos y condiciones
-          </el-link>
-          y la 
-          <el-link type="primary" href="#" @click.prevent="showPrivacy">
-            política de privacidad
-          </el-link>
+      <el-form-item label="Términos" prop="termsAccepted" label-position="top">
+        <el-checkbox
+          v-model="form.termsAccepted"
+          data-test="checkbox:terms"
+        >
+          Acepto los términos y condiciones
         </el-checkbox>
       </el-form-item>
-      
-      <div class="terms-info">
-        <p class="terms-text">
-          Al marcar esta casilla, confirmas que has leído y comprendido nuestros términos de servicio 
-          y política de privacidad. Tus datos serán tratados de acuerdo con nuestra política de 
-          protección de datos.
-        </p>
-      </div>
-    </el-form>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRegisterPreferences } from './useRegisterPreferences'
+import { injectRegisterForm } from '../../composables/useRegisterFormProvider'
 
-const {
-  form,
-  formRef,
-  section,
-  showTerms,
-  showPrivacy,
-  rules
-} = useRegisterPreferences()
+// Inyectar el provider
+const { form } = injectRegisterForm()
 </script>
 
 <style scoped lang="scss">

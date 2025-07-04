@@ -1,95 +1,32 @@
-import { reactive, ref, computed } from 'vue'
-import type { RegisterForm, RegisterSection, RegisterFormProvider } from '../pages/Register/Register.types'
-
-const initialForm: RegisterForm = {
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  firstName: '',
-  lastName: '',
-  dateOfBirth: '',
-  country: '',
-  state: '',
-  city: '',
-  address: '',
-  postalCode: '',
-  phone: '',
-  emergencyContact: '',
-  emergencyPhone: '',
-  newsletter: false,
-  termsAccepted: false,
-  marketingConsent: false
-}
-
-const initialSections: RegisterSection[] = [
-  { id: 'basic', title: 'Datos Básicos', description: '', isCompleted: false, isValid: false },
-  { id: 'residence', title: 'Residencia', description: '', isCompleted: false, isValid: false },
-  { id: 'contact', title: 'Contacto', description: '', isCompleted: false, isValid: false },
-  { id: 'preferences', title: 'Preferencias', description: '', isCompleted: false, isValid: false }
-]
+import { reactive, provide, inject, type InjectionKey } from 'vue'
+import type { RegisterFormProvider } from '../types'
+import { INITIAL_REGISTER_FORM } from '../constants'
 
 export function useRegisterFormProvider(): RegisterFormProvider {
-  const form = reactive({ ...initialForm })
-  const sections = reactive<RegisterSection[]>([...initialSections])
-  const currentSection = ref(0)
-  const isLoading = ref(false)
+  const form = reactive({ ...INITIAL_REGISTER_FORM })
 
-  const isFormValid = computed(() => sections.every((s: RegisterSection) => s.isValid))
-
-  function updateField<K extends keyof RegisterForm>(field: K, value: RegisterForm[K]) {
-    form[field] = value
+  const provider: RegisterFormProvider = {
+    form
   }
 
-  function updateSection(sectionId: string, updates: Partial<RegisterSection>) {
-    const section = sections.find((s: RegisterSection) => s.id === sectionId)
-    if (section) Object.assign(section, updates)
-  }
+  return provider
+}
 
-  function nextSection() {
-    if (currentSection.value < sections.length - 1) currentSection.value++
-  }
+// Injection key para el provider
+export const REGISTER_FORM_PROVIDER_KEY: InjectionKey<RegisterFormProvider> = Symbol('registerFormProvider')
 
-  function previousSection() {
-    if (currentSection.value > 0) currentSection.value--
-  }
+// Función para proveer el formulario
+export function provideRegisterForm(): RegisterFormProvider {
+  const provider = useRegisterFormProvider()
+  provide(REGISTER_FORM_PROVIDER_KEY, provider)
+  return provider
+}
 
-  function goToSection(index: number) {
-    if (index >= 0 && index < sections.length) currentSection.value = index
+// Función para inyectar el formulario
+export function injectRegisterForm(): RegisterFormProvider {
+  const provider = inject(REGISTER_FORM_PROVIDER_KEY)
+  if (!provider) {
+    throw new Error('useRegisterFormProvider debe ser usado dentro de un componente que proporcione el formulario')
   }
-
-  function validateSection(sectionId: string) {
-    // Aquí iría la lógica de validación real por sección
-    const section = sections.find((s: RegisterSection) => s.id === sectionId)
-    if (section) section.isValid = true
-    return !!section?.isValid
-  }
-
-  function validateForm() {
-    // Aquí iría la lógica de validación global
-    return isFormValid.value
-  }
-
-  async function submitForm() {
-    isLoading.value = true
-    // Simular envío
-    await new Promise(r => setTimeout(r, 1000))
-    isLoading.value = false
-  }
-
-  return {
-    form,
-    sections,
-    currentSection,
-    isFormValid,
-    isLoading,
-    updateField,
-    updateSection,
-    nextSection,
-    previousSection,
-    goToSection,
-    validateSection,
-    validateForm,
-    submitForm
-  }
+  return provider
 } 

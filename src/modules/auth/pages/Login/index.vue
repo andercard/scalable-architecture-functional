@@ -14,7 +14,7 @@
         label-width="120px"
         @submit.prevent="handleLogin"
       >
-        <el-form-item label="Usuario" prop="username">
+        <el-form-item label="Usuario" prop="username" label-position="top">
           <el-input
             data-test="input:username"
             v-model="loginForm.username"
@@ -22,18 +22,16 @@
             :prefix-icon="User"
           />
         </el-form-item>
-        
-        <el-form-item>
-          <el-button
-            data-test="button:login-submit"
-            type="primary"
-            :loading="isLoading"
-            @click="handleLogin"
-            style="width: 100%"
-          >
-            {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
-          </el-button>
-        </el-form-item>
+
+        <el-button
+          data-test="button:login-submit"
+          type="primary"
+          :loading="isLoading"
+          @click="handleLogin"
+          style="width: 100%"
+        >
+          {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </el-button>
         
         <div class="form-footer">
           <p>¿No tienes cuenta? <router-link to="/register">Regístrate aquí</router-link></p>
