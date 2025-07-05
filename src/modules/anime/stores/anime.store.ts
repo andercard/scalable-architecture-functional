@@ -189,6 +189,7 @@ export const useAnimeStore = defineStore('anime', () => {
     const data = result.fold(
       (failure) => {
         handleApiError(failure)
+        currentAnime.value = null
         return undefined
       },
       (success) => success.data
