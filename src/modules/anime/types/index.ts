@@ -1,4 +1,4 @@
-import type { BaseEntity, PaginatedResponse } from '@shared/common/types'
+import type { BaseEntity } from '@/shared/common/types'
 
 // Tipos específicos del módulo de anime
 export interface Anime extends BaseEntity {

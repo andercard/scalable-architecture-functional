@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { truncateText, getGenreColor } from '@shared/common/utils/format'
+import { truncateText, getGenreColor } from '@/shared/common/utils/format'
 import type { BaseCardProps } from '../types/shared.types'
 
 export const useBaseCard = (props: BaseCardProps, emit: (event: 'click', ...args: any[]) => void) => {

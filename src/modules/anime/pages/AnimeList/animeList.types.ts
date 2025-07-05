@@ -1,5 +1,3 @@
-import type { Anime } from '../../types'
-
 export interface AnimeListFilters {
   searchQuery: string
   activeFilter: 'top' | 'seasonal' | 'all'

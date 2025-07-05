@@ -9,14 +9,14 @@
  *
  * Uso recomendado:
  *
- * import { info, error, apiRequest } from '@shared/common/utils/logger'
+ * import { info, error, apiRequest } from '@/shared/common/utils/logger'
  *
  * info('Mensaje informativo', { contexto: 'opcional' })
  * error('Mensaje de error', { contexto: 'opcional' }, new Error('Detalle'))
  * apiRequest('GET', '/api/anime', { params: { id: 1 } })
  *
  * También puedes usar el objeto logger para compatibilidad:
- * import { logger } from '@shared/common/utils/logger'
+ * import { logger } from '@/shared/common/utils/logger'
  * logger.info('Mensaje')
  *
  * --------------------------------------------------

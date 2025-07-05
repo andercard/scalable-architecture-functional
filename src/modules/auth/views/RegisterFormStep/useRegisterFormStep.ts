@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { useRegisterValidation } from '../../composables/useRegisterFormStepValidation'
 import { provideRegisterForm } from '../../composables/useRegisterFormProvider'

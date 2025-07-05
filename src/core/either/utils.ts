@@ -1,5 +1,5 @@
 import type { Either, ApiSuccess, ApiFailure, BusinessError, GenericError, ApiError, Left, Right } from './types'
-import { logger } from '@shared/common/utils/logger'
+import { logger } from '@/shared/common/utils/logger'
 
 /**
  * Convierte una respuesta exitosa de Axios a ApiSuccess

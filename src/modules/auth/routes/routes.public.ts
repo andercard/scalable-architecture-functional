@@ -19,7 +19,7 @@ export const authPublicRoutes: RouteRecordRaw[] = [
   {
     path: '/register',
     name: 'Register',
-    component: () => import('@modules/auth/pages/Register/index.vue'),
+          component: () => import('@/modules/auth/pages/Register/index.vue'),
     meta: {
       requiresGuest: true,
       title: 'Registrarse',

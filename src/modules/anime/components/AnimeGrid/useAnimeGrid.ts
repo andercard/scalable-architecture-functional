@@ -1,4 +1,4 @@
-import type { AnimeGridProps, AnimeGridEmits } from '../types/AnimeGrid.types'
+import type { AnimeGridProps, AnimeGridEmits } from './animeGrid.types'
 
 export const useAnimeGrid = (_props: AnimeGridProps, emit: AnimeGridEmits) => {
   const retry = () => emit('retry')

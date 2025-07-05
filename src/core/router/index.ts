@@ -1,7 +1,7 @@
 // Archivo de rutas principal
 import { createRouter, createWebHistory, type RouteRecordRaw, type Router } from 'vue-router'
-import { animeRoutes } from '@modules/anime/routes/index'
-import { authRoutes } from '@modules/auth/routes/index'
+import { animeRoutes } from '@/modules/anime/routes/index'
+import { authRoutes } from '@/modules/auth/routes/index'
 import { executeGuards } from './guards'
 
 const routes: RouteRecordRaw[] = [

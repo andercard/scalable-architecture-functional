@@ -1,5 +1,5 @@
-import { ApiInstance as http } from '@core/api'
-import { executeRequest } from '@core/either'
+import { ApiInstance as http } from '@/core/api'
+import { executeRequest } from '@/core/either'
 import type { 
   AnimeDetailResponse, 
   AnimeSearchParams,
@@ -8,8 +8,8 @@ import type {
   Anime,
   AnimeRecommendation
 } from '../types'
-import type { ApiResult } from '@core/either'
-import type { PaginatedResponse } from '@shared/common/types'
+import type { ApiResult } from '@/core/either'
+import type { PaginatedResponse } from '@/shared/common/types'
 
 /**
  * Cliente de API para el módulo de anime

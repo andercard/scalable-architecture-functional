@@ -2,13 +2,13 @@ import type { RouteLocationNormalized, RouteLocationRaw } from 'vue-router'
 import {
   animeFavoritesGuard,
   animeLimitGuard
-} from '@modules/anime/routes/anime.guards'
+} from '@/modules/anime/routes/anime.guards'
 import {
   authRateLimitGuard,
   authRegistrationGuard,
   authRequiresAuthGuard,
   authRequiresGuestGuard
-} from '@modules/auth/routes/auth.guards'
+} from '@/modules/auth/routes/auth.guards'
 
 // Tipo para los guards
 export type RouterGuard = (
