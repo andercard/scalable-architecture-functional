@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+
+// Setup específico del módulo anime (solo mocks)
+import '../setup'
+
 import { useAnimeStore } from '../../stores/anime.store'
 import { animeApi } from '../../services/anime.services'
 import type { Anime } from '../../types'
@@ -100,8 +104,8 @@ const createFailureMock = (error: string) => ({
   value: error,
   isLeft: true,
   isRight: false,
-  fold: (onFailure: (error: string) => void) => {
-    onFailure(error)
+  fold: (onFailure: (error: string) => void, onSuccess?: (data: unknown) => void) => {
+    if (onFailure) return onFailure(error)
     return error
   }
 } as any)

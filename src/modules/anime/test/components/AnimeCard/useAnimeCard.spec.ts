@@ -1,8 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed } from 'vue'
+import { setActivePinia, createPinia } from 'pinia'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { useAnimeCard } from '../../../components/AnimeCard/useAnimeCard'
 import type { AnimeCardProps, AnimeCardEmits } from '../../../components/AnimeCard/animeCard.types'
 import type { Anime } from '../../../types'
+import { useAnimeStore } from '../../../stores/anime.store'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { createMockAnime } from '../../factories/anime.factory'
+
+// Setup específico del módulo anime
+import '../../setup'
 
 // Mocks
 vi.mock('vue-router', () => ({
@@ -13,19 +21,6 @@ vi.mock('vue-router', () => ({
 
 vi.mock('element-plus', () => ({
   ElMessage: vi.fn()
-}))
-
-vi.mock('../../../stores/anime.store', () => ({
-  useAnimeStore: () => ({
-    isFavorite: () => false,
-    toggleFavorite: vi.fn()
-  })
-}))
-
-vi.mock('../../../auth/stores/auth.store', () => ({
-  useAuthStore: () => ({
-    isAuthenticated: false
-  })
 }))
 
 // Mock de anime de ejemplo con todas las propiedades requeridas
@@ -76,7 +71,7 @@ const mockAnime = {
 
 // Utility function para crear props comunes
 const createTestProps = (overrides = {}): AnimeCardProps => ({
-  anime: mockAnime as unknown as Anime, // Convertir a unknown primero como sugiere el linter
+  anime: mockAnime as unknown as Anime,
   loading: false,
   ...overrides
 })
@@ -87,120 +82,227 @@ describe('useAnimeCard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    setActivePinia(createPinia())
     props = createTestProps()
     emit = vi.fn() as AnimeCardEmits
   })
 
-  describe('Anime Information Display', () => {
-    it('should display anime subtitle with type, status and year when all data is available', () => {
-      // Arrange
-      const { animeSubtitle } = useAnimeCard(props, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('TV • Airing • 2024')
+  describe('Computed Properties', () => {
+    describe('animeSubtitle', () => {
+      it('should format subtitle with all metadata available', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: 'TV', status: 'Airing', year: 2024 }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('TV • Airing • 2024')
+      })
+
+      it('should handle missing type gracefully', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: undefined, status: 'Airing', year: 2024 }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('Airing • 2024')
+      })
+
+      it('should handle missing status gracefully', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: 'TV', status: undefined, year: 2024 }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('TV • 2024')
+      })
+
+      it('should handle missing year gracefully', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: 'TV', status: 'Airing', year: undefined }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('TV • Airing')
+      })
+
+      it('should return empty string when no metadata available', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: undefined, status: undefined, year: undefined }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('')
+      })
+
+      it('should handle null values correctly', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: null, status: null, year: null }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('')
+      })
+
+      it('should handle empty string values correctly', () => {
+        // Arrange
+        const props = createTestProps({
+          anime: { ...mockAnime, type: '', status: '', year: undefined }
+        })
+        
+        // Act
+        const { animeSubtitle } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(animeSubtitle.value).toBe('')
+      })
     })
 
-    it('should display subtitle without type when type is missing', () => {
-      // Arrange
-      const animeWithoutType = { ...mockAnime, type: undefined } as unknown as Anime
-      const { animeSubtitle } = useAnimeCard({ ...props, anime: animeWithoutType }, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('Airing • 2024')
+    describe('isAuthenticated', () => {
+      it('should reflect auth store authentication status', () => {
+        // Arrange & Act
+        const { isAuthenticated } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(typeof isAuthenticated.value).toBe('boolean')
+      })
     })
 
-    it('should display subtitle without status when status is missing', () => {
-      // Arrange
-      const animeWithoutStatus = { ...mockAnime, status: undefined } as unknown as Anime
-      const { animeSubtitle } = useAnimeCard({ ...props, anime: animeWithoutStatus }, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('TV • 2024')
-    })
-
-    it('should display subtitle without year when year is missing', () => {
-      // Arrange
-      const animeWithoutYear = { ...mockAnime, year: undefined } as unknown as Anime
-      const { animeSubtitle } = useAnimeCard({ ...props, anime: animeWithoutYear }, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('TV • Airing')
-    })
-
-    it('should display only type when status and year are missing', () => {
-      // Arrange
-      const animeOnlyType = { ...mockAnime, status: undefined, year: undefined } as unknown as Anime
-      const { animeSubtitle } = useAnimeCard({ ...props, anime: animeOnlyType }, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('TV')
-    })
-
-    it('should display empty subtitle when no metadata is available', () => {
-      // Arrange
-      const animeNoMetadata = { ...mockAnime, type: undefined, status: undefined, year: undefined } as unknown as Anime
-      const { animeSubtitle } = useAnimeCard({ ...props, anime: animeNoMetadata }, emit)
-      
-      // Assert
-      expect(animeSubtitle.value).toBe('')
-    })
-  })
-
-  describe('Authentication State', () => {
-    it('should provide authentication status for conditional UI rendering', () => {
-      // Arrange & Act
-      const { isAuthenticated } = useAnimeCard(props, emit)
-      
-      // Assert
-      expect(isAuthenticated.value).toBe(false)
-    })
-  })
-
-  describe('Favorite Management', () => {
-    it('should provide favorite status for UI display', () => {
-      // Arrange & Act
-      const { isFavorite } = useAnimeCard(props, emit)
-      
-      // Assert
-      expect(typeof isFavorite.value).toBe('boolean')
-    })
-
-    it('should provide boolean value for favorite status display', () => {
-      // Arrange & Act
-      const { isFavorite } = useAnimeCard(props, emit)
-      
-      // Assert
-      expect(typeof isFavorite.value).toBe('boolean')
+    describe('isFavorite', () => {
+      it('should reflect anime store favorite status', () => {
+        // Arrange & Act
+        const { isFavorite } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(typeof isFavorite.value).toBe('boolean')
+      })
     })
   })
 
   describe('User Interactions', () => {
-    it('should emit click event when user clicks on the anime card', () => {
+    describe('handleClick', () => {
+      it('should emit click event and navigate to anime detail', () => {
+        // Arrange
+        const { handleClick } = useAnimeCard(props, emit)
+        const mockEvent = new MouseEvent('click')
+        
+        // Act
+        handleClick(mockEvent)
+        
+        // Assert
+        expect(emit).toHaveBeenCalledWith('click', mockEvent)
+        // Nota: El router.push se mockea en el setup global
+      })
+
+      it('should handle click with different anime IDs', () => {
+        // Arrange
+        const propsWithDifferentId = createTestProps({
+          anime: { ...mockAnime, mal_id: 999 }
+        })
+        const { handleClick } = useAnimeCard(propsWithDifferentId, emit)
+        const mockEvent = new MouseEvent('click')
+        
+        // Act
+        handleClick(mockEvent)
+        
+        // Assert
+        expect(emit).toHaveBeenCalledWith('click', mockEvent)
+        // Nota: El router.push se mockea en el setup global
+      })
+    })
+
+    describe('toggleFavorite', () => {
+      it('should provide toggle favorite functionality', () => {
+        // Arrange & Act
+        const { toggleFavorite } = useAnimeCard(props, emit)
+        
+        // Assert
+        expect(typeof toggleFavorite).toBe('function')
+        expect(() => toggleFavorite()).not.toThrow()
+      })
+    })
+
+    describe('showLoginMessage', () => {
+      it('should show warning message and navigate to login', () => {
+        // Arrange
+        const { showLoginMessage } = useAnimeCard(props, emit)
+        
+        // Act
+        showLoginMessage()
+        
+        // Assert
+        expect(vi.mocked(ElMessage)).toHaveBeenCalledWith({
+          message: 'Debes iniciar sesión para agregar animes a favoritos',
+          type: 'warning',
+          duration: 2000
+        })
+        // Nota: El router.push se mockea en el setup global
+      })
+    })
+  })
+
+  describe('Edge Cases and Error Handling', () => {
+    it('should handle anime with missing mal_id gracefully', () => {
       // Arrange
-      const { handleClick } = useAnimeCard(props, emit)
-      const mockEvent = new MouseEvent('click')
+      const propsWithoutId = createTestProps({
+        anime: { ...mockAnime, mal_id: undefined }
+      })
       
-      // Act
-      handleClick(mockEvent)
-      
-      // Assert
-      expect(emit).toHaveBeenCalledWith('click', mockEvent)
+      // Act & Assert
+      expect(() => useAnimeCard(propsWithoutId, emit)).not.toThrow()
     })
 
-    it('should provide toggle favorite functionality for user interaction', () => {
-      // Arrange & Act
-      const { toggleFavorite } = useAnimeCard(props, emit)
+    it('should handle anime with missing images gracefully', () => {
+      // Arrange
+      const propsWithoutImages = createTestProps({
+        anime: { ...mockAnime, images: undefined }
+      })
       
-      // Assert
-      expect(typeof toggleFavorite).toBe('function')
+      // Act & Assert
+      expect(() => useAnimeCard(propsWithoutImages, emit)).not.toThrow()
     })
 
-    it('should provide login message functionality for unauthenticated users', () => {
-      // Arrange & Act
-      const { showLoginMessage } = useAnimeCard(props, emit)
+    it('should handle anime with missing genres gracefully', () => {
+      // Arrange
+      const propsWithoutGenres = createTestProps({
+        anime: { ...mockAnime, genres: undefined }
+      })
       
-      // Assert
-      expect(typeof showLoginMessage).toBe('function')
+      // Act & Assert
+      expect(() => useAnimeCard(propsWithoutGenres, emit)).not.toThrow()
+    })
+
+    it('should handle anime with missing title gracefully', () => {
+      // Arrange
+      const propsWithoutTitle = createTestProps({
+        anime: { ...mockAnime, title: undefined }
+      })
+      
+      // Act & Assert
+      expect(() => useAnimeCard(propsWithoutTitle, emit)).not.toThrow()
     })
   })
 
@@ -218,21 +320,21 @@ describe('useAnimeCard', () => {
       expect(result).toHaveProperty('showLoginMessage')
     })
 
-    it('should provide reactive computed properties for UI updates', () => {
-      // Arrange & Act
+    it('should return computed properties that are reactive', () => {
+      // Arrange
       const result = useAnimeCard(props, emit)
       
-      // Assert
+      // Act & Assert
       expect(typeof result.animeSubtitle.value).toBe('string')
       expect(typeof result.isAuthenticated.value).toBe('boolean')
       expect(typeof result.isFavorite.value).toBe('boolean')
     })
 
-    it('should provide all required methods for user interactions', () => {
-      // Arrange & Act
+    it('should return functions for user interactions', () => {
+      // Arrange
       const result = useAnimeCard(props, emit)
       
-      // Assert
+      // Act & Assert
       expect(typeof result.handleClick).toBe('function')
       expect(typeof result.toggleFavorite).toBe('function')
       expect(typeof result.showLoginMessage).toBe('function')

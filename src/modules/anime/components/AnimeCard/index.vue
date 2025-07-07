@@ -1,9 +1,9 @@
 <template>
   <BaseCard
-    :title="anime.title"
-    :image-url="anime.images.jpg.large_image_url"
+    :title="anime.title ?? ''"
+    :image-url="anime.images?.jpg?.large_image_url ?? 'https://example.com/placeholder.jpg'"
     :subtitle="animeSubtitle"
-    :genres="anime.genres"
+    :genres="Array.isArray(anime.genres) ? anime.genres : []"
     :loading="loading"
     :clickable="true"
     @click="handleClick"
@@ -13,13 +13,15 @@
         <div class="anime-card__stats">
           <span class="anime-card__stat">
             <i class="icon-episodes"></i>
-            {{ anime.episodes || '?' }} eps
+            {{ anime.episodes ?? '?' }} eps
           </span>
         </div>
         
         <el-button
           v-if="isAuthenticated"
           data-test="button:toggle-favorite"
+          role="button"
+          :aria-label="isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'"
           :type="isFavorite ? 'danger' : 'default'"
           :icon="isFavorite ? 'Star' : 'StarFilled'"
           circle
@@ -30,6 +32,8 @@
         <el-button
           v-else
           data-test="button:login-required"
+          role="button"
+          aria-label="Inicia sesión para agregar a favoritos"
           type="info"
           icon="Lock"
           circle

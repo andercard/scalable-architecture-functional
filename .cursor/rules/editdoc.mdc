@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Reglas para modo edición de documentación
+
+## Contexto de trabajo
+Estoy trabajando en modo edición de documentación. Cuando te proporcione una línea de código específica, significa que quiero enfocarme en editar SOLO esa sección, no toda la documentación.
+
+## Comportamiento esperado
+1. **Análisis de contexto completo**: Antes de sugerir cambios, analiza TODA la documentación disponible para entender el contexto completo del proyecto, estructura y estilo de documentación existente. Solo responde edición sugeridad. Solo da un resumen cuando te lo pida
+
+2. **Edición focalizada**: Cuando te proporcione una línea de código específica:
+   - Enfócate únicamente en esa sección
+   - Mantén consistencia con el estilo y formato de la documentación existente
+   - No sugieras cambios en otras partes de la documentación a menos que sea necesario para mantener coherencia
+
+3. **Sugerencias contextuales**: Para proporcionar las mejores sugerencias:
+   - Toma en cuenta el contexto completo del proyecto
+   - Considera el público objetivo de la documentación
+   - Mantén consistencia con el tono y estilo existente
+   - Respeta la estructura y organización actual
+
+4. **Prioridades de edición**:
+   - Claridad y precisión técnica
+   - Consistencia con el resto de la documentación
+   - Mantener el flujo y estructura existente
+   - Asegurar que la información sea actualizada y relevante
+
+## Comandos específicos
+- Cuando escriba "editar seleccion": Enfócate solo en la lineas que tienes en el contexto
+- Cuando escriba "mejora seleccion" Enfocate en las lineas de codigo que tienes de contexto o revisa si indique todo el archivo y mejora la redaccion
+- Cuando escribas "retoque seleccion": Enfocate en las lineas de codigo que tienes de contexto o revisa si indique todo el archivo y mejora la redacción pero sugiere cambios mínimos
+
+## Estilo de respuesta
+- Responde en español
+- Sé específico y directo en las sugerencias
+- Explica brevemente el razonamiento detrás de los cambios sugeridos
+- Mantén un tono profesional pero accesible

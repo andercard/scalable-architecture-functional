@@ -22,7 +22,8 @@ export const formatNumber = (num: number): string => {
 /**
  * Truncates text to a specific length
  */
-export const truncateText = (text: string, maxLength: number): string => {
+export const truncateText = (text: string | undefined | null, maxLength: number): string => {
+  if (!text) return ''
   if (text.length <= maxLength) return text
   return text.slice(0, maxLength) + '...'
 }

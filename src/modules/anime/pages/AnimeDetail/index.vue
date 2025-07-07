@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAnimeDetail } from './useAnimeDetail'
+import { useAnimeDetail } from '@/modules/anime/pages/AnimeDetail/useAnimeDetail'
 
 const getProducerNames = (producers: { name: string }[]) =>
   producers.map((p: { name: string }) => p.name).join(', ')

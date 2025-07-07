@@ -4,11 +4,11 @@ import type { BaseCardProps } from '../types/shared.types'
 
 export const useBaseCard = (props: BaseCardProps, emit: (event: 'click', ...args: any[]) => void) => {
   const truncatedTitle = computed(() => 
-    truncateText(props.title, props.maxTitleLength || 50)
+    truncateText(props.title ?? '', props.maxTitleLength || 50)
   )
 
   const displayGenres = computed(() => 
-    props.genres?.slice(0, props.maxGenres) || []
+    Array.isArray(props.genres) ? props.genres.slice(0, props.maxGenres) : []
   )
 
   const handleClick = (event: MouseEvent) => {

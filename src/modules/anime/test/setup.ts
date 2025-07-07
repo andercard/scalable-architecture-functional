@@ -1,45 +1,116 @@
 import { vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { right, left } from '@/core/either'
 
-// Configurar Pinia para tests
-setActivePinia(createPinia())
+/**
+ * SETUP ESPECÍFICO PARA TESTS DEL MÓDULO ANIME
+ * 
+ * Basado en las mejores prácticas de testing:
+ * - Solo mocks específicos del módulo
+ * - Uso de Either real (no mockeado)
+ * - Configuración limpia y mantenible
+ * 
+ * PRINCIPIOS:
+ * - Mockeo selectivo de servicios
+ * - Factories para datos de prueba
+ * - Utilidades reutilizables
+ */
 
-// Mock de window y localStorage
-Object.defineProperty(globalThis, 'window', {
-  value: {
-    localStorage: {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn()
-    }
-  },
-  writable: true
+/**
+ * MOCKS DE SERVICIOS ESPECÍFICOS DEL MÓDULO
+ * 
+ * Los servicios retornan Either real, no mocks del Either
+ */
+
+// Mock de servicios específicos del módulo anime
+vi.mock('@/modules/anime/services/anime.services', () => ({
+  animeApi: {
+    getAnimeList: vi.fn(() => Promise.resolve(right({ 
+      data: [], 
+      pagination: { items: { total: 0 } } 
+    }))),
+    getAnimeById: vi.fn(() => Promise.resolve(right({ data: {} }))),
+    searchAnime: vi.fn(() => Promise.resolve(right({ 
+      data: [], 
+      pagination: { items: { total: 0 } } 
+    }))),
+    getTopAnime: vi.fn(() => Promise.resolve(right({ 
+      data: [], 
+      pagination: { items: { total: 0 } } 
+    }))),
+    getSeasonalAnime: vi.fn(() => Promise.resolve(right({ 
+      data: [], 
+      pagination: { items: { total: 0 } } 
+    }))),
+    getAnimeCharacters: vi.fn(() => Promise.resolve(right({ 
+      data: { data: [] },
+      status: 200
+    }))),
+    getAnimeRecommendations: vi.fn(() => Promise.resolve(right({ data: [] }))),
+    getAnimeStats: vi.fn(() => Promise.resolve(right({ data: {} }))),
+    getAnimeByGenre: vi.fn(() => Promise.resolve(right({ 
+      data: [], 
+      pagination: { items: { total: 0 } } 
+    })))
+  }
+}))
+
+/**
+ * UTILIDADES PARA TESTING
+ * 
+ * Factories y helpers específicos del módulo anime
+ */
+
+// Helper para crear mocks de respuesta exitosa
+export const createSuccessMock = <T>(data: T) => right(data)
+
+// Helper para crear mocks de respuesta fallida
+export const createFailureMock = (message: string) => left({ 
+  code: 'API_ERROR', 
+  reason: 'NETWORK_ERROR', 
+  status: 500, 
+  message 
 })
 
-// Mock de document
-Object.defineProperty(globalThis, 'document', {
-  value: {
-    createElement: vi.fn(() => ({
-      setAttribute: vi.fn(),
-      getAttribute: vi.fn(),
-      appendChild: vi.fn(),
-      removeChild: vi.fn()
-    })),
-    querySelector: vi.fn(),
-    querySelectorAll: vi.fn(() => []),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn()
-  },
-  writable: true
-})
+// Helper para crear mocks de respuesta fallida específica
+export const createFailureMockWithCode = (
+  code: string,
+  reason: string,
+  status: number,
+  message: string
+) => left({ code, reason, status, message })
 
-// Mock de console para evitar logs en tests
-globalThis.console = {
-  ...console,
-  log: vi.fn(),
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn()
+/**
+ * UTILIDADES DE LIMPIEZA
+ */
+
+// Helper para limpiar mocks entre tests
+export const clearAnimeMocks = () => {
+  vi.clearAllMocks()
+}
+
+// Helper para limpiar localStorage entre tests
+export const clearAnimeStorage = () => {
+  localStorage.clear()
+}
+
+/**
+ * CONFIGURACIÓN DE TESTING
+ */
+
+// Configuración específica para tests del módulo anime
+export const animeTestConfig = {
+  // Timeouts específicos para operaciones de anime
+  timeouts: {
+    apiCall: 5000,
+    animation: 1000,
+    loading: 2000
+  },
+  
+  // Datos de prueba por defecto
+  defaults: {
+    animeId: 1,
+    page: 1,
+    limit: 20,
+    searchQuery: 'test anime'
+  }
 } 

@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed } from 'vue'
 import { useAnimeFavorites } from '../../../pages/AnimeFavorites/useAnimeFavorites'
 
 // Mocks

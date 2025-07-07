@@ -26,7 +26,9 @@ export const useAnimeCard = (props: AnimeCardProps, emit: AnimeCardEmits) => {
 
   const handleClick = (event: MouseEvent) => {
     emit('click', event)
-    router.push(`/anime/${props.anime.mal_id}`)
+    if (props.anime && props.anime.mal_id != null) {
+      router.push(`/anime/${props.anime.mal_id}`)
+    }
   }
 
   const toggleFavorite = () => {
@@ -34,7 +36,9 @@ export const useAnimeCard = (props: AnimeCardProps, emit: AnimeCardEmits) => {
       showLoginMessage()
       return
     }
-    animeStore.toggleFavorite(props.anime)
+    if (props.anime) {
+      animeStore.toggleFavorite(props.anime)
+    }
   }
 
   const showLoginMessage = () => {

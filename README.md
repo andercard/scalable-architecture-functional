@@ -161,6 +161,7 @@ import { useAnimeStore } from '@modules/anime/stores/anime.store'
 - Vitest configurado para testing unitario
 - Tests completos para el patrón Either
 - Cobertura de funcionalidad crítica
+- [Guía completa de testing](./TESTING_GUIDELINES.md)
 
 ### ✅ Enrutamiento Modular
 - Rutas definidas por módulo
