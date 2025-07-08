@@ -913,6 +913,728 @@ describe('AnimeList Component', () => {
 ```
 
 
+### Testing de Inject/provide
+
+**¿Cuándo usar provide/inject en testing?**
+El patrón provide/inject es común en formularios complejos donde múltiples componentes necesitan compartir estado. Nuestro enfoque de testing se adapta según el tipo de test y el nivel de integración necesario.
+
+#### **1. Testing de Composables con Provide/Inject**
+
+**Patrón recomendado**: Usar `withSetup` para testing unitario de composables que usan provide/inject.
+
+```typescript
+import { withSetup } from '@/test/utils/withSetup'
+import { useRegisterFormProvider } from '@/modules/auth/composables/useRegisterFormProvider'
+import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
+
+describe('Register Form Provider/Inject Pattern', () => {
+  it('should provide form data to child composables', () => {
+    // Arrange
+    const emit = vi.fn()
+    
+    // Act - Provider setup
+    const { result: providerResult, app: providerApp } = withSetup(() => 
+      useRegisterFormProvider(emit)
+    )
+    
+    // Act - Inject setup (simula componente hijo)
+    const { result: injectResult, app: injectApp } = withSetup(() => 
+      useRegisterFormStepValidation()
+    )
+    
+    // Assert - Verificar que el provider funciona
+    expect(providerResult.provide).toBeDefined()
+    expect(providerResult.form).toBeDefined()
+    expect(providerResult.form.username).toBe('')
+    
+    // Cleanup
+    providerApp.unmount()
+    injectApp.unmount()
+  })
+
+  it('should validate form data through inject pattern', () => {
+    // Arrange
+    const emit = vi.fn()
+    const { result: providerResult, app: providerApp } = withSetup(() => 
+      useRegisterFormProvider(emit)
+    )
+    
+    // Act - Simular llenado de formulario
+    providerResult.form.username = 'testuser'
+    providerResult.form.firstName = 'Test'
+    
+    // Act - Validar usando composable inyectado
+    const { result: validationResult, app: validationApp } = withSetup(() => 
+      useRegisterFormStepValidation()
+    )
+    
+    // Assert - Verificar validación
+    const isValid = validationResult.validateForm(providerResult.form)
+    expect(isValid).toBe(true)
+    
+    // Cleanup
+    providerApp.unmount()
+    validationApp.unmount()
+  })
+})
+```
+
+#### **2. Testing de Componentes con Provide/Inject**
+
+**Patrón recomendado**: Testing real entre componentes padre e hijo para validar integración completa.
+
+```typescript
+import { render, screen } from '@testing-library/vue'
+import { createTestingPinia } from '@pinia/testing'
+import RegisterFormStep from '@/modules/auth/views/RegisterFormStep/index.vue'
+
+describe('Register Form Step Component Integration', () => {
+  it('should render form sections with shared state', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar que todas las secciones están presentes
+    expect(screen.getByTestId('section:basic')).toBeInTheDocument()
+    expect(screen.getByTestId('section:residence')).toBeInTheDocument()
+    expect(screen.getByTestId('section:contact')).toBeInTheDocument()
+    expect(screen.getByTestId('section:preferences')).toBeInTheDocument()
+  })
+
+  it('should display form header with correct content', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar contenido del formulario
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Crear Cuenta')
+    expect(screen.getByText('Completa los siguientes datos para crear tu cuenta')).toBeInTheDocument()
+  })
+})
+```
+
+#### **3. Testing de Validación con Inject**
+
+**Patrón recomendado**: Testing unitario de lógica de validación usando composables inyectados.
+
+```typescript
+import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
+import { createValidRegisterForm } from '@/modules/auth/test/factories/register.factory'
+
+describe('Form Validation with Inject Pattern', () => {
+  it('should validate complete form data', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const validForm = createValidRegisterForm()
+    
+    // Act
+    const isValid = result.validateForm(validForm)
+    
+    // Assert
+    expect(isValid).toBe(true)
+  })
+
+  it('should reject form with missing required fields', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const invalidForm = createValidRegisterForm({ username: '' }) // Username vacío
+    
+    // Act
+    const isValid = result.validateForm(invalidForm)
+    
+    // Assert
+    expect(isValid).toBe(false)
+  })
+
+  it('should provide validation rules for all form fields', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    
+    // Act & Assert
+    expect(result.validationRules).toBeDefined()
+    expect(result.validationRules.username).toBeDefined()
+    expect(result.validationRules.firstName).toBeDefined()
+    expect(result.validationRules.country).toBeDefined()
+  })
+})
+```
+
+#### **4. Mejores Prácticas para Provide/Inject**
+
+**SÍ hacer:**
+- **Composables unitarios**: Usar `withSetup` para testing aislado
+- **Integración real**: Testing entre componentes padre/hijo
+- **Validación separada**: Testing unitario de lógica de validación
+- **Cleanup**: Siempre hacer `app.unmount()` en tests con lifecycle
+
+**NO hacer:**
+- Mockear provide/inject en tests de integración
+- Testear detalles internos de la inyección
+- Ignorar cleanup en tests con `withSetup`
+- Mezclar testing unitario e integración en el mismo test
+
+### Factories testing data
+
+**¿Por qué usar factories para testing?**
+Las factories proporcionan datos de prueba consistentes, reutilizables y mantenibles. Siguiendo las mejores prácticas de [Stackademic](https://blog.stackademic.com/best-practices-for-managing-test-data-in-nestjs-with-jest-e4729769047b?gi=2dd7bb52c473), implementamos un enfoque modular que facilita la creación y mantenimiento de datos de prueba.
+
+#### **1. Patrón Factory por Módulo**
+
+**Estructura recomendada:**
+```
+src/modules/auth/test/factories/
+├── register.factory.ts
+├── user.factory.ts
+└── index.ts
+```
+
+**Ventajas del enfoque modular:**
+- **Reutilización**: Factories específicas por dominio
+- **Mantenimiento**: Cambios centralizados en un lugar
+- **Consistencia**: Datos coherentes en todos los tests
+- **Flexibilidad**: Overrides para casos específicos
+
+#### **2. Implementación de Factories**
+
+```typescript
+// src/modules/auth/test/factories/register.factory.ts
+import type { RegisterForm } from '@/modules/auth/types/Auth.types'
+
+interface RegisterFormOverrides {
+  username?: string
+  firstName?: string
+  country?: string
+  city?: string
+  emergencyContact?: string
+  emergencyPhone?: string
+  newsletter?: boolean
+  termsAccepted?: boolean
+  marketingConsent?: boolean
+}
+
+export const createMockRegisterForm = (overrides: RegisterFormOverrides = {}): RegisterForm => ({
+  username: '',
+  firstName: '',
+  country: '',
+  city: '',
+  emergencyContact: '',
+  emergencyPhone: '',
+  newsletter: false,
+  termsAccepted: false,
+  marketingConsent: false,
+  ...overrides // Permitir customización
+})
+
+export const createValidRegisterForm = (overrides: RegisterFormOverrides = {}): RegisterForm => 
+  createMockRegisterForm({
+    username: 'testuser123',
+    firstName: 'Juan',
+    country: 'colombia',
+    city: 'Bogotá',
+    emergencyContact: 'María García',
+    emergencyPhone: '3001234567',
+    newsletter: true,
+    termsAccepted: true,
+    marketingConsent: false,
+    ...overrides
+  })
+
+// Factory para casos edge
+export const createInvalidRegisterForm = (overrides: RegisterFormOverrides = {}): RegisterForm => 
+  createMockRegisterForm({
+    username: '', // Inválido: vacío
+    firstName: 'A', // Inválido: muy corto
+    country: '', // Inválido: vacío
+    city: '', // Inválido: vacío
+    emergencyContact: '', // Inválido: vacío
+    emergencyPhone: '', // Inválido: vacío
+    newsletter: false,
+    termsAccepted: false, // Inválido: no aceptado
+    marketingConsent: false,
+    ...overrides
+  })
+```
+
+#### **3. Uso en Tests**
+
+```typescript
+import { createMockRegisterForm, createValidRegisterForm } from '../factories/register.factory'
+
+describe('Register Form Testing with Factories', () => {
+  it('should handle empty form data', () => {
+    // Arrange
+    const emptyForm = createMockRegisterForm()
+    
+    // Act & Assert
+    expect(emptyForm.username).toBe('')
+    expect(emptyForm.termsAccepted).toBe(false)
+  })
+
+  it('should handle valid form data', () => {
+    // Arrange
+    const validForm = createValidRegisterForm()
+    
+    // Act & Assert
+    expect(validForm.username).toBe('testuser123')
+    expect(validForm.termsAccepted).toBe(true)
+    expect(validForm.country).toBe('colombia')
+  })
+
+  it('should allow custom overrides', () => {
+    // Arrange
+    const customForm = createValidRegisterForm({
+      username: 'customuser',
+      newsletter: false
+    })
+    
+    // Act & Assert
+    expect(customForm.username).toBe('customuser')
+    expect(customForm.newsletter).toBe(false)
+    expect(customForm.firstName).toBe('Juan') // Mantiene valor por defecto
+  })
+
+  it('should handle edge cases with invalid factory', () => {
+    // Arrange
+    const invalidForm = createInvalidRegisterForm()
+    
+    // Act & Assert
+    expect(invalidForm.username).toBe('')
+    expect(invalidForm.termsAccepted).toBe(false)
+    expect(invalidForm.firstName).toBe('A')
+  })
+})
+```
+
+#### **4. Factories para Stores**
+
+```typescript
+// src/modules/auth/test/factories/store.factory.ts
+import { createTestingPinia } from '@pinia/testing'
+import type { RegisterForm } from '@/modules/auth/types/Auth.types'
+
+export const createMockAuthStore = (overrides = {}) => {
+  const pinia = createTestingPinia({
+    initialState: {
+      auth: {
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        ...overrides
+      }
+    },
+    stubActions: false
+  })
+  
+  return pinia
+}
+
+export const createMockRegisterFormState = (formData: Partial<RegisterForm> = {}) => ({
+  form: createValidRegisterForm(formData),
+  isLoading: false,
+  currentStep: 1,
+  totalSteps: 4
+})
+```
+
+#### **5. Mejores Prácticas para Factories**
+
+**SÍ hacer:**
+- **Nombres descriptivos**: `createValidRegisterForm`, `createInvalidRegisterForm`
+- **Overrides flexibles**: Permitir personalización para casos específicos
+- **Valores realistas**: Usar datos que simulen el mundo real
+- **Exportación centralizada**: `index.ts` para facilitar imports
+
+**NO hacer:**
+- Crear factories con datos hardcodeados sin overrides
+- Usar factories para datos que cambian frecuentemente
+- Crear factories demasiado específicas que no se reutilizan
+- Mezclar lógica de negocio en las factories
+
+**Patrón recomendado para factories complejas:**
+```typescript
+// Factory con múltiples variantes
+export const createRegisterFormVariants = {
+  empty: () => createMockRegisterForm(),
+  valid: () => createValidRegisterForm(),
+  invalid: () => createInvalidRegisterForm(),
+  partial: () => createValidRegisterForm({
+    username: 'partial',
+    firstName: 'Partial',
+    // Solo algunos campos llenos
+  })
+}
+```
+
+### Testing de Formularios
+
+**¿Por qué testing específico para formularios?**
+Los formularios complejos con múltiples secciones, validación y estado compartido requieren estrategias de testing especializadas. Nuestro enfoque se basa en la experiencia del formulario de registro y las mejores prácticas de [Filament](https://filamentphp.com/docs/2.x/admin/testing).
+
+#### **1. Testing de Formularios con Secciones Separadas**
+
+**Patrón recomendado**: Testing en capas - unitario para lógica, integración para flujo completo.
+
+```typescript
+import { render, screen } from '@testing-library/vue'
+import { createTestingPinia } from '@pinia/testing'
+import RegisterFormStep from '@/modules/auth/views/RegisterFormStep/index.vue'
+
+describe('Complex Form with Sections', () => {
+  it('should render all form sections correctly', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar estructura del formulario
+    expect(screen.getByTestId('form:main')).toBeInTheDocument()
+    expect(screen.getByTestId('step:complete')).toBeInTheDocument()
+    
+    // Verificar secciones individuales
+    expect(screen.getByTestId('section:basic')).toBeInTheDocument()
+    expect(screen.getByTestId('section:residence')).toBeInTheDocument()
+    expect(screen.getByTestId('section:contact')).toBeInTheDocument()
+    expect(screen.getByTestId('section:preferences')).toBeInTheDocument()
+  })
+
+  it('should display form header with correct content', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar contenido del formulario
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Crear Cuenta')
+    expect(screen.getByText('Completa los siguientes datos para crear tu cuenta')).toBeInTheDocument()
+  })
+})
+```
+
+#### **2. Mocks Avanzados para Element Plus**
+
+**Patrón recomendado**: Mocks que simulan comportamiento real de formularios.
+
+```typescript
+// src/modules/auth/test/setup.ts
+vi.mock('element-plus', () => ({
+  ElForm: {
+    name: 'ElForm',
+    template: `
+      <form v-bind="$attrs" @submit.prevent="$emit('submit')">
+        <slot />
+      </form>
+    `,
+    props: ['model', 'rules'],
+    emits: ['submit'],
+    methods: {
+      validate() {
+        return Promise.resolve(true)
+      },
+      resetFields() {
+        if (this.model) {
+          Object.keys(this.model).forEach(key => {
+            if (typeof this.model[key] === 'boolean') {
+              this.model[key] = false
+            } else {
+              this.model[key] = ''
+            }
+          })
+        }
+        return Promise.resolve()
+      }
+    }
+  },
+  ElInput: {
+    name: 'ElInput',
+    template: `
+      <div class="el-input" v-bind="$attrs">
+        <input 
+          class="el-input__inner" 
+          type="text" 
+          :placeholder="placeholder"
+          :value="modelValue" 
+          @input="handleInput"
+        />
+      </div>
+    `,
+    props: ['modelValue', 'placeholder'],
+    emits: ['update:modelValue'],
+    methods: {
+      handleInput(event) {
+        this.$emit('update:modelValue', event.target.value)
+      }
+    }
+  },
+  ElButton: {
+    name: 'ElButton',
+    template: `
+      <button 
+        class="el-button" 
+        :type="type" 
+        :disabled="loading || disabled" 
+        @click="handleClick" 
+        v-bind="$attrs"
+      >
+        <slot />
+      </button>
+    `,
+    props: ['type', 'loading', 'disabled'],
+    emits: ['click'],
+    methods: {
+      handleClick(event) {
+        if (!this.loading && !this.disabled) {
+          this.$emit('click', event)
+        }
+      }
+    }
+  }
+}))
+```
+
+#### **3. Testing de Validación de Formularios**
+
+**Patrón recomendado**: Testing unitario de lógica de validación + testing de integración de UI.
+
+```typescript
+import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
+import { createValidRegisterForm, createInvalidRegisterForm } from '../factories/register.factory'
+
+describe('Form Validation Testing', () => {
+  it('should validate complete form successfully', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const validForm = createValidRegisterForm()
+    
+    // Act
+    const isValid = result.validateForm(validForm)
+    
+    // Assert
+    expect(isValid).toBe(true)
+  })
+
+  it('should reject form with missing required fields', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const invalidForm = createInvalidRegisterForm()
+    
+    // Act
+    const isValid = result.validateForm(invalidForm)
+    
+    // Assert
+    expect(isValid).toBe(false)
+  })
+
+  it('should provide validation rules for all form fields', () => {
+    // Arrange
+    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    
+    // Act & Assert
+    expect(result.validationRules).toBeDefined()
+    expect(result.validationRules.username).toBeDefined()
+    expect(result.validationRules.firstName).toBeDefined()
+    expect(result.validationRules.country).toBeDefined()
+    expect(result.validationRules.city).toBeDefined()
+    expect(result.validationRules.emergencyContact).toBeDefined()
+    expect(result.validationRules.emergencyPhone).toBeDefined()
+    expect(result.validationRules.termsAccepted).toBeDefined()
+  })
+})
+```
+
+#### **4. Testing de Estado de Formularios**
+
+**Patrón recomendado**: Testing de estado reactivo y cambios de UI.
+
+```typescript
+import { render, screen, waitFor } from '@testing-library/vue'
+import { createTestingPinia } from '@pinia/testing'
+import RegisterFormStep from '@/modules/auth/views/RegisterFormStep/index.vue'
+
+describe('Form State Management', () => {
+  it('should render form inputs with correct attributes', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar atributos de los inputs
+    const firstNameInput = screen.getByTestId('input:first-name')
+    expect(firstNameInput).toBeInTheDocument()
+    expect(firstNameInput.getAttribute('data-test')).toBe('input:first-name')
+
+    const usernameInput = screen.getByTestId('input:username')
+    expect(usernameInput).toBeInTheDocument()
+    expect(usernameInput.getAttribute('data-test')).toBe('input:username')
+
+    const countrySelect = screen.getByTestId('select:country')
+    expect(countrySelect).toBeInTheDocument()
+    expect(countrySelect.getAttribute('data-test')).toBe('select:country')
+  })
+
+  it('should render form with proper accessibility attributes', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar accesibilidad básica
+    const form = screen.getByTestId('form:main')
+    expect(form).toBeInTheDocument()
+    
+    // Verificar que los inputs tienen placeholders
+    const firstNameInput = screen.getByTestId('input:first-name')
+    expect(firstNameInput).toHaveAttribute('placeholder')
+    
+    const usernameInput = screen.getByTestId('input:username')
+    expect(usernameInput).toHaveAttribute('placeholder')
+  })
+})
+```
+
+#### **5. Testing de Integración de Formularios**
+
+**Patrón recomendado**: Testing del flujo completo usando mocks simplificados.
+
+```typescript
+import { render, screen } from '@testing-library/vue'
+import { createTestingPinia } from '@pinia/testing'
+
+// Mock simplificado del componente para testing de integración
+const RegisterFormStep = {
+  name: 'RegisterFormStep',
+  template: `
+    <div data-test="view:register-form-step">
+      <h1>Crear Cuenta</h1>
+      <p>Completa los siguientes datos para crear tu cuenta</p>
+      
+      <el-form data-test="form:main">
+        <div data-test="step:complete">
+          <div data-test="section:basic">
+            <el-input data-test="input:first-name" placeholder="Nombre" />
+            <el-input data-test="input:username" placeholder="Usuario" />
+          </div>
+          
+          <div data-test="section:residence">
+            <el-select data-test="select:country" placeholder="Selecciona tu país">
+              <el-option label="Colombia" value="colombia" />
+              <el-option label="México" value="mexico" />
+              <el-option label="Argentina" value="argentina" />
+            </el-select>
+            <el-input data-test="input:city" placeholder="Ciudad" />
+          </div>
+          
+          <div data-test="section:contact">
+            <el-input data-test="input:emergency-contact" placeholder="Contacto de emergencia" />
+            <el-input data-test="input:emergency-phone" placeholder="Teléfono de emergencia" />
+          </div>
+          
+          <div data-test="section:preferences">
+            <el-switch data-test="switch:newsletter" />
+            <el-switch data-test="switch:marketing" />
+            <el-checkbox data-test="checkbox:terms">Acepto los términos</el-checkbox>
+          </div>
+        </div>
+        
+        <el-button data-test="button:submit" type="success">Crear Cuenta</el-button>
+      </el-form>
+    </div>
+  `
+}
+
+describe('Form Integration Testing', () => {
+  it('should render form with correct Element Plus components', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar que se usan los mocks de Element Plus
+    const form = screen.getByTestId('form:main')
+    expect(form.tagName.toLowerCase()).toBe('el-form')
+    expect(form).toHaveAttribute('data-test', 'form:main')
+
+    const submitButton = screen.getByTestId('button:submit')
+    expect(submitButton.tagName.toLowerCase()).toBe('el-button')
+    expect(submitButton).toHaveAttribute('type', 'success')
+  })
+
+  it('should render country options in select', () => {
+    // Arrange & Act
+    render(RegisterFormStep, {
+      global: {
+        plugins: [createTestingPinia()]
+      }
+    })
+
+    // Assert - Verificar que las opciones del país están presentes como mocks
+    const select = screen.getByTestId('select:country')
+    expect(select.tagName.toLowerCase()).toBe('el-select')
+    
+    // Buscar los el-option dentro del select
+    const options = select.querySelectorAll('el-option')
+    expect(options.length).toBe(3)
+    expect(options[0].getAttribute('label')).toBe('Colombia')
+    expect(options[0].getAttribute('value')).toBe('colombia')
+    expect(options[1].getAttribute('label')).toBe('México')
+    expect(options[1].getAttribute('value')).toBe('mexico')
+    expect(options[2].getAttribute('label')).toBe('Argentina')
+    expect(options[2].getAttribute('value')).toBe('argentina')
+  })
+})
+```
+
+#### **6. Mejores Prácticas para Testing de Formularios**
+
+**SÍ hacer:**
+- **Testing en capas**: Unitario para lógica, integración para UI
+- **Mocks avanzados**: Simular comportamiento real de componentes
+- **Validación separada**: Testing unitario de reglas de validación
+- **Accesibilidad**: Usar `getByRole()` y `getByLabelText()`
+- **Factories**: Usar datos consistentes y reutilizables
+
+**NO hacer:**
+- Testing de detalles internos de implementación
+- Mockear validación en tests de integración
+- Ignorar accesibilidad en tests de formularios
+- Crear tests frágiles que dependen de estructura específica
+
+**Patrón recomendado para formularios complejos:**
+```typescript
+// 1. Testing unitario de lógica
+describe('Form Logic', () => {
+  it('should validate form data')
+  it('should handle form state changes')
+})
+
+// 2. Testing de componentes individuales
+describe('Form Components', () => {
+  it('should render form sections')
+  it('should handle user interactions')
+})
+
+// 3. Testing de integración
+describe('Form Integration', () => {
+  it('should handle complete form flow')
+  it('should validate form submission')
+})
+```
+
 ### Testing de Inject/provide (analizar - crear)
 Se debe indicar como hacer las pruebas cuando un componente padre o hijo utiliza inject y provider y en que caso se debe usar el withSetup y en que caso se debe usar el real entre componentes
 
@@ -980,7 +1702,7 @@ it('should handle DOM events', async () => {
 ### Factories testing data
 Debemos hablar del patron factory para las pruebas explicar las ventajas indicar que se debe trabajar por modulo. y dar un par de ejemplos pequeños con
 
-### Testing de Stores Pinia
+### Testing de Stores Pinia (analizar)
 
 **El proyecto utiliza dos enfoques principales para testing con Pinia**, según el tipo de test y el nivel de control necesario.
 

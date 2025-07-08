@@ -2,8 +2,18 @@ import { vi, expect } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
 import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import { render, type RenderOptions } from '@testing-library/vue'
+import { configure } from '@testing-library/vue'
 import type { ComponentPublicInstance } from 'vue'
 import '@testing-library/jest-dom'
+
+/**
+ * CONFIGURACIÓN DE TESTING LIBRARY
+ * Configurar para usar data-test como atributo de test id
+ */
+configure({ 
+  testIdAttribute: 'data-test',
+  asyncUtilTimeout: 5000
+})
 
 /**
  * SETUP GLOBAL PARA TESTING
