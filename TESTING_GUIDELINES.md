@@ -2320,12 +2320,16 @@ export default defineConfig({
 ### **Documentación Oficial**
 - [Vue.js Testing Guide](https://vuejs.org/guide/scaling-up/testing) - Guía oficial de testing en Vue
 - [Vue Testing Library](https://testing-library.com/docs/vue-testing-library/intro/) - Herramienta recomendada para component testing
+- [User Event Documentation](https://testing-library.com/docs/user-event/v13/) - Documentación oficial de user-event
+- [User Event GitHub Repository](https://github.com/testing-library/user-event) - Repositorio oficial con ejemplos y issues
 
 ### **Vue 3 Testing Específico**
 - [Vue Testing Guide](https://vuejs.org/guide/scaling-up/testing) - Documentación oficial de Vue
 - [Testing Vue Components with Vitest](https://dev.to/jacobandrewsky/testing-vue-components-with-vitest-5c21) - Jacob Andrewsky
 - [Testing Vue Composables Lifecycle](https://dylanbritz.dev/writing/testing-vue-composables-lifecycle/) - Dylan Britz
 - [Good Practices for Vue Composables](https://dev.to/jacobandrewsky/good-practices-and-design-patterns-for-vue-composables-24lk) - Jacob Andrewsky
+- [How to Test Vue Composables](https://alexop.dev/posts/how-to-test-vue-composables/) - Alex Op
+- [How to Write Clean Vue Components](https://alexop.dev/posts/how-to-write-clean-vue-components/) - Alex Op
 - [Vue Test Utils Advanced Guide](https://test-utils.vuejs.org/guide/advanced/reusability-composition) - Documentación oficial
 
 ### **Vue Router Testing**
