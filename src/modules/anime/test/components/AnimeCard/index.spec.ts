@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/vue'
+import { render, screen } from '@testing-library/vue'
+import userEvent from '@testing-library/user-event'
 import { setActivePinia, createPinia } from 'pinia'
 import { createTestingPinia } from '@pinia/testing'
 import AnimeCard from '../../../components/AnimeCard/index.vue'
@@ -129,6 +130,7 @@ describe('AnimeCard Template', () => {
 
     it('should handle favorite button click when authenticated', async () => {
       // Arrange
+      const user = userEvent.setup()
       const anime = createMockAnime()
       vi.spyOn(authStore, 'isAuthenticated', 'get').mockReturnValue(true)
       vi.spyOn(animeStore, 'isFavorite', 'get').mockImplementation(() => (a: Anime) => false)
@@ -140,7 +142,7 @@ describe('AnimeCard Template', () => {
       })
       
       const favoriteButton = container.querySelector('[data-test="button:toggle-favorite"]')
-      await fireEvent.click(favoriteButton!)
+      await user.click(favoriteButton!)
       
       // Assert
       expect(animeStore.toggleFavorite).toHaveBeenCalledWith(anime)
@@ -148,6 +150,7 @@ describe('AnimeCard Template', () => {
 
     it('should handle login button click when not authenticated', async () => {
       // Arrange
+      const user = userEvent.setup()
       const anime = createMockAnime()
       vi.spyOn(authStore, 'isAuthenticated', 'get').mockReturnValue(false)
       vi.spyOn(animeStore, 'isFavorite', 'get').mockImplementation(() => (a: Anime) => false)
@@ -158,7 +161,7 @@ describe('AnimeCard Template', () => {
       })
       
       const loginButton = container.querySelector('[data-test="button:login-required"]')
-      await fireEvent.click(loginButton!)
+      await user.click(loginButton!)
       
       // Assert
       expect(ElMessage).toHaveBeenCalled()
@@ -166,6 +169,7 @@ describe('AnimeCard Template', () => {
 
     it('should prevent event propagation on button clicks', async () => {
       // Arrange
+      const user = userEvent.setup()
       const anime = createMockAnime()
       const mockRouter = { push: vi.fn() }
       vi.spyOn(authStore, 'isAuthenticated', 'get').mockReturnValue(true)
@@ -182,7 +186,7 @@ describe('AnimeCard Template', () => {
       })
       
       const favoriteButton = container.querySelector('[data-test="button:toggle-favorite"]')
-      await fireEvent.click(favoriteButton!)
+      await user.click(favoriteButton!)
       
       // Assert - El click del botón no debe propagar al card
       expect(mockRouter.push).not.toHaveBeenCalled()

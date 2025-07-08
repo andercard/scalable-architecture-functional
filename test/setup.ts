@@ -178,30 +178,3 @@ export const spyOnLocalStorage = () => {
     }
   }
 }
-
-// Helper para limpiar localStorage entre tests
-export const clearLocalStorage = () => {
-  localStorage.clear()
-}
-
-/**
- * CONFIGURACIÓN DE VUE ROUTER PARA TESTS UNITARIOS
- * 
- * Solo para tests que necesitan mocks específicos de router
- * Para tests de integración, usar router real
- */
-
-// Mock de Vue Router para tests unitarios
-vi.mock('vue-router', async () => {
-  const actual = await vi.importActual('vue-router')
-  return {
-    ...actual,
-    useRouter: () => createMockRouter(),
-    useRoute: () => ({
-      params: {},
-      query: {},
-      path: '/',
-      name: undefined
-    })
-  }
-})
