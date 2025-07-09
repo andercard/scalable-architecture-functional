@@ -1,296 +1,154 @@
-# 🎌 Anime Explorer
+# Prueba de Concepto de Arquitectura Escalable
 
-Una aplicación web moderna para explorar animes de Attack on Titan y Jujutsu Kaisen, construida con Vue 3, TypeScript y siguiendo los lineamientos de arquitectura modular para frontend B2B.
+Una aplicación de demostración que implementa los lineamientos de arquitectura modular para frontend B2B, construida con Vue 3, TypeScript y siguiendo las mejores prácticas de escalabilidad y mantenibilidad.
 
-## ✨ Características
+## Objetivo
 
-- **Arquitectura Modular**: Implementación completa de los lineamientos de arquitectura modular
-- **API de Anime**: Integración con Jikan API (MyAnimeList) para datos reales
-- **Gestión de Estado**: Pinia para manejo de estado global
-- **TypeScript**: Tipado completo para mejor desarrollo
-- **Diseño Responsivo**: Interfaz moderna y adaptable
-- **Búsqueda en Tiempo Real**: Búsqueda con debounce
-- **Sistema de Favoritos**: Guardado local de animes favoritos
-- **Paginación**: Navegación eficiente entre páginas
+Este proyecto sirve como **prueba de concepto** para validar y demostrar una arquitectura escalable que resuelve los desafíos comunes en aplicaciones frontend empresariales:
 
-## 🏗️ Arquitectura del Proyecto
+- **Complejidad creciente** con el tamaño del proyecto
+- **Código disperso** y dependencias complejas
+- **Dificultades de testing** y mantenimiento
+- **Curva de aprendizaje elevada** para nuevos desarrolladores
 
-Este proyecto sigue una arquitectura modular inspirada en los lineamientos de frontend B2B, separando claramente la infraestructura, los módulos de negocio y los recursos compartidos.
+## Arquitectura Implementada
 
-### Estructura principal
+### Visión General
+La arquitectura es una **fusión de mejores prácticas** que combina patrones probados y modernos para resolver los desafíos de escalabilidad en aplicaciones frontend empresariales:
+
+1. **Arquitectura Modular por Dominios** - Cada funcionalidad encapsulada en su propio módulo independiente con API pública controlada
+2. **Atomic Design Adaptado** - Componentes, Sections, Views y Pages organizados jerárquicamente para reutilización efectiva
+3. **Separación SCF (Script-Component-File)** - División en tres archivos: template, lógica y estilos para mejorar testabilidad
+4. **Estructura Flat Inteligente** - Evita anidamientos excesivos manteniendo archivos relacionados juntos
+5. **Core y Shared Centralizados** - Lógica estructural global y recursos compartidos organizados
+6. **Patrón Either** - Manejo funcional de errores con type safety garantizado
+7. **Patrón Factory para Testing** - Factories centralizadas por módulo para datos de prueba consistentes
+8. **Patrón Provide/Inject** - Gestión de estado local complejo entre componentes padre-hijo
+9. **Patrón de Servicios HTTP** - Servicios encapsulados por módulo con instancia HTTP centralizada
+10. **Reactividad Vue 3** - Sistema de reactividad automática con composables para gestión de estado local
+
+
+### Estructura del Proyecto
 
 ```
 src/
-├── core/      # Infraestructura técnica y servicios base
-├── modules/   # Módulos de negocio o features
-├── shared/    # Recursos y utilidades compartidas
+├── core/                    # Infraestructura técnica
+│   ├── api/                # Instancia global de Axios
+│   ├── either/             # Patrón Either para manejo de errores
+│   └── router/             # Configuración de rutas
+├── modules/                # Módulos de negocio
+│   ├── anime/              # Módulo de anime (dominio completo)
+│   └── auth/               # Módulo de autenticación
+└── shared/                 # Recursos compartidos
+    ├── common/             # Componentes y utilidades genéricas
+    └── layout/             # Componentes estructurales
 ```
 
----
+### Principios Arquitectónicos
 
-## ¿Qué va en cada carpeta?
+#### 1. **Encapsulación y Cohesión**
+- Cada módulo es una unidad independiente y cohesiva
+- Todo dentro de su módulo: componentes, stores, tipos, servicios, errores y rutas
+- Alta cohesión interna, bajo acoplamiento externo
 
-### 1. `core/`
-Infraestructura fundamental de la aplicación. Aquí se ubican:
-- **API**: Configuración de instancias, interceptores, servicios base.
-- **Router**: Definición de rutas, guards globales.
-- **Either**: Utilidades de manejo de errores y resultados.
-- **Otros servicios base**: Cualquier recurso técnico que no dependa de un dominio de negocio.
+#### 2. **API Pública (`index.ts`)**
+- Comunicación entre módulos solo a través de `index.ts`
+- Exportaciones explícitas de lo que se expone al resto de la aplicación
+- Todo lo no exportado se considera privado
 
-> **Ejemplo:**
-> - `core/api/`
-> - `core/router/`
-> - `core/either/`
-
-### 2. `modules/`
-Cada módulo representa una feature o dominio de negocio. Aquí se ubican:
-- **Páginas**: Vistas principales de la feature.
-- **Componentes**: Componentes específicos del dominio.
-- **Composables**: Lógica reutilizable dentro del módulo.
-- **Stores**: Estado y lógica de negocio del módulo.
-- **Servicios**: Llamadas a API específicas del dominio.
-- **Tipos**: Tipos y contratos del dominio.
-- **Estilos**: Estilos propios del módulo.
-
-> **Ejemplo:**
-> - `modules/anime/`
-> - `modules/auth/`
-
-### 3. `shared/`
-Contenedor de recursos reutilizables en toda la aplicación, organizados por responsabilidad:
-- **common/**: Componentes, utilidades y tipos genéricos (ej: BaseCard, formateadores, logger, errores comunes).
-- **layout/**: Componentes y lógica de estructura global de la app (ej: AppHeader, navegación principal).
-
-> **Ejemplo:**
-> - `shared/common/components/BaseCard.vue`
-> - `shared/layout/components/AppHeader/index.vue`
-
----
-
-## Principios
-- **Separación de responsabilidades**: Cada carpeta tiene un propósito claro.
-- **Escalabilidad**: Permite agregar nuevos módulos y recursos compartidos fácilmente.
-- **Reutilización**: Los recursos en `shared/` pueden ser usados por cualquier módulo.
-- **Mantenibilidad**: Cambios en infraestructura, negocio o recursos compartidos no se mezclan.
-
----
-
-## Ejemplo de importaciones
-
-```ts
-// Importar un componente de layout global
-import { AppHeader } from '@shared/layout'
-
-// Importar un componente común
-import { BaseCard } from '@shared/common'
-
-// Importar un store de un módulo
-import { useAnimeStore } from '@modules/anime/stores/anime.store'
+#### 3. **Patrón SCF (Script-Component-File)**
+```
+components/
+├── AnimeCard/
+│   ├── index.vue           # Template y presentación
+│   ├── useAnimeCard.ts     # Lógica reactiva y composables
+│   └── animeCard.styles.scss # Estilos específicos
 ```
 
----
+#### 4. **Gestión de Estado Local Complejo**
+- Patrón `provide`/`inject` para estado compartido entre componentes
+- Composables encapsulados para gestión de estado complejo
 
-¿Dudas sobre la arquitectura? Consulta el archivo `src/shared/README.md` para más detalles sobre los recursos compartidos.
+## Tecnologías Utilizadas
 
-## 🚀 Tecnologías Utilizadas
+- **Vue 3** - Framework progresivo con Composition API
+- **TypeScript** - Tipado estático completo
+- **Pinia** - Gestión de estado reactiva
+- **Vue Router** - Enrutamiento modular
+- **Element Plus** - Sistema de componentes UI
+- **Axios** - Cliente HTTP con interceptores
+- **Vite** - Build tool moderno
+- **Vitest** - Framework de testing
+- **SCSS** - Preprocesador CSS con variables
 
-- **Vue 3** - Framework progresivo
-- **TypeScript** - Tipado estático
-- **Pinia** - Gestión de estado
-- **Vue Router** - Enrutamiento
-- **Element Plus** - Componentes UI
-- **Axios** - Cliente HTTP
-- **Vite** - Build tool
-- **Vitest** - Testing framework
-- **SCSS** - Preprocesador CSS
-- **Jikan API** - API de MyAnimeList
+## Instalación y Desarrollo
 
-## 📦 Instalación
+```bash
+# Clonar y instalar
+git clone <repository-url>
+cd scalable-architecture-functional
+yarn install
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <repository-url>
-   cd anime-explorer
-   ```
+# Desarrollo
+yarn run dev
 
-2. **Instalar dependencias**
-   ```bash
-   npm install
-   # o
-   yarn install
-   ```
+# Testing
+yarn run test
 
-3. **Ejecutar en desarrollo**
-   ```bash
-   npm run dev
-   # o
-   yarn dev
-   ```
+# Build
+yarn run build
+```
 
-4. **Construir para producción**
-   ```bash
-   npm run build
-   # o
-   yarn build
-   ```
+## 🎯 Beneficios Demostrados
 
-## 🎯 Lineamientos de Arquitectura Modular Implementados
+### **Mantenibilidad**
+- Cambios y errores se aíslan dentro de sus respectivos módulos
+- Corrección y evolución del sistema facilitada
 
-### ✅ Estructura de Módulos
-- Cada módulo tiene su propia estructura completa
-- Separación clara de responsabilidades
-- Componentes específicos por módulo
+### **Escalabilidad**
+- Nuevas funcionalidades como módulos independientes
+- Equipos trabajando en paralelo sin conflictos
+- Crecimiento del proyecto sin afectar otras áreas
 
-### ✅ Recursos Compartidos
-- Directorio `shared/` con componentes reutilizables
-- Utilidades y constantes globales
-- Tipos TypeScript organizados
+### **Testabilidad**
+- Separación SCF simplifica pruebas unitarias
+- Patrón Either para testing de casos de éxito y error
+- Factories y utilidades de test organizadas
 
-### ✅ Gestión de Estado
-- Stores de Pinia por módulo
-- Estado local y global bien definido
-- Composables para lógica reutilizable
+### **Colaboración**
+- Estructura modular permite trabajo en paralelo
+- Conflictos y dependencias innecesarias minimizadas
+- Curva de aprendizaje reducida
 
-### ✅ Servicios y APIs
-- Servicios organizados por módulo
-- Interceptores de Axios configurados
-- Patrón Either para manejo funcional de errores
-- Manejo de errores centralizado con mapeo por reason
+### **Predictibilidad**
+- Estructura consistente y estandarizada
+- Nomenclatura clara y navegación intuitiva
+- Incorporación de nuevos desarrolladores facilitada
 
-### ✅ Testing
-- Vitest configurado para testing unitario
-- Tests completos para el patrón Either
-- Cobertura de funcionalidad crítica
-- [Guía completa de testing](./TESTING_GUIDELINES.md)
+## Documentación
 
-### ✅ Enrutamiento Modular
-- Rutas definidas por módulo
-- Lazy loading de componentes
-- Navegación optimizada
+- **[Lineamientos de Arquitectura](./ARCHITECTURE_GUIDELINES.md)** - Guía completa de la arquitectura
+- **[Guía de Testing](./TESTING_GUIDELINES.md)** - Mejores prácticas de testing
 
-### ✅ Tipos TypeScript
-- Tipos específicos por módulo
-- Interfaces bien definidas
-- Reutilización de tipos comunes
+## Módulos Implementados
 
-## 🎨 Componentes Principales
-
-### BaseCard
-Componente reutilizable para mostrar tarjetas de anime con:
-- Imagen con fallback
-- Información básica
-- Sistema de rating
-- Géneros con colores
-- Estados de carga
-
-### AnimeGrid
-Grid responsivo para mostrar múltiples animes con:
-- Paginación
-- Estados de carga y error
-- Búsqueda y filtros
-
-### AnimeDetail
-Página de detalle completa con:
-- Hero section con imagen de fondo
-- Información detallada
-- Estadísticas
+### **Módulo Anime**
+- Gestión completa de datos de anime
+- Búsqueda, filtros y paginación
 - Sistema de favoritos
+- Detalles y estadísticas
 
-## 🔧 Configuración
-
-### Variables de Entorno
-```env
-VITE_API_BASE_URL=https://api.jikan.moe/v4
-```
-
-### Aliases de TypeScript
-```json
-{
-  "@modules": "./src/modules",
-  "@shared": "./src/shared",
-  "@core": "./src/core"
-}
-```
-
-## 📱 Funcionalidades
-
-### Búsqueda y Filtros
-- Búsqueda en tiempo real con debounce
-- Filtros por popularidad, temporada actual, etc.
-- Paginación eficiente
-
-### Gestión de Favoritos
-- Agregar/quitar animes de favoritos
-- Persistencia local con localStorage
-- Interfaz intuitiva con Element Plus
-
-### Información Detallada
-- Sinopsis completa
-- Estadísticas de popularidad
-- Información de producción
-- Géneros y clasificaciones
-- Personajes y actores de voz
-- Trailers (si están disponibles)
-
-### Autenticación
-- Sistema de login/registro
+### **Módulo Auth**
+- Sistema de autenticación completo
+- Formularios de registro multi-paso
+- Validación y manejo de errores
 - Protección de rutas
-- Gestión de estado de usuario
 
-## 🎯 API Endpoints Utilizados
+### **Shared Common**
+- Componentes base reutilizables (`BaseCard`)
+- Utilidades y formateadores
+- Tipos TypeScript compartidos
+- Manejo de errores común
 
-- `GET /anime` - Lista de animes
-- `GET /anime/{id}` - Detalle de anime
-- `GET /anime/{id}/characters` - Personajes del anime
-- `GET /top/anime` - Animes populares
-- `GET /seasons/now` - Temporada actual
-- `GET /anime/{id}/recommendations` - Recomendaciones
 
-## 🧪 Testing
-
-### Ejecutar Tests
-```bash
-npm run test
-```
-
-### Tests Disponibles
-- **Patrón Either**: 15 tests unitarios completos
-- **Cobertura**: map, flatMap, fold, right, left
-- **Casos**: transformación, encadenamiento, manejo de errores
-
-## 🚀 Despliegue
-
-### Netlify
-```bash
-npm run build
-# Subir carpeta dist/ a Netlify
-```
-
-### Vercel
-```bash
-npm run build
-# Conectar repositorio a Vercel
-```
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 🙏 Agradecimientos
-
-- [Jikan API](https://jikan.moe) por proporcionar acceso a los datos de MyAnimeList
-- [Vue.js](https://vuejs.org) por el excelente framework
-- [Pinia](https://pinia.vuejs.org) por la gestión de estado
-- [Vite](https://vitejs.dev) por las herramientas de desarrollo
-
----
-
-Desarrollado con ❤️ siguiendo los mejores lineamientos de arquitectura modular para frontend B2B.
+**Este proyecto demuestra cómo una arquitectura bien diseñada puede transformar una base de código en un sistema de módulos cohesivos e independientes que acelera la entrega de valor y construye una plataforma escalable para el crecimiento del negocio.**
