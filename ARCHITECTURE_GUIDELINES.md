@@ -1,5 +1,69 @@
 # Lineamientos de Arquitectura Modular para el Frontend B2B
 
+**Última actualización**: Julio 9 2025  
+**Autor actualización**: Anderson Mesa  
+**Autor**: Andersson Mesa  
+**Responsable**: Equipo de Desarrollo  
+**Versión**: 1.0.0 
+
+## Tabla de Contenido
+
+### [Sección 1: Visión General](#sección-1-visión-general)
+- [Nuestra Arquitectura: Una Fusión de Mejores Prácticas](#nuestra-arquitectura-una-fusión-de-mejores-prácticas)
+  - [Arquitectura Modular por Dominios](#1-arquitectura-modular-por-dominios)
+  - [Atomic Design Adaptado](#2-atomic-design-adaptado)
+  - [Separación SCF (Script-Component-File)](#3-separación-scf-script-component-file)
+  - [Estructura Flat Inteligente](#4-estructura-flat-inteligente)
+  - [Core y Shared Centralizados](#5-core-y-shared-centralizados)
+- [Beneficios Estratégicos](#beneficios-estratégicos)
+- [Objetivo Principal](#objetivo-principal)
+
+### [Sección 2: Principios de la Arquitectura Modular](#sección-2-principios-de-la-arquitectura-modular)
+- [Encapsulación y Cohesión](#21-encapsulación-y-cohesión)
+- [El Módulo `shared` (Centralización de recursos compartidos)](#22-el-módulo-shared-centralización-de-recursos-compartidos)
+- [Dependencias y la API Pública (`index.ts`)](#23-dependencias-y-la-api-pública-indexts)
+
+### [Sección 3: Estructura Plana Inteligente](#sección-3-estructura-plana-inteligente)
+- [Organización de Componentes](#31-organización-de-componentes)
+- [Organización de Composables](#32-organización-de-composables)
+- [Reglas de Nomenclatura](#33-reglas-de-nomenclatura)
+- [Estructura de Carpetas](#estructura-de-carpetas)
+- [Estructura General del Proyecto (`src`)](#estructura-general-del-proyecto-src)
+- [Beneficios de la Estructura Plana Inteligente](#34-beneficios-de-la-estructura-plana-inteligente)
+
+### [Sección 4: Gestión de Estado Local Complejo](#sección-4-gestión-de-estado-local-complejo-patrón-provideinject)
+
+### [Sección 5: Convenciones de Nomenclatura de Archivos](#sección-5-convenciones-de-nomenclatura-de-archivos)
+- [Reglas Específicas de Nomenclatura](#reglas-específicas-de-nomenclatura)
+
+### [Sección 7: Gestión de la Capa de API](#sección-7-gestión-de-la-capa-de-api)
+- [Instancia Global de Axios (`core/api`)](#71-instancia-global-de-axios-coreapi)
+- [Patrón Either para Manejo de Errores (`core/either`)](#72-patrón-either-para-manejo-de-errores-coreeither)
+- [Servicios por Módulo (`modules/.../services`)](#73-servicios-por-módulo-modulesservices)
+- [Ventajas de esta Arquitectura](#74-ventajas-de-esta-arquitectura)
+
+### [Sección 8: Gestión de Estilos (CSS)](#sección-8-gestión-de-estilos-css)
+- [Jerarquía de Estilos](#81-jerarquía-de-estilos)
+- [Estructura de Archivos de Estilos](#82-estructura-de-archivos-de-estilos)
+- [Convenciones de Nomenclatura](#83-convenciones-de-nomenclatura)
+- [Reglas de Importación](#84-reglas-de-importación)
+- [Ejemplo de Implementación](#85-ejemplo-de-implementación)
+- [Ventajas de esta Arquitectura](#86-ventajas-de-esta-arquitectura)
+
+### [Sección 9: Gestión de Dependencias Externas](#sección-9-gestión-de-dependencias-externas)
+- [Librerías Reutilizables (Patrón `shared`)](#91-librerías-reutilizables-patrón-shared)
+- [Plugins y Estilos Globales (Patrón `core`)](#92-plugins-y-estilos-globales-patrón-core)
+
+### [Sección 10: Testing](#sección-10-testing)
+- [Filosofía de Testing](#101-filosofía-de-testing)
+- [Estructura de Testing](#102-estructura-de-testing)
+- [Tipos de Pruebas](#103-tipos-de-pruebas)
+- [Convenciones de Nomenclatura](#104-convenciones-de-nomenclatura)
+- [Principios de Testing](#105-principios-de-testing)
+- [Configuración Global](#106-configuración-global)
+
+---
+
 ## Sección 1: Visión General
 
 En el desarrollo de aplicaciones frontend modernas, la complejidad crece exponencialmente con el tamaño del proyecto. Nos enfrentamos a desafíos como código disperso, dependencias complejas, dificultades de testing y una curva de aprendizaje elevada para nuevos desarrolladores. Para superar estos obstáculos y construir una plataforma escalable y mantenible, hemos adoptado una **arquitectura híbrida moderna** que combina los mejores principios de múltiples enfoques.
@@ -8,30 +72,30 @@ En el desarrollo de aplicaciones frontend modernas, la complejidad crece exponen
 
 Nuestra arquitectura es el resultado de años de experiencia y evolución, combinando:
 
-### **1. Arquitectura Modular por Dominios**
+#### **1. Arquitectura Modular por Dominios**
 Cada funcionalidad de negocio se encapsula en su propio módulo independiente. Esto permite que diferentes equipos trabajen en paralelo sin conflictos, acelera el desarrollo y facilita el mantenimiento.
 
-### **2. Atomic Design Adaptado**
+#### **2. Atomic Design Adaptado**
 Hemos adaptado los principios de Atomic Design con una nomenclatura más intuitiva:
 - **Components** → Átomos: Lógica básica y componentes simples
 - **Sections** → Organismos: Unificación de múltiples componentes
 - **Views** → Templates: Organización de varias secciones
 - **Pages** → Páginas: Las páginas reales de la aplicación
 
-### **3. Separación SCF (Script-Component-File)**
+#### **3. Separación SCF (Script-Component-File)**
 Para mejorar la testabilidad y mantenibilidad, cada componente se divide en tres archivos:
 - **`index.vue`**: Template y estructura
 - **`use[Component].ts`**: Lógica reactiva y composables
 - **`[component].styles.scss`**: Estilos específicos
 
-### **4. Estructura Flat Inteligente**
+#### **4. Estructura Flat Inteligente**
 Evitamos anidamientos excesivos que complican la navegación. Todos los archivos de un mismo tipo (pages, sections, components, views, types, stores, services, errors) se mantienen al mismo nivel dentro del módulo.
 
-### **5. Core y Shared Centralizados**
+#### **5. Core y Shared Centralizados**
 - **`core/`**: Lógica estructural global (router, API, plugins)
 - **`shared/`**: Módulos y componentes reutilizables entre dominios
 
-### **Beneficios Estratégicos**
+#### **Beneficios Estratégicos**
 
 La arquitectura híbrida implementada en este proyecto aporta ventajas técnicas clave, alineadas con las mejores prácticas y las reglas arquitectónicas definidas:
 
@@ -42,7 +106,7 @@ La arquitectura híbrida implementada en este proyecto aporta ventajas técnicas
 - **Predictibilidad**: Una estructura consistente y estandarizada reduce la curva de aprendizaje y facilita la incorporación de nuevos desarrolladores.
 - **Rendimiento**: La modularidad favorece la implementación de lazy loading y otras optimizaciones, mejorando la eficiencia de la aplicación.
 
-### **Objetivo Principal**
+#### **Objetivo Principal**
 
 Transformar nuestra base de código en un **sistema de módulos cohesivos e independientes** que acelere la entrega de valor, reduzca costos de mantenimiento y construya una plataforma escalable que soporte el crecimiento del negocio a largo plazo.
 
@@ -136,7 +200,23 @@ El composable principal del componente (`use[Component].ts`) se mantiene en la m
 **Para Otros Tipos de Archivos:**
 - **Tipos e Interfaces**: Pueden agruparse en un mismo archivo cuando comparten el mismo contexto o dominio (ej. `user.types.ts` puede contener `User`, `UserProfile`, `UserPreferences`)
 - **Utilidades**: Funciones relacionadas pueden coexistir en un archivo cuando pertenecen al mismo contexto (ej. `date.utils.ts` puede contener `formatDate`, `parseDate`, `isValidDate`)
-- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`)
+- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`). Se recomienda usar `objetos as const` en lugar de `enum` porque los enums generan código adicional en el bundle final, no permiten tree-shaking efectivo y pueden causar problemas de tipado. Los objetos `as const` proporcionan mejor tree-shaking, tipado más preciso y menor tamaño de bundle:
+
+```typescript
+// Recomendado: objeto as const
+export const STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  PENDING: 'pending'
+} as const
+
+// No recomendado: enum
+enum Status {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending'
+}
+```
 
 ### Estructura de Carpetas
 
@@ -166,7 +246,7 @@ modules/
 - **`index.ts`**: La única API Pública del módulo.
 - **`components/`, `views/`, `pages/`, `sections/`**: Contienen carpetas de componentes reutilizables, cada una con su archivo `.vue`, composable y estilos (patrón SCF).
 - **`composables/`**: Contiene los hooks (`use-`) globales del modulo.
-- **`constants/`**: Para valores primitivos y constantes. Se recomienda el uso de `objetos as const` en lugar de `enum` de TypeScript.
+- **`constants/`**: Para valores primitivos y constantes. Se recomienda el uso de `objetos as const` en lugar de `enum` de TypeScript para mejor tree-shaking y tipado más preciso.
 - **`documentation/`**: Carpeta opcional que se crea solo cuando la información del README.md es muy extensa y necesita ser separada en archivos Markdown (`.md`) específicos para explicar lógica compleja del módulo.
 - **`README.md`** Documentación base del modulo.
 - **`errors/`**: Contiene objetos que definen los posibles errores del dominio.
@@ -230,7 +310,7 @@ src/
 - **`styles/`**: Estilos globales y configuración de Element Plus.
 - **`types/`**: Tipos TypeScript globales de la aplicación.
 
-### **3.4. Beneficios de la Estructura Plana Inteligente**
+#### **3.4. Beneficios de la Estructura Plana Inteligente**
 
 - **Navegación Simplificada**: Fácil localización de archivos sin navegar por múltiples niveles
 - **Cohesión Mantenida**: Archivos relacionados permanecen juntos
@@ -270,7 +350,7 @@ Las siguientes convenciones se aplican a los **nombres de los archivos** para ga
 | **Documentación** | `/` | `README.md` | `README.md` (en cada módulo) |
 | **Carpetas** | N/A | `camelCase` | `animeCard`, `registerForm` |
 
-### **Reglas Específicas de Nomenclatura**
+#### **Reglas Específicas de Nomenclatura**
 
 **Componentes y Views:**
 - Usar `PascalCase` para todos los archivos `.vue`
