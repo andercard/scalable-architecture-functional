@@ -4,7 +4,7 @@
 export { default as BaseCard } from './components/BaseCard.vue'
 
 // Composables
-export { useBaseCard } from './composables/useBaseCard'
+export { useBaseCard } from './components/BaseCard/useBaseCard'
 
 // Utilidades
 export { formatDate, truncateText } from './utils/format'

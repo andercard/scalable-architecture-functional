@@ -1,13 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAnimeCard } from '../../../components/AnimeCard/useAnimeCard'
-import type { AnimeCardProps, AnimeCardEmits } from '../../../components/AnimeCard/animeCard.types'
+import type { AnimeCardProps, AnimeCardEmits } from '../../../types'
 import type { Anime } from '../../../types'
-import { useAnimeStore } from '../../../stores/anime.store'
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { createMockAnime } from '../../factories/anime.factory'
 
 // Setup específico del módulo anime
 import '../../setup'

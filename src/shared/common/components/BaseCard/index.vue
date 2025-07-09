@@ -46,8 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { useBaseCard } from '../composables/useBaseCard'
-import type { BaseCardProps, BaseCardEmits } from '../types/shared.types'
+import { useBaseCard } from './useBaseCard'
+import type { BaseCardProps, BaseCardEmits } from '../../types/shared.types'
 
 const props = withDefaults(defineProps<BaseCardProps>(), {
   loading: false,
@@ -68,5 +68,5 @@ const {
 </script>
 
 <style scoped>
-@import '../styles/BaseCard.styles.scss';
+@import './baseCard.styles.scss';
 </style> 
