@@ -1,10 +1,10 @@
 # Lineamientos de Arquitectura Modular para el Frontend B2B
 
-**Sección 1: Visión General**
+## Sección 1: Visión General
 
 En el desarrollo de aplicaciones frontend modernas, la complejidad crece exponencialmente con el tamaño del proyecto. Nos enfrentamos a desafíos como código disperso, dependencias complejas, dificultades de testing y una curva de aprendizaje elevada para nuevos desarrolladores. Para superar estos obstáculos y construir una plataforma escalable y mantenible, hemos adoptado una **arquitectura híbrida moderna** que combina los mejores principios de múltiples enfoques.
 
-## **Nuestra Arquitectura: Una Fusión de Mejores Prácticas**
+### Nuestra Arquitectura: Una Fusión de Mejores Prácticas
 
 Nuestra arquitectura es el resultado de años de experiencia y evolución, combinando:
 
@@ -42,7 +42,7 @@ La arquitectura híbrida implementada en este proyecto aporta ventajas técnicas
 - **Predictibilidad**: Una estructura consistente y estandarizada reduce la curva de aprendizaje y facilita la incorporación de nuevos desarrolladores.
 - **Rendimiento**: La modularidad favorece la implementación de lazy loading y otras optimizaciones, mejorando la eficiencia de la aplicación.
 
-## **Objetivo Principal**
+### **Objetivo Principal**
 
 Transformar nuestra base de código en un **sistema de módulos cohesivos e independientes** que acelere la entrega de valor, reduzca costos de mantenimiento y construya una plataforma escalable que soporte el crecimiento del negocio a largo plazo.
 
@@ -100,25 +100,22 @@ components/
 │   └── searchButtonClear.styles.scss
 ```
 **Nomenclatura y estructura del Componentes:**
+- **Regla**: Los nombres deben comenzar con las palabras de nivel más alto y terminar con modificadores descriptivos
 - **Patrón**: `[Componente]`  ||  `[Componente][Contexto]`  ||  `[Componente][Contexto][Modificador]`
 - **Ejemplos**: `AnimeListItem/`, `SearchButtonClear/`, `SettingsCheckboxLaunchOnStartup/`
-- **Regla**: Los nombres deben comenzar con las palabras de nivel más alto y terminar con modificadores descriptivos
 
-- **`index.vue`**: Únicamente el template y la estructura del componente
-- **`use[Component].ts`**: Toda la lógica reactiva, composables y estado del componente
+- **`index.vue`**: Capa de Presentación (`.vue`) su única responsabilidad es mostrar la interfaz y capturar las interacciones del usuario. No contiene lógica de negocio compleja. No se debe hacer cálculos en el template
+- **`use[Component].ts`**: Capa de Lógica y Estado (`use[contexto].ts`) Cada componente que necesite tener lógica lo debe separar en un composable con el prefijo use y con el nombre del componente.vue. Su responsabilidad es manejar el estado reactivo, la lógica de negocio y orquestar las llamadas a los servicios.
 - **`[component].styles.scss`**: Exclusivamente los estilos específicos del componente
-
-- Aunque `props` y `emits` sus tipos de datos estan definidos en los types. la definición debe esta en el archivos.vue
-- Si un componente necesita exportar su información como referencia se debe usar `defineExpose`
-- **Capa de Presentación (`.vue`):** Su única responsabilidad es mostrar la interfaz y capturar las interacciones del usuario. No contiene lógica de negocio compleja. No se debe hacer cálculos en el template
-- **Capa de Lógica y Estado (`use[contexto].ts`):** Cada componente que necesite tener lógica lo debe separar en un composable con el prefijo use y con el nombre del componente.vue. Su responsabilidad es manejar el estado reactivo, la lógica de negocio y orquestar las llamadas a los servicios.
+- Aunque `props` y `emits` sus tipos de datos están definidos en los types. La instancia debe esta en el archivos.vue
+- Si un componente necesita exportar su información se debe usar `defineExpose`
 
 ### **3.2. Organización de Composables**
 
 Los composables se organizan en la carpeta `composables/` del módulo con nomenclatura específica:
 
 **Composables Específicos de Componente:**
-Ya sabemos que el componente directo del componente queda en la misma carpeta. Pero si se separo la lógica en otro composable se debe seguir el siguiente patron.
+El composable principal del componente (`use[Component].ts`) se mantiene en la misma carpeta que el componente. Sin embargo, cuando se requiere separar lógica adicional en composables específicos, se debe seguir el siguiente patrón:
 - **Patrón**: `use[Componente][Funcionalidad].ts`
 - **Ejemplo**: `useAnimeListItemFavorite.ts` (para funcionalidad de favoritos del componente AnimeListItem)
 
@@ -139,7 +136,7 @@ Ya sabemos que el componente directo del componente queda en la misma carpeta. P
 **Para Otros Tipos de Archivos:**
 - **Tipos e Interfaces**: Pueden agruparse en un mismo archivo cuando comparten el mismo contexto o dominio (ej. `user.types.ts` puede contener `User`, `UserProfile`, `UserPreferences`)
 - **Utilidades**: Funciones relacionadas pueden coexistir en un archivo cuando pertenecen al mismo contexto (ej. `date.utils.ts` puede contener `formatDate`, `parseDate`, `isValidDate`)
-- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede 
+- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`)
 
 ### Estructura de Carpetas
 
@@ -154,6 +151,7 @@ modules/
     ├── constants/
     ├── data/
     ├── documentation/
+    ├── READMEmd
     ├── errors/
     ├── utils/
     ├── router/
@@ -166,19 +164,20 @@ modules/
 ```
 
 - **`index.ts`**: La única API Pública del módulo.
-- **`components/` y `views/`**: Contienen únicamente los archivos `.vue`.
-- **`composables/`**: Contiene los hooks (`use-`) que manejan la lógica reactiva.
+- **`components/`, `views/`, `pages/`, `sections/`**: Contienen carpetas de componentes reutilizables, cada una con su archivo `.vue`, composable y estilos (patrón SCF).
+- **`composables/`**: Contiene los hooks (`use-`) globales del modulo.
 - **`constants/`**: Para valores primitivos y constantes. Se recomienda el uso de `objetos as const` en lugar de `enum` de TypeScript.
-- **`data/`**: Para conjuntos de datos más grandes y estructurados fijos en el frontend.
-- **`documentation/`**: Archivos Markdown (`.md`) que explican la lógica compleja del módulo.
-- **README.md** Documentación base del modulo.
+- **`documentation/`**: Carpeta opcional que se crea solo cuando la información del README.md es muy extensa y necesita ser separada en archivos Markdown (`.md`) específicos para explicar lógica compleja del módulo.
+- **`README.md`** Documentación base del modulo.
 - **`errors/`**: Contiene objetos que definen los posibles errores del dominio.
 - **`utils/`**: Funciones puras (sin estado).
 - **`router/`**: Define las rutas del módulo, separadas en `private.routes.ts` y `public.routes.ts`.
-- **`services/`**: Su única responsabilidad es comunicarse con fuentes de datos externas (API). Las peticiones se van a controlar con el patron Either. Para permitirnos tener un gran control en los errores y buena forma de testear.
+- **`services/`**: Servicios del modulo.
 - **`store/`**: El store de Pinia para el estado del módulo.
-- **`types/`**: Contiene **todas** las definiciones `interface` y `type` de TypeScript del módulo. Esto incluye tanto los modelos de datos del dominio (ej. `transaction.type.ts`) como las definiciones de `props` para los componentes y vistas (ej. `user-avatar.type.ts`). Centralizar todos los tipos aquí asegura una única fuente de verdad.
+- **`types/`**: Contiene **todas** las definiciones `interface` y `type` de TypeScript del módulo
 - **`tests/`**: Pruebas unitarias para los archivos del módulo.
+
+**Regla de Oro**: Un archivo debe contener elementos que están conceptualmente relacionados y que cambian por las mismas razones. La separación excesiva en archivos individuales puede crear fragmentación innecesaria.
 
 ### Estructura General del Proyecto (`src`)
 
@@ -230,8 +229,6 @@ src/
 - **`App.vue`**: El componente raíz que contiene `<router-view>` y la estructura base de la aplicación.
 - **`styles/`**: Estilos globales y configuración de Element Plus.
 - **`types/`**: Tipos TypeScript globales de la aplicación.
-
-**Regla de Oro**: Un archivo debe contener elementos que están conceptualmente relacionados y que cambian por las mismas razones. La separación excesiva en archivos individuales puede crear fragmentación innecesaria.
 
 ### **3.4. Beneficios de la Estructura Plana Inteligente**
 
