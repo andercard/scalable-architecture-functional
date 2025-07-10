@@ -307,7 +307,7 @@ Solo en casos específicos:
 - Testing de comportamiento cuando localStorage falla
 - Control total sobre respuestas en casos edge
 
-### Testing de Vue Router (analizar)
+### Testing de Vue Router
 
 **Enfoque recomendado: Router real vs Mocks selectivos**
 
@@ -544,6 +544,192 @@ describe('NavigationMenu', () => {
     
     await user.click(screen.getByText('Dashboard'))
     expect(router.currentRoute.value.path).toBe('/dashboard')
+  })
+})
+```
+
+**Patrón 6: Testing de guards específicos del proyecto**
+```typescript
+import { render, screen } from '@testing-library/vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import { createTestingPinia } from '@pinia/testing'
+import { authRequiresAuthGuard } from '@/modules/auth/routes/auth.guards'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+describe('Auth Guards Testing', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should redirect to login when user is not authenticated', async () => {
+    // Arrange
+    const router = createRouter({
+      history: createWebHistory(),
+      routes: [
+        { 
+          path: '/protected', 
+          component: { template: '<div>Protected</div>' },
+          meta: { requiresAuth: true }
+        },
+        { 
+          path: '/login', 
+          component: { template: '<div>Login</div>' }
+        }
+      ]
+    })
+
+    // Mock store para usuario no autenticado
+    const pinia = createTestingPinia({
+      initialState: {
+        auth: { isAuthenticated: false, user: null }
+      }
+    })
+
+    // Act
+    render({ template: '<router-view />' }, {
+      global: {
+        plugins: [router, pinia]
+      }
+    })
+
+    await router.push('/protected')
+    await router.isReady()
+
+    // Assert
+    expect(router.currentRoute.value.path).toBe('/login')
+  })
+
+  it('should allow access when user is authenticated', async () => {
+    // Arrange
+    const router = createRouter({
+      history: createWebHistory(),
+      routes: [
+        { 
+          path: '/protected', 
+          component: { template: '<div>Protected Content</div>' },
+          meta: { requiresAuth: true }
+        }
+      ]
+    })
+
+    const pinia = createTestingPinia({
+      initialState: {
+        auth: { isAuthenticated: true, user: { id: 1, name: 'Test User' } }
+      }
+    })
+
+    // Act
+    render({ template: '<router-view />' }, {
+      global: {
+        plugins: [router, pinia]
+      }
+    })
+
+    await router.push('/protected')
+    await router.isReady()
+
+    // Assert
+    expect(router.currentRoute.value.path).toBe('/protected')
+    expect(screen.getByText('Protected Content')).toBeInTheDocument()
+  })
+
+  it('should test specific guard function directly', async () => {
+    // Arrange
+    const mockRouter = {
+      push: vi.fn(),
+      currentRoute: { value: { path: '/protected' } }
+    }
+
+    const mockStore = {
+      isAuthenticated: false,
+      user: null
+    }
+
+    // Act
+    const result = await authRequiresAuthGuard(
+      { path: '/protected', meta: { requiresAuth: true } } as any,
+      { path: '/login' } as any
+    )
+
+    // Assert
+    expect(result).toBe('/login')
+  })
+})
+```
+
+**Patrón 7: Testing de rutas dinámicas**
+```typescript
+import { render, screen } from '@testing-library/vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import { describe, it, expect, beforeEach } from 'vitest'
+
+describe('Dynamic Routes Testing', () => {
+  let router: any
+
+  beforeEach(async () => {
+    router = createRouter({
+      history: createWebHistory(),
+      routes: [
+        { 
+          path: '/anime/:id', 
+          name: 'AnimeDetail',
+          component: { template: '<div>Anime Detail: {{ $route.params.id }}</div>' },
+          props: true
+        }
+      ]
+    })
+
+    await router.isReady()
+  })
+
+  it('should handle anime detail route with dynamic id', async () => {
+    // Act
+    await router.push('/anime/123')
+
+    // Assert
+    expect(router.currentRoute.value.params.id).toBe('123')
+    expect(router.currentRoute.value.name).toBe('AnimeDetail')
+  })
+
+  it('should render component with dynamic props', async () => {
+    // Act
+    await router.push('/anime/456')
+    
+    render({ template: '<router-view />' }, {
+      global: {
+        plugins: [router]
+      }
+    })
+
+    // Assert
+    expect(screen.getByText('Anime Detail: 456')).toBeInTheDocument()
+  })
+
+  it('should handle multiple dynamic parameters', async () => {
+    // Arrange
+    const routerWithMultipleParams = createRouter({
+      history: createWebHistory(),
+      routes: [
+        { 
+          path: '/anime/:category/:id', 
+          name: 'AnimeCategoryDetail',
+          component: { 
+            template: '<div>Category: {{ $route.params.category }}, ID: {{ $route.params.id }}</div>' 
+          },
+          props: true
+        }
+      ]
+    })
+
+    await routerWithMultipleParams.isReady()
+
+    // Act
+    await routerWithMultipleParams.push('/anime/action/789')
+
+    // Assert
+    expect(routerWithMultipleParams.currentRoute.value.params.category).toBe('action')
+    expect(routerWithMultipleParams.currentRoute.value.params.id).toBe('789')
   })
 })
 ```
@@ -1850,9 +2036,6 @@ describe('Form Integration Testing', () => {
 - Ignorar accesibilidad en tests de formularios
 - Crear tests frágiles que dependen de estructura específica
 
-### Testing de Inject/provide (analizar - crear)
-Se debe indicar como hacer las pruebas cuando un componente padre o hijo utiliza inject y provider y en que caso se debe usar el withSetup y en que caso se debe usar el real entre componentes
-
 ### userEvent: Enfoque Principal del Proyecto
 
 #### **¿Por qué recomendamos userEvent?**
@@ -2537,7 +2720,9 @@ export default defineConfig({
 
 ### **Vue Router Testing**
 - [Vue Test Utils - Using with Vue Router](https://v1.test-utils.vuejs.org/guides/using-with-vue-router.html) - Documentación oficial
+- [Vue Testing Library - Vue Router Example](https://github.com/testing-library/vue-testing-library/blob/main/src/__tests__/vue-router.js) - Ejemplo oficial de Vue Testing Library
 - [Vue Testing Handbook - Vue Router](https://lmiller1990.github.io/vue-testing-handbook/vue-router.html) - Guía completa de testing de router
+- [Focused.io - Vue Router Testing Strategies](https://focused.io/lab/vue-router-testing-strategies) - Estrategias avanzadas de testing
 - [Unit Testing Vue Router](https://medium.com/js-dojo/unit-testing-vue-router-1d091241312) - Mejores prácticas específicas
 
 ### **Mejores Prácticas de Testing**
