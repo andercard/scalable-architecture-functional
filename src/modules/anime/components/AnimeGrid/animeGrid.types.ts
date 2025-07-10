@@ -9,6 +9,7 @@ export interface AnimeGridProps {
   hasPreviousPage?: boolean
   showPagination?: boolean
   totalItems?: number
+  pageSize?: number
 }
 
 // Usar sobrecarga de función para compatibilidad con defineEmits y composables

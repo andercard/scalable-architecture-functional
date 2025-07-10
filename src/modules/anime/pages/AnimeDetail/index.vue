@@ -1,19 +1,19 @@
 <template>
-  <div class="anime-detail-page">
-    <div v-if="isLoading" class="anime-detail-page__loading">
+  <div class="anime-detail-page" data-testid="anime-detail-page">
+    <div v-if="isLoading" class="anime-detail-page__loading" data-testid="anime-detail-loading">
       <div class="loading-spinner"></div>
       <p>Cargando detalles del anime...</p>
     </div>
 
-    <div v-else-if="error" class="anime-detail-page__error">
+    <div v-else-if="error" class="anime-detail-page__error" data-testid="anime-detail-error">
       <div class="error-icon">⚠️</div>
       <p>{{ error }}</p>
-      <button @click="retry" class="retry-btn">
+      <button @click="retry" class="retry-btn" data-testid="retry-button">
         Intentar de nuevo
       </button>
     </div>
 
-    <div v-else-if="anime" class="anime-detail-page__content">
+    <div v-else-if="anime" class="anime-detail-page__content" data-testid="anime-detail-main">
       <!-- Header con imagen de fondo -->
       <div class="anime-detail-page__hero">
         <div class="hero-background" :style="heroStyle"></div>

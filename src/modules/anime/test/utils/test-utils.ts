@@ -1,175 +1,210 @@
+import { render } from '@testing-library/vue'
 import { createTestingPinia } from '@pinia/testing'
-import { vi, type Mock } from 'vitest'
-import { expect } from 'vitest'
+import type { RenderOptions } from '@testing-library/vue'
+import type { Anime } from '../../types'
 
 /**
- * Utilidades avanzadas para tests del módulo anime
- * Facilita el testing de componentes, stores y servicios
+ * Utilidades de testing específicas para el módulo anime
+ * 
+ * Estas utilidades facilitan la creación de tests consistentes y mantenibles
+ * para componentes y páginas del módulo anime.
  */
 
 /**
- * Crea una instancia de Pinia para testing con configuración personalizada
+ * Opciones para renderizar componentes con configuración de anime
  */
-export const createTestPinia = (options = {}) => {
-  return createTestingPinia({
-    createSpy: vi.fn,
-    stubActions: false, // Permite que las acciones se ejecuten realmente
-    ...options
+interface AnimeRenderOptions extends Omit<RenderOptions<any>, 'global'> {
+  favorites?: Anime[]
+  animes?: Anime[]
+  currentAnime?: Anime | null
+  isLoading?: boolean
+  error?: string | null
+  searchQuery?: string
+  currentPage?: number
+  totalItems?: number
+}
+
+/**
+ * Renderiza un componente con configuración específica del módulo anime
+ * 
+ * @param component - Componente Vue a renderizar
+ * @param options - Opciones de configuración
+ * @returns Resultado del render con configuración de anime
+ */
+export function renderWithAnimeConfig(
+  component: any,
+  options: AnimeRenderOptions = {}
+) {
+  const {
+    favorites = [],
+    animes = [],
+    currentAnime = null,
+    isLoading = false,
+    error = null,
+    searchQuery = '',
+    currentPage = 1,
+    totalItems = 0,
+    ...renderOptions
+  } = options
+
+  const pinia = createTestingPinia({
+    initialState: {
+      anime: {
+        favorites,
+        animes,
+        currentAnime,
+        isLoading,
+        error,
+        searchQuery,
+        currentPage,
+        totalItems
+      }
+    }
+  })
+
+  return render(component, {
+    global: {
+      plugins: [pinia]
+    },
+    ...renderOptions
   })
 }
 
 /**
- * Mock de localStorage para tests
+ * Configuración de testing para diferentes estados del módulo anime
  */
-export const createLocalStorageMock = () => {
-  const store: Record<string, string> = {}
-  
-  return {
-    getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value
-    }),
-    removeItem: vi.fn((key: string) => {
-      delete store[key]
-    }),
-    clear: vi.fn(() => {
-      Object.keys(store).forEach(key => delete store[key])
-    }),
-    length: Object.keys(store).length
+export const animeTestConfigs = {
+  // Estado de carga
+  loading: {
+    favorites: [],
+    animes: [],
+    currentAnime: null,
+    isLoading: true,
+    error: null
+  },
+
+  // Estado de error
+  error: (message: string = 'Error de prueba') => ({
+    favorites: [],
+    animes: [],
+    currentAnime: null,
+    isLoading: false,
+    error: message
+  }),
+
+  // Estado con favoritos
+  withFavorites: (favorites: Anime[]) => ({
+    favorites,
+    animes: [],
+    currentAnime: null,
+    isLoading: false,
+    error: null
+  }),
+
+  // Estado con lista de animes
+  withAnimeList: (animes: Anime[]) => ({
+    favorites: [],
+    animes,
+    currentAnime: null,
+    isLoading: false,
+    error: null
+  }),
+
+  // Estado con anime actual
+  withCurrentAnime: (anime: Anime) => ({
+    favorites: [],
+    animes: [],
+    currentAnime: anime,
+    isLoading: false,
+    error: null
+  }),
+
+  // Estado vacío
+  empty: {
+    favorites: [],
+    animes: [],
+    currentAnime: null,
+    isLoading: false,
+    error: null
   }
 }
 
 /**
- * Mock de router para tests
+ * Helper para crear mocks de respuestas de API exitosas
  */
-export const createRouterMock = () => ({
-  push: vi.fn(),
-  replace: vi.fn(),
-  go: vi.fn(),
-  back: vi.fn(),
-  forward: vi.fn(),
-  currentRoute: {
-    value: {
-      path: '/',
-      name: 'home',
-      params: {},
-      query: {}
-    }
+export const createApiSuccessResponse = <T>(data: T) => ({
+  _tag: 'Right',
+  value: { data },
+  isLeft: false,
+  isRight: true,
+  fold: (onFailure: (error: string) => void, onSuccess: (data: T) => void) => {
+    onSuccess(data)
+    return data
   }
 })
 
 /**
- * Mock de API response con patrón Either/Result
+ * Helper para crear mocks de respuestas de API fallidas
  */
-export const createApiSuccessMock = <T>(data: T) => ({
-  _tag: 'Right',
-  value: data,
-  isLeft: false,
-  isRight: true,
-  fold: (onFailure: (error: string) => void, onSuccess: (data: T) => void) => {
-    if (onSuccess) return onSuccess(data)
-    return data
-  }
-} as unknown)
-
-export const createApiFailureMock = (error: string) => ({
+export const createApiFailureResponse = (error: string) => ({
   _tag: 'Left',
-  value: error,
+  value: { message: error },
   isLeft: true,
   isRight: false,
-  fold: (onFailure: (error: string) => void, onSuccess?: (data: unknown) => void) => {
-    if (onFailure) return onFailure(error)
+  fold: (onFailure: (error: string) => void, onSuccess?: (data: any) => void) => {
+    onFailure(error)
     return error
   }
-} as unknown)
+})
 
 /**
- * Utilidad para esperar que un estado reactivo cambie
+ * Helper para limpiar localStorage y mocks entre tests
  */
-export const waitForStateChange = async (
-  getter: () => unknown,
-  expectedValue: unknown,
-  timeout = 1000
-): Promise<void> => {
-  const startTime = Date.now()
-  
-  while (Date.now() - startTime < timeout) {
-    if (getter() === expectedValue) {
-      return
-    }
-    await new Promise(resolve => setTimeout(resolve, 10))
-  }
-  
-  throw new Error(`Timeout waiting for state change. Expected: ${expectedValue}, Got: ${getter()}`)
+export const cleanupAnimeTests = () => {
+  localStorage.clear()
+  // Limpiar mocks específicos del módulo anime si es necesario
 }
 
 /**
- * Utilidad para simular eventos de usuario
+ * Helper para simular operaciones asíncronas
  */
-export const simulateUserInteraction = {
-  click: (element: HTMLElement) => {
-    element.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-  },
-  
-  input: (element: HTMLInputElement, value: string) => {
-    element.value = value
-    element.dispatchEvent(new Event('input', { bubbles: true }))
-  },
-  
-  keydown: (element: HTMLElement, key: string) => {
-    element.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
-  },
-  
-  scroll: (element: HTMLElement, scrollTop: number) => {
-    element.scrollTop = scrollTop
-    element.dispatchEvent(new Event('scroll', { bubbles: true }))
-  }
+export const waitForAsync = (ms: number = 100) => 
+  new Promise(resolve => setTimeout(resolve, ms))
+
+/**
+ * Helper para verificar que un elemento está en el DOM
+ */
+export const expectElementToBeInDocument = (element: HTMLElement | null) => {
+  expect(element).toBeInTheDocument()
 }
 
 /**
- * Utilidad para verificar que un mock fue llamado con argumentos específicos
+ * Helper para verificar que un elemento no está en el DOM
  */
-export const expectMockToHaveBeenCalledWith = (mock: Mock, ...args: unknown[]) => {
-  expect(mock).toHaveBeenCalledWith(...args)
+export const expectElementNotToBeInDocument = (element: HTMLElement | null) => {
+  expect(element).not.toBeInTheDocument()
 }
 
 /**
- * Utilidad para verificar que un mock fue llamado exactamente N veces
+ * Helper para verificar el estado del store
  */
-export const expectMockToHaveBeenCalledTimes = (mock: Mock, times: number) => {
-  expect(mock).toHaveBeenCalledTimes(times)
-}
-
-/**
- * Utilidad para limpiar todos los mocks después de cada test
- */
-export const clearAllMocks = () => {
-  vi.clearAllMocks()
-  vi.clearAllTimers()
-}
-
-/**
- * Utilidad para crear un mock de función que devuelve valores secuenciales
- */
-export const createSequentialMock = <T>(values: T[]) => {
-  let index = 0
-  return vi.fn(() => {
-    if (index >= values.length) {
-      throw new Error('No more values in sequential mock')
-    }
-    return values[index++]
+export const expectStoreState = (store: any, expectedState: Partial<any>) => {
+  Object.entries(expectedState).forEach(([key, value]) => {
+    expect(store[key]).toEqual(value)
   })
 }
 
 /**
- * Utilidad para crear un mock de función que devuelve valores basados en argumentos
+ * Helper para verificar que se emitió un evento
  */
-export const createArgumentBasedMock = <T>(valueMap: Record<string, T>) => {
-  return vi.fn((...args: unknown[]) => {
-    const key = JSON.stringify(args)
-    if (key in valueMap) {
-      return valueMap[key]
-    }
-    throw new Error(`No mock value defined for arguments: ${key}`)
-  })
+export const expectEventEmitted = (emitted: any, eventName: string, times: number = 1) => {
+  expect(emitted()).toHaveProperty(eventName)
+  expect(emitted()[eventName]).toHaveLength(times)
+}
+
+/**
+ * Helper para verificar que no se emitió un evento
+ */
+export const expectEventNotEmitted = (emitted: any, eventName: string) => {
+  expect(emitted()).not.toHaveProperty(eventName)
 } 

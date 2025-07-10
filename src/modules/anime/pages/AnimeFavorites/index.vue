@@ -1,35 +1,22 @@
 <template>
   <div class="anime-favorites">
     <h1>Mis Favoritos</h1>
-    <div v-if="isLoading" class="loading">
+    <div v-if="isLoading" data-testid="anime-favorites-loading">
       <p>Cargando favoritos...</p>
     </div>
-    <div v-else-if="error" class="error">
+    <div v-else-if="error" data-testid="anime-favorites-error">
       <p>{{ error }}</p>
+      <button @click="reloadPage" data-testid="retry-button">Reintentar</button>
     </div>
-    <div v-else-if="favorites.length === 0" class="empty">
+    <div v-else-if="favorites.length === 0" data-testid="anime-favorites-empty">
       <p>No tienes animes favoritos aún.</p>
-      <router-link to="/" class="browse-link">
-        Explorar animes
-      </router-link>
+      <router-link to="/" data-testid="explore-link">Explorar animes</router-link>
     </div>
-    <div v-else class="favorites-grid">
-      <div 
-        v-for="anime in favorites" 
-        :key="anime.mal_id" 
-        class="favorite-item"
-      >
-        <AnimeCard
-          :anime="anime"
-          @click="goToDetail(anime.mal_id)"
-        />
-        <el-button
-          type="danger"
-          size="small"
-          @click="removeFromFavorites(anime.mal_id)"
-          class="remove-btn"
-        >
-          <el-icon><Delete /></el-icon>
+    <div v-else data-testid="anime-favorites-list" class="favorites-grid">
+      <div v-for="anime in favorites" :key="anime.mal_id" class="favorite-item">
+        <AnimeCard :anime="anime" data-testid="anime-card" />
+        <el-button type="danger" size="small" class="remove-btn" @click="($event: any) => removeFromFavorites(anime.mal_id)">
+          <el-icon><svg><!-- icon --></svg></el-icon>
           Eliminar
         </el-button>
       </div>
@@ -49,6 +36,10 @@ const {
   goToDetail,
   removeFromFavorites
 } = useAnimeFavorites()
+
+function reloadPage() {
+  window.location.reload()
+}
 </script>
 
 <style scoped>

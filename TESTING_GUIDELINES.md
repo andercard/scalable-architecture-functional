@@ -19,9 +19,7 @@
 
 ## Introducción
 
-Esta guía reúne las mejores prácticas, patrones y ejemplos para escribir tests efectivos y mantenibles en este proyecto. Su objetivo es facilitar la incorporación de nuevos desarrolladores, estandarizar la calidad de las pruebas y asegurar que el código sea confiable y fácil de evolucionar.
-
-El enfoque de testing está inspirado en los principios de la comunidad Vue y en referentes como Kent C. Dodds, priorizando la experiencia del usuario final y la robustez de la lógica de negocio. Aquí encontrarás recomendaciones claras sobre cuándo y cómo testear, cómo estructurar los tests, y cómo evitar los errores más comunes.
+Esta guía reúne las mejores prácticas, patrones y ejemplos para escribir tests efectivos y mantenibles en este proyecto. Su objetivo es facilitar la incorporación de nuevos desarrolladores, estandarizar la calidad de las pruebas y asegurar que el código sea confiable y fácil de evolucionar. Está inspirada en los principios de la comunidad Vue y en referentes como Kent C. Dodds, priorizando la experiencia del usuario final y la robustez de la lógica de negocio.
 
 ¿A quién está dirigida esta guía?
 - A cualquier desarrollador que trabaje en el proyecto, sin importar su nivel de experiencia.
@@ -33,7 +31,15 @@ El enfoque de testing está inspirado en los principios de la comunidad Vue y en
 - Estrategias para mockear dependencias, usar utilidades globales y crear datos de prueba reutilizables.
 - Técnicas específicas para testing de inject/provide, formularios complejos y lifecycle de componentes.
 - Patrones para testing de operaciones asíncronas, watchers y reactividad.
+- Testing de Vue Router con factories de rutas y mocks selectivos.
+- Testing de localStorage real y operaciones del navegador.
+- Testing con patrón Either para manejo funcional de errores.
+- Selectores y atributos para testing de componentes centrado en el usuario.
+- Testing de formularios complejos con Element Plus y validaciones.
+- Testing de stores Pinia con diferentes enfoques según el contexto.
 - Métricas de cobertura recomendadas y criterios de calidad.
+- Comandos y scripts de testing organizados por módulos.
+- Herramientas y configuración global con utilidades reutilizables.
 - Referencias a artículos y repositorios de ejemplo para profundizar.
 
 Esta documentación es un recurso vivo: se actualiza y mejora continuamente con la experiencia del equipo y los avances de la comunidad. Si tienes sugerencias o detectas áreas de mejora, ¡no dudes en contribuir!
@@ -150,7 +156,7 @@ Detectan problemas de integración
 Los tests de componentes prueban la funcionalidad de un componente específico y sus hijos directos (si no son complejos). Si los hijos son complejos, se mockean para enfocarse en la lógica del componente padre, pero se integra la mayor parte de la funcionalidad real.
 
 Validan accesibilidad naturalmente
-Al usar selectores como `getByRole()` y `getByLabelText()`, los tests de componentes promueven y validan la accesibilidad de la aplicación.
+Al usar selectores como `getByLabelText()`, los tests de componentes promueven y validan la accesibilidad de la aplicación.
 
 Evitan falsos positivos y falsos negativos
 Los tests unitarios pueden generar dos tipos de errores problemáticos:
@@ -322,17 +328,26 @@ import { describe, it, expect } from 'vitest'
 import NavigationMenu from '@/components/NavigationMenu.vue'
 import { userEvent } from '@testing-library/user-event'
 
+// Helper simplificado para crear router de test
+const createTestRouter = (routes = []) => {
+  const defaultRoutes = [
+    { path: '/', component: { template: '<div>Home</div>' } },
+    { path: '/login', component: { template: '<div>Login</div>' } }
+  ]
+  
+  return createRouter({
+    history: createWebHistory(),
+    routes: [...defaultRoutes, ...routes]
+  })
+}
+
 describe('NavigationMenu', () => {
   it('should navigate using router links', async () => {
-    const router = createRouter({
-      history: createWebHistory(),
-      routes: [
-        { path: '/dashboard', component: { template: 'Dashboard' } },
-        { path: '/settings', component: { template: 'Settings' } },
-        { path: '/profile', component: { template: 'Profile' } },
-        { path: '/', component: { template: 'Home' } },
-      ],
-    })
+    const router = createTestRouter([
+      { path: '/dashboard', component: { template: 'Dashboard' } },
+      { path: '/settings', component: { template: 'Settings' } },
+      { path: '/profile', component: { template: 'Profile' } }
+    ])
 
     render(NavigationMenu, {
       global: {
@@ -644,15 +659,14 @@ export const createRouterFactory = {
 
 #### **1. Estructura de Factories Organizada**
 
-**Nueva estructura recomendada:**
+**Estructura recomendada (simplificada):**
 ```
 test/
 ├── factories/
 │   ├── index.ts              # Exporta todas las factories
-│   ├── router.factory.ts     # Factories de rutas
-│   ├── store.factory.ts      # Factories de stores (futuro)
-│   ├── api.factory.ts        # Factories de API (futuro)
-│   └── user.factory.ts       # Factories de usuarios (futuro)
+│   ├── router.factory.ts     # Factories de rutas (simplificadas)
+│   ├── store.factory.ts      # Factories de stores
+│   └── user.factory.ts       # Factories de usuarios
 ├── utils/
 │   └── withSetup.ts          # Utilidades de testing
 └── setup.ts                  # Setup global
@@ -727,87 +741,53 @@ describe('Component with Router', () => {
 })
 ```
 
-#### **2. Factory Pattern Funcional**
+#### **2. Factory Pattern Simplificado**
 
-**Basándonos en las mejores prácticas de [Oscar Reyes](https://oscar-reyes.medium.com/factory-functions-functional-mixins-with-typescript-83793195391d) y [Matt Unhjem](https://dev.to/mattu/make-a-factory-creating-reliable-tests-with-factory-functions-in-typescript-and-react-eh), hemos implementado un factory pattern funcional que mantiene la consistencia con el resto del proyecto:**
+**Basándonos en las mejores prácticas de [Oscar Reyes](https://oscar-reyes.medium.com/factory-functions-functional-mixins-with-typescript-83793195391d) y [Matt Unhjem](https://dev.to/mattu/make-a-factory-creating-reliable-tests-with-factory-functions-in-typescript-and-react-eh), hemos simplificado el factory pattern para ser más práctico:**
 
-**Características del factory pattern funcional:**
-- **Funciones puras**: Sin efectos secundarios, siempre retornan el mismo resultado
+**Características del factory pattern simplificado:**
+- **Funciones simples**: Fáciles de entender y mantener
 - **Object composition**: Usa composición de objetos en lugar de herencia
-- **Functional mixins**: Funciones que agregan funcionalidad específica
-- **Inmutabilidad**: Cada operación retorna una nueva instancia
-- **Composición funcional**: Permite combinar funciones de manera elegante
+- **Overrides flexibles**: Permite personalización sin complejidad
+- **Reutilización**: Factories específicas por dominio
+- **Mantenibilidad**: Fácil de modificar y extender
 
 **Factory functions disponibles:**
 ```typescript
-// Factory base
+// Factory base simplificada
 createRouterFactory
 
 // Factories específicas por dominio
 createAnimeRouterFactory
 createAuthRouterFactory
 createFormsRouterFactory
-createGuardsRouterFactory
-createNavigationRouterFactory
 
-// Factory compuesta
-createCompositeRouterFactory
-
-// Functional mixins
-withBasePath
-withMeta
-withCustomRoutes
+// Helper para rutas personalizadas
+createTestRouter
 ```
 
-**Ejemplos de uso funcional:**
+**Ejemplos de uso simplificado:**
 ```typescript
 // 1. Uso básico con factory function
-const animeFactory = createAnimeRouterFactory()
-  .addAnimeRoutes() // Agregar rutas adicionales de anime
-  .addRoute({
-    path: '/anime/custom',
-    name: 'CustomAnime',
-    component: { template: '<div>Custom Anime Page</div>' }
-  })
+const animeRoutes = createAnimeRouterFactory()
 
-// 2. Composición funcional de múltiples factories
-const animeFactory = createAnimeRouterFactory()
-const authFactory = createAuthRouterFactory()
-  .addPasswordRecoveryRoutes()
+// 2. Uso con rutas personalizadas
+const customRoutes = createTestRouter([
+  { path: '/custom', component: { template: '<div>Custom Page</div>' } }
+])
 
-const compositeFactory = createCompositeRouterFactory([animeFactory, authFactory])
-  .addRoute({
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: { template: '<div>Dashboard</div>' }
-  })
+// 3. Uso con overrides
+const authRoutes = createAuthRouterFactory({
+  includePasswordRecovery: true,
+  customRoutes: [
+    { path: '/dashboard', component: { template: '<div>Dashboard</div>' } }
+  ]
+})
 
-// 3. Uso con functional mixins
-const animeFactory = createAnimeRouterFactory()
-
-const enhancedFactory = withBasePath('/app')(
-  withMeta({ requiresAuth: true })(
-    withCustomRoutes([
-      { path: '/custom', component: { template: '<div>Custom</div>' } }
-    ])(animeFactory)
-  )
-)
-
-// 4. Composición funcional pura
-const baseFactory = createRouterFactory()
-  .addRoute({
-    path: '/',
-    name: 'Home',
-    component: { template: '<div>Home</div>' }
-  })
-
-const extendedFactory = baseFactory
-  .addRoute({
-    path: '/about',
-    name: 'About',
-    component: { template: '<div>About</div>' }
-  })
-  .withOptions({ basePath: '/app' })
+// 4. Uso simple para casos básicos
+const basicRouter = createTestRouter([
+  { path: '/about', component: { template: '<div>About</div>' } }
+])
 ```
 
 #### **3. Mejores Prácticas para Factories de Rutas**
@@ -827,7 +807,7 @@ const extendedFactory = baseFactory
 - **Crear factories demasiado específicas** - Que no se reutilicen
 - **Mezclar lógica de negocio en factories** - Solo definición de rutas
 
-**Patrón recomendado para factories complejas:**
+**Patrón recomendado para factories simplificadas:**
 ```typescript
 // test/factories/router.factory.ts
 import type { RouteRecordRaw } from 'vue-router'
@@ -876,6 +856,21 @@ export const createRouterFactory = {
     },
     { path: '/login', name: 'Login', component: { template: '<div>Login</div>' } }
   ]
+}
+
+// Helper simplificado para crear router de test
+export const createTestRouter = (routes: RouteRecordRaw[] = []) => {
+  const defaultRoutes = [
+    { path: '/', name: 'Home', component: { template: '<div>Home</div>' } }
+  ]
+  
+  return {
+    routes: [...defaultRoutes, ...routes],
+    // Métodos básicos para testing
+    push: vi.fn(),
+    replace: vi.fn(),
+    currentRoute: { value: { path: '/', params: {} } }
+  }
 }
 ```
 
@@ -1231,10 +1226,10 @@ El patrón provide/inject es común en formularios complejos donde múltiples co
 
 #### **1. Testing de Composables con Provide/Inject**
 
-**Patrón recomendado**: Usar `withSetup` para testing unitario de composables que usan provide/inject.
+**Patrón recomendado**: Usar `withSetup` para testing unitario de composables que usan provide/inject, ya que `renderComposable` no maneja automáticamente el contexto de provide/inject.
 
 ```typescript
-import { withSetup } from '@/test/utils/withSetup'
+import { withSetup } from '@/test/setup'
 import { useRegisterFormProvider } from '@/modules/auth/composables/useRegisterFormProvider'
 import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
 
@@ -1248,7 +1243,7 @@ describe('Register Form Provider/Inject Pattern', () => {
       useRegisterFormProvider(emit)
     )
     
-    // Act - Inject setup (simula componente hijo)
+    // Act - Inject setup (mismo contexto Vue)
     const { result: injectResult, app: injectApp } = withSetup(() => 
       useRegisterFormStepValidation()
     )
@@ -1257,6 +1252,7 @@ describe('Register Form Provider/Inject Pattern', () => {
     expect(providerResult.provide).toBeDefined()
     expect(providerResult.form).toBeDefined()
     expect(providerResult.form.username).toBe('')
+    expect(injectResult.form).toBeDefined()
     
     // Cleanup
     providerApp.unmount()
@@ -1309,10 +1305,10 @@ describe('Register Form Step Component Integration', () => {
     })
 
     // Assert - Verificar que todas las secciones están presentes
-    expect(screen.getByTestId('section:basic')).toBeInTheDocument()
-    expect(screen.getByTestId('section:residence')).toBeInTheDocument()
-    expect(screen.getByTestId('section:contact')).toBeInTheDocument()
-    expect(screen.getByTestId('section:preferences')).toBeInTheDocument()
+    expect(screen.getByTestId('basic-section')).toBeInTheDocument()
+    expect(screen.getByTestId('residence-section')).toBeInTheDocument()
+    expect(screen.getByTestId('contact-section')).toBeInTheDocument()
+    expect(screen.getByTestId('preferences-section')).toBeInTheDocument()
   })
 
   it('should display form header with correct content', () => {
@@ -1379,15 +1375,17 @@ describe('Form Validation with Inject Pattern', () => {
 #### **4. Mejores Prácticas para Provide/Inject**
 
 **SÍ hacer:**
-- **Composables unitarios**: Usar `withSetup` para testing aislado
+- **Composables con provide/inject**: Usar `withSetup` para testing unitario
+- **Composables simples**: Usar `renderComposable` para testing simple
 - **Integración real**: Testing entre componentes padre/hijo
 - **Validación separada**: Testing unitario de lógica de validación
-- **Cleanup**: Siempre hacer `app.unmount()` en tests con lifecycle
+- **Cleanup**: Siempre hacer `app.unmount()` con `withSetup`
 
 **NO hacer:**
+- Usar `renderComposable` para provide/inject (no funciona)
 - Mockear provide/inject en tests de integración
 - Testear detalles internos de la inyección
-- Ignorar cleanup en tests con `withSetup`
+- Ignorar cleanup con `withSetup`
 - Mezclar testing unitario e integración en el mismo test
 
 ### Selectores y Atributos para Testing de Componentes
@@ -1432,10 +1430,10 @@ Los selectores determinan qué tan robustos, accesibles y mantenibles serán tus
 
 ```typescript
 // Todos funcionan igual
-screen.getByLabelText('Email')     // ✅ Label con for
-screen.getByLabelText('Contraseña') // ✅ Label envolviendo  
-screen.getByLabelText('Usuario')    // ✅ aria-label
-screen.getByLabelText('Nombre')     // ✅ aria-labelledby
+screen.getByLabelText('Email')
+screen.getByLabelText('Contraseña')
+screen.getByLabelText('Usuario')
+screen.getByLabelText('Nombre')
 ```
 
 #### **3. getByText() - Para Contenido Visible**
@@ -1489,39 +1487,39 @@ expect(screen.getByTestId('loading-skeleton')).toBeInTheDocument()
 
 #### **Convención de Nomenclatura para data-testid**
 
-**Estructura recomendada: `tipo:propósito`**
+**Estructura recomendada: `propósito` (simplificada)**
 
 ```vue
 <!-- Formularios -->
-data-testid="form:register"
-data-testid="form:login"
+data-testid="register-form"
+data-testid="login-form"
 
 <!-- Secciones -->
-data-testid="section:basic"
-data-testid="section:contact"
+data-testid="basic-section"
+data-testid="contact-section"
 
 <!-- Inputs -->
-data-testid="input:username"
-data-testid="input:email"
-data-testid="input:password"
+data-testid="username-input"
+data-testid="email-input"
+data-testid="password-input"
 
 <!-- Selects -->
-data-testid="select:country"
-data-testid="select:city"
+data-testid="country-select"
+data-testid="city-select"
 
 <!-- Botones -->
-data-testid="button:submit"
-data-testid="button:cancel"
-data-testid="button:toggle-favorite"
+data-testid="submit-button"
+data-testid="cancel-button"
+data-testid="favorite-button"
 
 <!-- Contenedores -->
-data-testid="container:anime-grid"
-data-testid="container:loading-skeleton"
+data-testid="anime-grid"
+data-testid="loading-skeleton"
 
 <!-- Estados -->
-data-testid="state:loading"
-data-testid="state:error"
-data-testid="state:empty"
+data-testid="loading-state"
+data-testid="error-message"
+data-testid="empty-state"
 ```
 
 #### **Patrón Completo de Ejemplo para Componentes**
@@ -1848,14 +1846,14 @@ describe('Complex Form with Sections', () => {
     })
 
     // Assert - Verificar estructura del formulario
-    expect(screen.getByTestId('form:main')).toBeInTheDocument()
-    expect(screen.getByTestId('step:complete')).toBeInTheDocument()
+    expect(screen.getByTestId('main-form')).toBeInTheDocument()
+    expect(screen.getByTestId('complete-step')).toBeInTheDocument()
     
     // Verificar secciones individuales
-    expect(screen.getByTestId('section:basic')).toBeInTheDocument()
-    expect(screen.getByTestId('section:residence')).toBeInTheDocument()
-    expect(screen.getByTestId('section:contact')).toBeInTheDocument()
-    expect(screen.getByTestId('section:preferences')).toBeInTheDocument()
+    expect(screen.getByTestId('basic-section')).toBeInTheDocument()
+    expect(screen.getByTestId('residence-section')).toBeInTheDocument()
+    expect(screen.getByTestId('contact-section')).toBeInTheDocument()
+    expect(screen.getByTestId('preferences-section')).toBeInTheDocument()
   })
 
   it('should display form header with correct content', () => {
@@ -2023,17 +2021,17 @@ describe('Form State Management', () => {
     })
 
     // Assert - Verificar atributos de los inputs
-    const firstNameInput = screen.getByTestId('input:first-name')
+    const firstNameInput = screen.getByTestId('first-name-input')
     expect(firstNameInput).toBeInTheDocument()
-    expect(firstNameInput.getAttribute('data-test')).toBe('input:first-name')
+    expect(firstNameInput.getAttribute('data-testid')).toBe('first-name-input')
 
-    const usernameInput = screen.getByTestId('input:username')
+    const usernameInput = screen.getByTestId('username-input')
     expect(usernameInput).toBeInTheDocument()
-    expect(usernameInput.getAttribute('data-test')).toBe('input:username')
+    expect(usernameInput.getAttribute('data-testid')).toBe('username-input')
 
-    const countrySelect = screen.getByTestId('select:country')
+    const countrySelect = screen.getByTestId('country-select')
     expect(countrySelect).toBeInTheDocument()
-    expect(countrySelect.getAttribute('data-test')).toBe('select:country')
+    expect(countrySelect.getAttribute('data-testid')).toBe('country-select')
   })
 
   it('should render form with proper accessibility attributes', () => {
@@ -2045,14 +2043,14 @@ describe('Form State Management', () => {
     })
 
     // Assert - Verificar accesibilidad básica
-    const form = screen.getByTestId('form:main')
+    const form = screen.getByTestId('main-form')
     expect(form).toBeInTheDocument()
     
     // Verificar que los inputs tienen placeholders
-    const firstNameInput = screen.getByTestId('input:first-name')
+    const firstNameInput = screen.getByTestId('first-name-input')
     expect(firstNameInput).toHaveAttribute('placeholder')
     
-    const usernameInput = screen.getByTestId('input:username')
+    const usernameInput = screen.getByTestId('username-input')
     expect(usernameInput).toHaveAttribute('placeholder')
   })
 })
@@ -2070,39 +2068,39 @@ import { createTestingPinia } from '@pinia/testing'
 const RegisterFormStep = {
   name: 'RegisterFormStep',
   template: `
-    <div data-test="view:register-form-step">
+    <div data-testid="register-form-step-view">
       <h1>Crear Cuenta</h1>
       <p>Completa los siguientes datos para crear tu cuenta</p>
       
-      <el-form data-test="form:main">
-        <div data-test="step:complete">
-          <div data-test="section:basic">
-            <el-input data-test="input:first-name" placeholder="Nombre" />
-            <el-input data-test="input:username" placeholder="Usuario" />
+      <el-form data-testid="main-form">
+        <div data-testid="complete-step">
+          <div data-testid="basic-section">
+            <el-input data-testid="first-name-input" placeholder="Nombre" />
+            <el-input data-testid="username-input" placeholder="Usuario" />
           </div>
           
-          <div data-test="section:residence">
-            <el-select data-test="select:country" placeholder="Selecciona tu país">
+          <div data-testid="residence-section">
+            <el-select data-testid="country-select" placeholder="Selecciona tu país">
               <el-option label="Colombia" value="colombia" />
               <el-option label="México" value="mexico" />
               <el-option label="Argentina" value="argentina" />
             </el-select>
-            <el-input data-test="input:city" placeholder="Ciudad" />
+            <el-input data-testid="city-input" placeholder="Ciudad" />
           </div>
           
-          <div data-test="section:contact">
-            <el-input data-test="input:emergency-contact" placeholder="Contacto de emergencia" />
-            <el-input data-test="input:emergency-phone" placeholder="Teléfono de emergencia" />
+          <div data-testid="contact-section">
+            <el-input data-testid="emergency-contact-input" placeholder="Contacto de emergencia" />
+            <el-input data-testid="emergency-phone-input" placeholder="Teléfono de emergencia" />
           </div>
           
-          <div data-test="section:preferences">
-            <el-switch data-test="switch:newsletter" />
-            <el-switch data-test="switch:marketing" />
-            <el-checkbox data-test="checkbox:terms">Acepto los términos</el-checkbox>
+          <div data-testid="preferences-section">
+            <el-switch data-testid="newsletter-switch" />
+            <el-switch data-testid="marketing-switch" />
+            <el-checkbox data-testid="terms-checkbox">Acepto los términos</el-checkbox>
           </div>
         </div>
         
-        <el-button data-test="button:submit" type="success">Crear Cuenta</el-button>
+        <el-button data-testid="submit-button" type="success">Crear Cuenta</el-button>
       </el-form>
     </div>
   `
@@ -2118,11 +2116,11 @@ describe('Form Integration Testing', () => {
     })
 
     // Assert - Verificar que se usan los mocks de Element Plus
-    const form = screen.getByTestId('form:main')
+    const form = screen.getByTestId('main-form')
     expect(form.tagName.toLowerCase()).toBe('el-form')
-    expect(form).toHaveAttribute('data-test', 'form:main')
+    expect(form).toHaveAttribute('data-testid', 'main-form')
 
-    const submitButton = screen.getByTestId('button:submit')
+    const submitButton = screen.getByTestId('submit-button')
     expect(submitButton.tagName.toLowerCase()).toBe('el-button')
     expect(submitButton).toHaveAttribute('type', 'success')
   })
@@ -2136,7 +2134,7 @@ describe('Form Integration Testing', () => {
     })
 
     // Assert - Verificar que las opciones del país están presentes como mocks
-    const select = screen.getByTestId('select:country')
+    const select = screen.getByTestId('country-select')
     expect(select.tagName.toLowerCase()).toBe('el-select')
     
     // Buscar los el-option dentro del select
@@ -2254,8 +2252,8 @@ describe('AnimeCard con Testing Pinia', () => {
     })
     
     // Assert
-    expect(screen.getByTestId('button:toggle-favorite')).toBeInTheDocument()
-    expect(screen.queryByTestId('button:login-required')).not.toBeInTheDocument()
+    expect(screen.getByTestId('toggle-favorite-button')).toBeInTheDocument()
+    expect(screen.queryByTestId('login-required-button')).not.toBeInTheDocument()
   })
 
   it('should show login button when user is not authenticated', () => {
@@ -2278,8 +2276,8 @@ describe('AnimeCard con Testing Pinia', () => {
     })
     
     // Assert
-    expect(screen.getByTestId('button:login-required')).toBeInTheDocument()
-    expect(screen.queryByTestId('button:toggle-favorite')).not.toBeInTheDocument()
+    expect(screen.getByTestId('login-required-button')).toBeInTheDocument()
+    expect(screen.queryByTestId('toggle-favorite-button')).not.toBeInTheDocument()
   })
 })
 ```
@@ -2547,11 +2545,11 @@ El coverage mide qué porcentaje del código está siendo ejecutado por los test
 
 #### **Objetivos**
 
-* Stores: 80-90% (Lógica de negocio crítica)
-* Composables: 70-80% (Lógica de UI y transformaciones)
-* Utils: 80-90% (Funciones puras y transformaciones)
-* Components: 50-70% (Interacciones de usuario y lógica de template)
-* Services: 30-50% (Solo casos edge y validaciones específicas)
+* Stores: 70-80% (Lógica de negocio crítica)
+* Composables: 60-75% (Lógica de UI y transformaciones)
+* Utils: 70-80% (Funciones puras y transformaciones)
+* Components: 40-60% (Interacciones de usuario y lógica de template)
+* Services: 20-40% (Solo casos edge y validaciones específicas)
 
 #### **Criterios de Exclusión**
 
@@ -2694,10 +2692,10 @@ export default mergeConfig(
         ],
         thresholds: {
           global: {
-            branches: 80,
-            functions: 80,
-            lines: 80,
-            statements: 80
+            branches: 70,
+            functions: 70,
+            lines: 70,
+            statements: 70
           }
         }
       },
@@ -2759,49 +2757,44 @@ Las utilidades globales proporcionan funciones reutilizables que simplifican la 
 
 **Utilidades para Testing de Composables (test/utils/withSetup.ts)**
 
-Basándonos en las mejores prácticas de [Vue Testing Library](https://testing-library.com/docs/vue-testing-library/intro/) y [Dylan Britz](https://dev.to/britzdm/mastering-vue-3-composables-testing-with-vitest-1bk3), hemos creado utilidades específicas para diferentes tipos de composables:
+Basándonos en las mejores prácticas de [Vue Testing Library](https://testing-library.com/docs/vue-testing-library/intro/) y [Dylan Britz](https://dev.to/britzdm/mastering-vue-3-composables-testing-with-vitest-1bk3), hemos simplificado las utilidades para ser más prácticas:
 
 ```typescript
-import { withSetup, withInjectedSetup, withPlugins, withAsyncSetup } from '@/test/setup'
+import { renderComposable } from '@testing-library/vue'
+import { withSetup } from '@/test/setup'
 
-// 1. Composable con lifecycle hooks
+// 1. Composable simple (recomendado)
+const { result } = renderComposable(() => useMyComposable())
+expect(result.isReady.value).toBe(true)
+
+// 2. Composable con lifecycle hooks (solo cuando sea necesario)
 const { result, app } = withSetup(() => useMyComposable())
 expect(result.isReady.value).toBe(true)
-app.unmount() // Importante: siempre hacer cleanup
-
-// 2. Composable con inyección de dependencias
-const { result, app } = withInjectedSetup(
-  () => useMyComposable(),
-  { 'my-key': 'my-value' }
-)
+app.unmount() // Solo cuando hay lifecycle hooks
 
 // 3. Composable con plugins (Pinia, Router)
-const { result, app } = withPlugins(
-  () => useMyStore(),
-  [createTestingPinia()]
-)
-
-// 4. Composable con async operations
-const { result, app, waitFor } = withAsyncSetup(() => useAsyncComposable())
-await waitFor(() => expect(result.data.value).toBeDefined())
-app.unmount()
+const { result } = renderComposable(() => useMyStore(), {
+  global: {
+    plugins: [createTestingPinia()]
+  }
+})
 ```
 
 **¿Cuándo usar cada utilidad?**
 
 | Tipo de Composable | Utilidad | Cuándo usar |
 |-------------------|----------|-------------|
-| Solo reactividad | `renderComposable` | Composables simples sin lifecycle |
-| Con lifecycle hooks | `withSetup` | Composables con `onMounted`, `onUnmounted` |
-| Con provide/inject | `withInjectedSetup` | Composables que usan inyección |
-| Con plugins | `withPlugins` | Composables que usan Pinia, Router |
-| Con async operations | `withAsyncSetup` | Composables con operaciones asíncronas |
+| Solo reactividad | `renderComposable` | **Recomendado para la mayoría de casos** |
+| Con provide/inject | `withSetup` | **Obligatorio para provide/inject** |
+| Con lifecycle hooks | `withSetup` | Solo cuando hay `onMounted`, `onUnmounted` |
+| Con plugins | `renderComposable` con global | Composables que usan Pinia, Router |
 
 **Mejores prácticas:**
-- **Siempre hacer cleanup**: Llamar `app.unmount()` o `unmount()`
+- **Usar `renderComposable` por defecto**: Es más simple y suficiente para la mayoría de casos
+- **Usar `withSetup` para provide/inject**: Obligatorio para composables que usan provide/inject
+- **Usar `withSetup` para lifecycle hooks**: Solo cuando hay `onMounted`, `onUnmounted`
 - **Testear comportamiento observable**: No detalles de implementación
-- **Usar la utilidad más simple**: No usar `withSetup` si no es necesario
-- **Importar desde setup global**: `import { withSetup } from '@/test/setup'`
+- **Cleanup obligatorio con `withSetup`**: Siempre hacer `app.unmount()`
 
 **Utilidad para testing de formularios (test/utils/formTesting.ts)**
 ```typescript
@@ -2816,7 +2809,7 @@ export async function fillForm(
   formData: Record<string, string | boolean>
 ) {
   for (const [field, value] of Object.entries(formData)) {
-    const element = wrapper.find(`[data-test="${field}"]`)
+    const element = wrapper.find(`[data-testid="${field}"]`)
     
     if (element.exists()) {
       if (typeof value === 'boolean') {
@@ -2971,23 +2964,17 @@ export default defineConfig({
       thresholds: {
         // Coverage global
         global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
+          branches: 70,
+          functions: 70,
+          lines: 70,
+          statements: 70
         },
-        // Coverage específico por módulo
-        'src/modules/anime/': {
-          branches: 85,
-          functions: 85,
-          lines: 85,
-          statements: 85
-        },
+        // Coverage específico por módulo (solo para módulos críticos)
         'src/modules/auth/': {
-          branches: 90,
-          functions: 90,
-          lines: 90,
-          statements: 90
+          branches: 75,
+          functions: 75,
+          lines: 75,
+          statements: 75
         }
       }
     }
@@ -3047,7 +3034,6 @@ export default defineConfig({
 - [Vue.js Testing with Vue Test Utils and Vitest](https://vueschool.io/articles/vuejs-tutorials/vue-js-testing-with-vue-test-utils-and-vitest/) - Vue School
 - [Realiza Pruebas Unitarias con Vitest y Vue Test Utils](https://codingpr.com/es/realiza-pruebas-unitarias-con-vitest-y-vue-test-utils/) - CodingPR
 
----
 
 **Nota sobre las referencias**: Esta documentación está basada en las mejores prácticas establecidas por la comunidad Vue y los principios de testing moderno. Todas las referencias han sido seleccionadas por su relevancia y autoridad en el tema. La frase clave "Si un usuario no puede hacerlo, tu prueba tampoco debería poder hacerlo" es fundamental para entender el enfoque de testing centrado en el usuario.
 

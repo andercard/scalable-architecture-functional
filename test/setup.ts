@@ -1,19 +1,12 @@
 import { vi, expect } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
-import { createRouter, createMemoryHistory, type Router } from 'vue-router'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import { render, type RenderOptions } from '@testing-library/vue'
-import { configure } from '@testing-library/vue'
 import type { ComponentPublicInstance } from 'vue'
 import '@testing-library/jest-dom'
 
-/**
- * CONFIGURACIÓN DE TESTING LIBRARY
- * Configurar para usar data-test como atributo de test id
- */
-configure({ 
-  testIdAttribute: 'data-test',
-  asyncUtilTimeout: 5000
-})
+// Importar factories desde su ubicación separada
+import { defaultRoutes } from './factories'
 
 /**
  * SETUP GLOBAL PARA TESTING
@@ -35,16 +28,30 @@ configure({
  */
 
 // Configuración de Pinia para tests
-export const createTestPinia = () => createTestingPinia({ 
+export const createTestPinia = (options = {}) => createTestingPinia({ 
   createSpy: vi.fn,
-  stubActions: false // Permite que las acciones se ejecuten realmente
+  stubActions: false, // Permite que las acciones se ejecuten realmente
+  ...options
 })
 
-// Configuración de Vue Router para tests de integración
-export const createTestRouter = (routes: any[] = []) => createRouter({
-  history: createMemoryHistory(),
-  routes
-})
+/**
+ * CONFIGURACIÓN DE ROUTER PARA TESTS
+ * 
+ * Basado en las mejores prácticas de:
+ * - Vue Test Utils: https://test-utils.vuejs.org/guide/advanced/vue-router.html
+ * - Vue Testing Handbook: https://lmiller1990.github.io/vue-testing-handbook/vue-router.html
+ * - Focused.io: https://focused.io/lab/vue-router-testing-strategies
+ * - Vasanthan K: https://medium.com/@vasanthancomrads/unit-testing-vue-3-components-with-vitest-and-testing-library-part-3-985d9c3585c8
+ */
+
+export const createTestRouter = (routes = defaultRoutes) => {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes
+  })
+}
+
+
 
 /**
  * HELPER PARA VUE TESTING LIBRARY
@@ -147,7 +154,7 @@ export const createMockRouter = (customMethods: Record<string, unknown> = {}) =>
 
 // Helper para verificar navegación
 export const expectNavigation = (
-  routerMock: any,
+  routerMock: { push: ReturnType<typeof vi.fn> },
   expectedPath: string,
   expectedOptions?: unknown
 ) => {
