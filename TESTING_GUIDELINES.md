@@ -494,27 +494,26 @@ describe('RouteLeaveGuardDemo', () => {
 ```typescript
 // test-utils.ts
 import { render } from '@testing-library/vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createTestRouter, routerFactories } from '@/test/setup'
 import type { RenderOptions } from '@testing-library/vue'
-// path of the definition of your routes
-import { routes } from '../../router/index.ts'
 
 interface RenderWithRouterOptions extends Omit<RenderOptions<any>, 'global'> {
   initialRoute?: string
-  routerOptions?: {
-    routes?: typeof routes
-    history?: ReturnType<typeof createWebHistory>
-  }
+  routeType?: keyof typeof routerFactories
+  customRoutes?: Array<{ path: string; component: { template: string } }>
 }
 
 export function renderWithRouter(Component: any, options: RenderWithRouterOptions = {}) {
-  const { initialRoute = '/', routerOptions = {}, ...renderOptions } = options
+  const { 
+    initialRoute = '/', 
+    routeType = 'basic',
+    customRoutes,
+    ...renderOptions 
+  } = options
 
-  const router = createRouter({
-    history: createWebHistory(),
-    // Use provided routes or import from your router file
-    routes: routerOptions.routes || routes,
-  })
+  // Usar rutas personalizadas o factory de rutas
+  const routes = customRoutes || routerFactories[routeType]()
+  const router = createTestRouter(routes)
 
   router.push(initialRoute)
 
@@ -531,12 +530,14 @@ export function renderWithRouter(Component: any, options: RenderWithRouterOption
 }
 ```
 
-**Uso del helper:**
+**Uso del helper mejorado:**
 ```typescript
 describe('NavigationMenu', () => {
   it('should navigate using router links', async () => {
+    // Usar factory de rutas específicas para anime
     const { router } = renderWithRouter(NavigationMenu, {
       initialRoute: '/',
+      routeType: 'anime' // Usar rutas específicas de anime
     })
 
     await router.isReady()
@@ -545,237 +546,370 @@ describe('NavigationMenu', () => {
     await user.click(screen.getByText('Dashboard'))
     expect(router.currentRoute.value.path).toBe('/dashboard')
   })
-})
-```
 
-**Patrón 6: Testing de guards específicos del proyecto**
-```typescript
-import { render, screen } from '@testing-library/vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
-import { authRequiresAuthGuard } from '@/modules/auth/routes/auth.guards'
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-describe('Auth Guards Testing', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should redirect to login when user is not authenticated', async () => {
-    // Arrange
-    const router = createRouter({
-      history: createWebHistory(),
-      routes: [
-        { 
-          path: '/protected', 
-          component: { template: '<div>Protected</div>' },
-          meta: { requiresAuth: true }
-        },
-        { 
-          path: '/login', 
-          component: { template: '<div>Login</div>' }
-        }
-      ]
-    })
-
-    // Mock store para usuario no autenticado
-    const pinia = createTestingPinia({
-      initialState: {
-        auth: { isAuthenticated: false, user: null }
-      }
-    })
-
-    // Act
-    render({ template: '<router-view />' }, {
-      global: {
-        plugins: [router, pinia]
-      }
-    })
-
-    await router.push('/protected')
-    await router.isReady()
-
-    // Assert
-    expect(router.currentRoute.value.path).toBe('/login')
-  })
-
-  it('should allow access when user is authenticated', async () => {
-    // Arrange
-    const router = createRouter({
-      history: createWebHistory(),
-      routes: [
-        { 
-          path: '/protected', 
-          component: { template: '<div>Protected Content</div>' },
-          meta: { requiresAuth: true }
-        }
-      ]
-    })
-
-    const pinia = createTestingPinia({
-      initialState: {
-        auth: { isAuthenticated: true, user: { id: 1, name: 'Test User' } }
-      }
-    })
-
-    // Act
-    render({ template: '<router-view />' }, {
-      global: {
-        plugins: [router, pinia]
-      }
-    })
-
-    await router.push('/protected')
-    await router.isReady()
-
-    // Assert
-    expect(router.currentRoute.value.path).toBe('/protected')
-    expect(screen.getByText('Protected Content')).toBeInTheDocument()
-  })
-
-  it('should test specific guard function directly', async () => {
-    // Arrange
-    const mockRouter = {
-      push: vi.fn(),
-      currentRoute: { value: { path: '/protected' } }
-    }
-
-    const mockStore = {
-      isAuthenticated: false,
-      user: null
-    }
-
-    // Act
-    const result = await authRequiresAuthGuard(
-      { path: '/protected', meta: { requiresAuth: true } } as any,
-      { path: '/login' } as any
-    )
-
-    // Assert
-    expect(result).toBe('/login')
-  })
-})
-```
-
-**Patrón 7: Testing de rutas dinámicas**
-```typescript
-import { render, screen } from '@testing-library/vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { describe, it, expect, beforeEach } from 'vitest'
-
-describe('Dynamic Routes Testing', () => {
-  let router: any
-
-  beforeEach(async () => {
-    router = createRouter({
-      history: createWebHistory(),
-      routes: [
-        { 
-          path: '/anime/:id', 
-          name: 'AnimeDetail',
-          component: { template: '<div>Anime Detail: {{ $route.params.id }}</div>' },
-          props: true
-        }
-      ]
-    })
-
-    await router.isReady()
-  })
-
-  it('should handle anime detail route with dynamic id', async () => {
-    // Act
-    await router.push('/anime/123')
-
-    // Assert
-    expect(router.currentRoute.value.params.id).toBe('123')
-    expect(router.currentRoute.value.name).toBe('AnimeDetail')
-  })
-
-  it('should render component with dynamic props', async () => {
-    // Act
-    await router.push('/anime/456')
+  it('should test with custom routes', async () => {
+    // Usar rutas personalizadas para casos específicos
+    const customRoutes = [
+      { path: '/custom', component: { template: '<div>Custom Page</div>' } }
+    ]
     
-    render({ template: '<router-view />' }, {
-      global: {
-        plugins: [router]
-      }
+    const { router } = renderWithRouter(NavigationMenu, {
+      initialRoute: '/custom',
+      customRoutes
     })
 
-    // Assert
-    expect(screen.getByText('Anime Detail: 456')).toBeInTheDocument()
-  })
-
-  it('should handle multiple dynamic parameters', async () => {
-    // Arrange
-    const routerWithMultipleParams = createRouter({
-      history: createWebHistory(),
-      routes: [
-        { 
-          path: '/anime/:category/:id', 
-          name: 'AnimeCategoryDetail',
-          component: { 
-            template: '<div>Category: {{ $route.params.category }}, ID: {{ $route.params.id }}</div>' 
-          },
-          props: true
-        }
-      ]
-    })
-
-    await routerWithMultipleParams.isReady()
-
-    // Act
-    await routerWithMultipleParams.push('/anime/action/789')
-
-    // Assert
-    expect(routerWithMultipleParams.currentRoute.value.params.category).toBe('action')
-    expect(routerWithMultipleParams.currentRoute.value.params.id).toBe('789')
+    await router.isReady()
+    expect(router.currentRoute.value.path).toBe('/custom')
   })
 })
 ```
 
-**Utilidades para testing de router (test/setup.ts):**
+**Patrón 6: Factory de rutas para testing específico**
 ```typescript
-// Helper para crear mocks de router más específicos
-export const createMockRouter = (customMethods: Record<string, unknown> = {}) => ({
-  push: vi.fn(),
-  replace: vi.fn(),
-  go: vi.fn(),
-  back: vi.fn(),
-  forward: vi.fn(),
-  currentRoute: {
-    value: {
-      path: '/',
-      params: {},
-      query: {},
-      hash: ''
-    }
-  },
-  ...customMethods
-})
+// test/factories/router.factory.ts
+import type { RouteRecordRaw } from 'vue-router'
 
-// Helper para verificar navegación
-export const expectNavigation = (
-  routerMock: any,
-  expectedPath: string,
-  expectedOptions?: unknown
-) => {
-  expect(routerMock.push).toHaveBeenCalledWith(
-    expectedPath,
-    expectedOptions
-  )
+export const createRouterFactory = {
+  // Factory para rutas de anime
+  anime: (): RouteRecordRaw[] => [
+    { 
+      path: '/anime', 
+      name: 'AnimeList',
+      component: { template: '<div>Anime List</div>' } 
+    },
+    { 
+      path: '/anime/:id', 
+      name: 'AnimeDetail',
+      component: { template: '<div>Anime Detail: {{ $route.params.id }}</div>' },
+      props: true
+    },
+    { 
+      path: '/favorites', 
+      name: 'Favorites',
+      component: { template: '<div>Favorites</div>' } 
+    }
+  ],
+
+  // Factory para rutas de autenticación
+  auth: (): RouteRecordRaw[] => [
+    { 
+      path: '/login', 
+      name: 'Login',
+      component: { template: '<div>Login</div>' } 
+    },
+    { 
+      path: '/register', 
+      name: 'Register',
+      component: { template: '<div>Register</div>' } 
+    },
+    { 
+      path: '/protected', 
+      name: 'Protected',
+      component: { template: '<div>Protected</div>' },
+      meta: { requiresAuth: true }
+    }
+  ],
+
+  // Factory para rutas de formularios
+  forms: (): RouteRecordRaw[] => [
+    { 
+      path: '/form', 
+      name: 'Form',
+      component: { template: '<div>Form</div>' } 
+    },
+    { 
+      path: '/form/success', 
+      name: 'FormSuccess',
+      component: { template: '<div>Success</div>' } 
+    },
+    { 
+      path: '/form/error', 
+      name: 'FormError',
+      component: { template: '<div>Error</div>' } 
+    }
+  ]
 }
 ```
 
-**Mejores prácticas:**
-- **Usa router real para tests de integración** - Simula el comportamiento real del usuario
-- **Usa mocks selectivos para tests unitarios** - Solo cuando necesites aislar el componente
-- **Siempre espera `router.isReady()`** - Vue Router 4 es asíncrono
-- **Usa `userEvent` para interacciones** - Simula interacciones reales del usuario
-- **Testea comportamiento observable** - No detalles de implementación interna
-- **Usa `screen.getByRole()` y `screen.getByText()`** - Promueve accesibilidad
-- **Crea helpers reutilizables** - Para reducir duplicación de código
-- **Limpia estado entre tests** - Usa `beforeEach` para resetear router
+**¿Por qué usar factories de rutas en lugar de rutas hardcodeadas?**
+
+**Problemas de rutas hardcodeadas:**
+1. **Falta de flexibilidad** - Cada test no puede definir sus propias rutas
+2. **Acoplamiento** - Tests dependen de rutas globales que pueden cambiar
+3. **Mantenimiento** - Cambios en rutas requieren modificar helpers globales
+4. **Testing específico** - No permite testing de rutas específicas del dominio
+
+**Ventajas de factories de rutas:**
+1. **Flexibilidad** - Cada test puede usar rutas específicas para su dominio
+2. **Desacoplamiento** - Tests no dependen de rutas globales
+3. **Mantenibilidad** - Cambios en rutas no afectan otros tests
+4. **Testing específico** - Permite testing de rutas específicas del dominio
+5. **Reutilización** - Factories pueden ser compartidas entre tests similares
+
+#### **9. Estructura de Factories Organizada**
+
+**Nueva estructura recomendada:**
+```
+test/
+├── factories/
+│   ├── index.ts              # Exporta todas las factories
+│   ├── router.factory.ts     # Factories de rutas
+│   ├── store.factory.ts      # Factories de stores (futuro)
+│   ├── api.factory.ts        # Factories de API (futuro)
+│   └── user.factory.ts       # Factories de usuarios (futuro)
+├── utils/
+│   └── withSetup.ts          # Utilidades de testing
+└── setup.ts                  # Setup global
+```
+
+**Ventajas de esta estructura:**
+- **Separación clara**: Cada tipo de factory en su propio archivo
+- **Fácil mantenimiento**: Cambios centralizados por tipo
+- **Escalabilidad**: Fácil agregar nuevas factories
+- **Importación limpia**: `import { createRouterFactory } from '@/test/factories'`
+
+**Uso de la nueva estructura funcional:**
+```typescript
+// Importar desde la ubicación centralizada
+import { 
+  routerFactories, 
+  createAnimeRouterFactory, 
+  createCompositeRouterFactory,
+  withBasePath,
+  withMeta 
+} from '@/test/factories'
+
+describe('Component with Router', () => {
+  it('should work with anime routes', async () => {
+    const router = createTestRouter(routerFactories.anime())
+    // Test implementation
+  })
+
+  it('should work with auth routes', async () => {
+    const router = createTestRouter(routerFactories.auth())
+    // Test implementation
+  })
+
+  it('should work with extended anime routes', async () => {
+    const animeFactory = createAnimeRouterFactory()
+      .addAnimeRoutes() // Agregar rutas adicionales
+      .addRoute({
+        path: '/anime/custom',
+        name: 'CustomAnime',
+        component: { template: '<div>Custom Anime Page</div>' }
+      })
+    
+    const router = createTestRouter(animeFactory.build())
+    // Test implementation
+  })
+
+  it('should work with functional mixins', async () => {
+    const animeFactory = createAnimeRouterFactory()
+    
+    const enhancedFactory = withBasePath('/app')(
+      withMeta({ requiresAuth: true })(animeFactory)
+    )
+    
+    const router = createTestRouter(enhancedFactory.build())
+    // Test implementation
+  })
+
+  it('should work with composite routes', async () => {
+    const animeFactory = createAnimeRouterFactory()
+    const authFactory = createAuthRouterFactory()
+    
+    const compositeFactory = createCompositeRouterFactory([animeFactory, authFactory])
+      .addRoute({
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: { template: '<div>Dashboard</div>' }
+      })
+    
+    const router = createTestRouter(compositeFactory.build())
+    // Test implementation
+  })
+})
+```
+
+#### **7. Factory Pattern Funcional**
+
+**Basándonos en las mejores prácticas de [Oscar Reyes](https://oscar-reyes.medium.com/factory-functions-functional-mixins-with-typescript-83793195391d) y [Matt Unhjem](https://dev.to/mattu/make-a-factory-creating-reliable-tests-with-factory-functions-in-typescript-and-react-eh), hemos implementado un factory pattern funcional que mantiene la consistencia con el resto del proyecto:**
+
+**Características del factory pattern funcional:**
+- **Funciones puras**: Sin efectos secundarios, siempre retornan el mismo resultado
+- **Object composition**: Usa composición de objetos en lugar de herencia
+- **Functional mixins**: Funciones que agregan funcionalidad específica
+- **Inmutabilidad**: Cada operación retorna una nueva instancia
+- **Composición funcional**: Permite combinar funciones de manera elegante
+
+**Factory functions disponibles:**
+```typescript
+// Factory base
+createRouterFactory
+
+// Factories específicas por dominio
+createAnimeRouterFactory
+createAuthRouterFactory
+createFormsRouterFactory
+createGuardsRouterFactory
+createNavigationRouterFactory
+
+// Factory compuesta
+createCompositeRouterFactory
+
+// Functional mixins
+withBasePath
+withMeta
+withCustomRoutes
+```
+
+**Ejemplos de uso funcional:**
+```typescript
+// 1. Uso básico con factory function
+const animeFactory = createAnimeRouterFactory()
+  .addAnimeRoutes() // Agregar rutas adicionales de anime
+  .addRoute({
+    path: '/anime/custom',
+    name: 'CustomAnime',
+    component: { template: '<div>Custom Anime Page</div>' }
+  })
+
+// 2. Composición funcional de múltiples factories
+const animeFactory = createAnimeRouterFactory()
+const authFactory = createAuthRouterFactory()
+  .addPasswordRecoveryRoutes()
+
+const compositeFactory = createCompositeRouterFactory([animeFactory, authFactory])
+  .addRoute({
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: { template: '<div>Dashboard</div>' }
+  })
+
+// 3. Uso con functional mixins
+const animeFactory = createAnimeRouterFactory()
+
+const enhancedFactory = withBasePath('/app')(
+  withMeta({ requiresAuth: true })(
+    withCustomRoutes([
+      { path: '/custom', component: { template: '<div>Custom</div>' } }
+    ])(animeFactory)
+  )
+)
+
+// 4. Composición funcional pura
+const baseFactory = createRouterFactory()
+  .addRoute({
+    path: '/',
+    name: 'Home',
+    component: { template: '<div>Home</div>' }
+  })
+
+const extendedFactory = baseFactory
+  .addRoute({
+    path: '/about',
+    name: 'About',
+    component: { template: '<div>About</div>' }
+  })
+  .withOptions({ basePath: '/app' })
+```
+
+#### **8. Mejores Prácticas para Factories de Rutas**
+
+**Basándonos en las mejores prácticas de [Focused.io](https://focused.io/lab/vue-router-testing-strategies) y [Vasanthan K](https://medium.com/@vasanthancomrads/unit-testing-vue-3-components-with-vitest-and-testing-library-part-3-985d9c3585c8):**
+
+**SÍ hacer:**
+- **Usar factories específicas por dominio** - `anime`, `auth`, `forms`
+- **Definir rutas con nombres descriptivos** - `AnimeList`, `AnimeDetail`
+- **Incluir meta información cuando sea necesario** - `meta: { requiresAuth: true }`
+- **Usar props automáticas para rutas dinámicas** - `props: true`
+- **Crear factories reutilizables** - Para tests similares
+
+**NO hacer:**
+- **Hardcodear rutas en helpers globales** - Reduce flexibilidad
+- **Usar rutas reales de producción** - Tests deben ser independientes
+- **Crear factories demasiado específicas** - Que no se reutilicen
+- **Mezclar lógica de negocio en factories** - Solo definición de rutas
+
+**Patrón recomendado para factories complejas:**
+```typescript
+// test/factories/router.factory.ts
+import type { RouteRecordRaw } from 'vue-router'
+
+interface RouteFactoryOptions {
+  includeAuth?: boolean
+  includeForms?: boolean
+  customRoutes?: RouteRecordRaw[]
+}
+
+export const createRouterFactory = {
+  // Factory básica con opciones
+  basic: (options: RouteFactoryOptions = {}): RouteRecordRaw[] => {
+    const routes: RouteRecordRaw[] = [
+      { path: '/', name: 'Home', component: { template: '<div>Home</div>' } }
+    ]
+
+    if (options.includeAuth) {
+      routes.push(
+        { path: '/login', name: 'Login', component: { template: '<div>Login</div>' } },
+        { path: '/register', name: 'Register', component: { template: '<div>Register</div>' } }
+      )
+    }
+
+    if (options.includeForms) {
+      routes.push(
+        { path: '/form', name: 'Form', component: { template: '<div>Form</div>' } }
+      )
+    }
+
+    if (options.customRoutes) {
+      routes.push(...options.customRoutes)
+    }
+
+    return routes
+  },
+
+  // Factory específica para testing de guards
+  withGuards: (): RouteRecordRaw[] => [
+    { path: '/', name: 'Home', component: { template: '<div>Home</div>' } },
+    { 
+      path: '/protected', 
+      name: 'Protected',
+      component: { template: '<div>Protected</div>' },
+      meta: { requiresAuth: true }
+    },
+    { path: '/login', name: 'Login', component: { template: '<div>Login</div>' } }
+  ]
+}
+```
+
+**Uso de factories con opciones:**
+```typescript
+describe('Component with Router', () => {
+  it('should work with basic routes', async () => {
+    const router = createTestRouter(createRouterFactory.basic())
+    // Test implementation
+  })
+
+  it('should work with auth routes', async () => {
+    const router = createTestRouter(createRouterFactory.basic({ 
+      includeAuth: true 
+    }))
+    // Test implementation
+  })
+
+  it('should work with custom routes', async () => {
+    const customRoutes = [
+      { path: '/custom', name: 'Custom', component: { template: '<div>Custom</div>' } }
+    ]
+    
+    const router = createTestRouter(createRouterFactory.basic({ 
+      customRoutes 
+    }))
+    // Test implementation
+  })
+})
+```
 
 ### Testing de Operaciones Asíncronas
 Técnicas para probar código que involucra promesas, timers, y operaciones que no se completan inmediatamente, asegurando que los tests manejen correctamente la naturaleza asíncrona del código.
@@ -2088,9 +2222,9 @@ it('should handle DOM events', async () => {
 - **Puede ocultar problemas**: No detecta eventos faltantes o mal configurados
 - **Menos alineado con testing centrado en usuario**: Se enfoca en eventos DOM en lugar de comportamiento observable
 
-### Testing de Stores Pinia (analizar)
+### Testing de Stores Pinia
 
-**El proyecto utiliza dos enfoques principales para testing con Pinia**, según el tipo de test y el nivel de control necesario.
+**El proyecto utiliza dos enfoques principales para testing con Pinia**, según el tipo de test y el nivel de control necesario. Basándonos en las mejores prácticas de [Fotis Adamakis sobre Unit Testing a Pinia Component](https://fadamakis.com/unit-testing-a-pinia-component-37d045582aed?gi=644ecb388b0a), hemos optimizado nuestros patrones de testing.
 
 #### **1. Enfoque con createTestingPinia**
 
@@ -2098,7 +2232,7 @@ it('should handle DOM events', async () => {
 
 ```typescript
 import { render, screen } from '@testing-library/vue'
-import { createTestingPinia } from '@pinia/testing'
+import { createTestPinia } from '@/test/setup'
 import AnimeCard from '@/modules/anime/components/AnimeCard'
 import { createMockAnime } from '../factories/anime.factory'
 
@@ -2112,14 +2246,12 @@ describe('AnimeCard con Testing Pinia', () => {
       props: { anime },
       global: {
         plugins: [
-          createTestingPinia({
+          createTestPinia({
             // Estado inicial controlado
             initialState: {
               auth: { isAuthenticated: true },
               anime: { favorites: [] }
-            },
-            // Permite que las acciones se ejecuten realmente
-            stubActions: false
+            }
           })
         ]
       }
@@ -2139,7 +2271,7 @@ describe('AnimeCard con Testing Pinia', () => {
       props: { anime },
       global: {
         plugins: [
-          createTestingPinia({
+          createTestPinia({
             initialState: {
               auth: { isAuthenticated: false },
               anime: { favorites: [] }
@@ -2197,7 +2329,149 @@ describe('useAnimeCard composable', () => {
 })
 ```
 
-#### **6. Getters Readonly y Spying**
+#### **3. Patrón de Testing de Stores Completo**
+
+**Basándonos en las mejores prácticas de testing de stores**, implementamos un patrón completo que cubre todos los aspectos:
+
+```typescript
+import { setActivePinia, createPinia } from 'pinia'
+import { useAnimeStore } from '@/modules/anime/stores/anime.store'
+import { createMockAnime } from '../factories/anime.factory'
+
+describe('Anime Store - Testing Completo', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  describe('Estado Inicial', () => {
+    it('should initialize with correct default state', () => {
+      // Arrange & Act
+      const store = useAnimeStore()
+      
+      // Assert
+      expect(store.animes).toEqual([])
+      expect(store.currentAnime).toBeNull()
+      expect(store.favorites).toEqual([])
+      expect(store.isLoading).toBe(false)
+      expect(store.error).toBeNull()
+      expect(store.currentPage).toBe(1)
+      expect(store.totalAnimes).toBe(0)
+      expect(store.totalFavorites).toBe(0)
+    })
+  })
+
+  describe('Getters Computados', () => {
+    it('should compute isFavorite correctly', () => {
+      // Arrange
+      const store = useAnimeStore()
+      const anime = createMockAnime({ mal_id: 1 })
+      
+      // Act
+      store.addToFavorites(anime)
+      
+      // Assert
+      expect(store.isFavorite(1)).toBe(true)
+      expect(store.isFavorite(2)).toBe(false)
+    })
+
+    it('should compute totalFavorites correctly', () => {
+      // Arrange
+      const store = useAnimeStore()
+      const anime1 = createMockAnime({ mal_id: 1 })
+      const anime2 = createMockAnime({ mal_id: 2 })
+      
+      // Act
+      store.addToFavorites(anime1)
+      store.addToFavorites(anime2)
+      
+      // Assert
+      expect(store.totalFavorites).toBe(2)
+    })
+  })
+
+  describe('Acciones Síncronas', () => {
+    it('should add anime to favorites', () => {
+      // Arrange
+      const store = useAnimeStore()
+      const anime = createMockAnime()
+      
+      // Act
+      store.addToFavorites(anime)
+      
+      // Assert
+      expect(store.favorites).toHaveLength(1)
+      expect(store.favorites[0]).toEqual(anime)
+      expect(store.isFavorite(anime.mal_id)).toBe(true)
+    })
+
+    it('should remove anime from favorites', () => {
+      // Arrange
+      const store = useAnimeStore()
+      const anime = createMockAnime()
+      store.addToFavorites(anime)
+      
+      // Act
+      store.removeFromFavorites(anime.mal_id)
+      
+      // Assert
+      expect(store.favorites).toHaveLength(0)
+      expect(store.isFavorite(anime.mal_id)).toBe(false)
+    })
+
+    it('should toggle favorite status', () => {
+      // Arrange
+      const store = useAnimeStore()
+      const anime = createMockAnime()
+      
+      // Act & Assert - Add
+      store.toggleFavorite(anime)
+      expect(store.isFavorite(anime.mal_id)).toBe(true)
+      
+      // Act & Assert - Remove
+      store.toggleFavorite(anime)
+      expect(store.isFavorite(anime.mal_id)).toBe(false)
+    })
+  })
+
+  describe('Acciones Asíncronas', () => {
+    it('should handle loading state during API calls', async () => {
+      // Arrange
+      const store = useAnimeStore()
+      const mockResponse = createSuccessMock({ data: [] })
+      vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockResponse)
+      
+      // Act
+      const loadPromise = store.loadAnimeList()
+      
+      // Assert - During loading
+      expect(store.isLoading).toBe(true)
+      
+      // Act - Wait for completion
+      await loadPromise
+      
+      // Assert - After loading
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('should handle API errors gracefully', async () => {
+      // Arrange
+      const store = useAnimeStore()
+      const mockError = createFailureMock('API Error')
+      vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockError)
+      
+      // Act
+      await store.loadAnimeList()
+      
+      // Assert
+      expect(store.error).toBe('Error en el módulo de anime')
+      expect(store.isLoading).toBe(false)
+    })
+  })
+})
+```
+
+#### **4. Getters Readonly y Spying**
 
 **Problema común**: Los getters computados en Pinia son readonly por naturaleza.
 
@@ -2217,13 +2491,16 @@ authStore.isAuthenticated = true // Error: Cannot assign to read only property
 - Propiedades que no puedes modificar directamente
 - Testing de comportamiento condicional basado en getters
 
-#### **7. Mejores Prácticas**
+#### **5. Mejores Prácticas**
 
 **SÍ hacer:**
-- **Componentes**: Usar `createTestingPinia` para control total del estado
+- **Componentes**: Usar `createTestPinia` para control total del estado
 - **Composables**: Usar Pinia real + spy para testing unitario
 - **Getters readonly**: Mockear con `vi.spyOn(store, 'getter', 'get')`
 - **Cleanup**: Limpiar mocks con `vi.clearAllMocks()` en `beforeEach`
+- **Consistencia**: Usar siempre el helper `createTestPinia` del setup global
+- **Testing de estado**: Verificar estado antes y después de acciones
+- **Testing de getters**: Probar lógica computada con diferentes estados
 
 **NO hacer:**
 - Mezclar `createTestingPinia` y Pinia real en el mismo test
@@ -2231,7 +2508,39 @@ authStore.isAuthenticated = true // Error: Cannot assign to read only property
 - Crear datos mock inline repetidamente
 - Olvidar `stubActions: false` cuando necesites acciones reales
 - Intentar asignar valores a getters computados directamente
+- Usar `createTestingPinia` directamente en lugar del helper global
 
+#### **6. Mejoras Implementadas**
+
+**Basándonos en las mejores prácticas de [Fotis Adamakis](https://fadamakis.com/unit-testing-a-pinia-component-37d045582aed?gi=644ecb388b0a), hemos implementado las siguientes mejoras:**
+
+**Configuración Global Mejorada:**
+```typescript
+// test/setup.ts - Helper global mejorado
+export const createTestPinia = (options = {}) => createTestingPinia({ 
+  createSpy: vi.fn,
+  stubActions: false, // Permite que las acciones se ejecuten realmente
+  ...options
+})
+```
+
+**Consistencia en el Uso:**
+- **Antes**: Uso inconsistente de `createTestingPinia` y helpers locales
+- **Después**: Uso consistente del helper global `createTestPinia`
+
+**Patrón de Testing Completo:**
+- Testing de estado inicial
+- Testing de getters computados
+- Testing de acciones síncronas y asíncronas
+- Testing de manejo de errores
+- Testing de integración con localStorage
+
+**Beneficios de las Mejoras:**
+1. **Consistencia**: Todos los tests usan el mismo helper global
+2. **Mantenibilidad**: Configuración centralizada en un lugar
+3. **Flexibilidad**: Opciones personalizables por test
+4. **Mejor Testing**: Patrones más completos y robustos
+5. **Documentación**: Mejores prácticas claramente documentadas
 
 ## Métricas de Cobertura
 
@@ -2426,6 +2735,18 @@ import { createTestingPinia } from '@pinia/testing'
 import type { ComponentPublicInstance } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import '@testing-library/jest-dom'
+
+// Importar factories desde su ubicación separada
+import { 
+  routerFactories, 
+  defaultRoutes, 
+  createRouterFactory,
+  createAnimeRouterFactory,
+  createAuthRouterFactory,
+  withBasePath,
+  withMeta,
+  withCustomRoutes
+} from './factories'
 
 vi.mock('element-plus')
 
@@ -2733,4 +3054,9 @@ export default defineConfig({
 ---
 
 **Nota sobre las referencias**: Esta documentación está basada en las mejores prácticas establecidas por la comunidad Vue y los principios de testing moderno. Todas las referencias han sido seleccionadas por su relevancia y autoridad en el tema. La frase clave "Si un usuario no puede hacerlo, tu prueba tampoco debería poder hacerlo" es fundamental para entender el enfoque de testing centrado en el usuario.
+
+### **Pinia Testing**
+- [Pinia Testing Documentation](https://pinia.vuejs.org/cookbook/testing.html) - Documentación oficial de Pinia
+- [Unit Testing a Pinia Component](https://fadamakis.com/unit-testing-a-pinia-component-37d045582aed?gi=644ecb388b0a) - Fotis Adamakis - Mejores prácticas específicas
+- [Testing Vuex/Pinia Stores](https://test-utils.vuejs.org/guide/advanced/vuex.html) - Vue Test Utils - Guía oficial
 
