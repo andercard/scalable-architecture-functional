@@ -6,39 +6,39 @@ import { createTestingPinia } from '@pinia/testing'
 const RegisterFormStep = {
   name: 'RegisterFormStep',
   template: `
-    <div data-test="view:register-form-step">
+    <div data-testid="view:register-form-step">
       <h1>Crear Cuenta</h1>
       <p>Completa los siguientes datos para crear tu cuenta</p>
       
-      <form data-test="form:main">
-        <div data-test="step:complete">
-          <div data-test="section:basic">
-            <input data-test="input:first-name" placeholder="Nombre" />
-            <input data-test="input:username" placeholder="Usuario" />
+      <form data-testid="form:main">
+        <div data-testid="step:complete">
+          <div data-testid="section:basic">
+            <input data-testid="input:first-name" placeholder="Nombre" />
+            <input data-testid="input:username" placeholder="Usuario" />
           </div>
           
-          <div data-test="section:residence">
-            <select data-test="select:country" placeholder="Selecciona tu país">
+          <div data-testid="section:residence">
+            <select data-testid="select:country" placeholder="Selecciona tu país">
               <option value="colombia">Colombia</option>
               <option value="mexico">México</option>
               <option value="argentina">Argentina</option>
             </select>
-            <input data-test="input:city" placeholder="Ciudad" />
+            <input data-testid="input:city" placeholder="Ciudad" />
           </div>
           
-          <div data-test="section:contact">
-            <input data-test="input:emergency-contact" placeholder="Contacto de emergencia" />
-            <input data-test="input:emergency-phone" placeholder="Teléfono de emergencia" />
+          <div data-testid="section:contact">
+            <input data-testid="input:emergency-contact" placeholder="Contacto de emergencia" />
+            <input data-testid="input:emergency-phone" placeholder="Teléfono de emergencia" />
           </div>
           
-          <div data-test="section:preferences">
-            <input type="checkbox" data-test="switch:newsletter" />
-            <input type="checkbox" data-test="switch:marketing" />
-            <input type="checkbox" data-test="checkbox:terms" />
+          <div data-testid="section:preferences">
+            <input type="checkbox" data-testid="switch:newsletter" />
+            <input type="checkbox" data-testid="switch:marketing" />
+            <input type="checkbox" data-testid="checkbox:terms" />
           </div>
         </div>
         
-        <button data-test="button:submit" type="submit">Crear Cuenta</button>
+        <button data-testid="button:submit" type="submit">Crear Cuenta</button>
       </form>
     </div>
   `
@@ -152,7 +152,7 @@ describe('RegisterFormStep Component', () => {
     sections.forEach(sectionId => {
       const section = screen.getByTestId(sectionId)
       expect(section).toBeInTheDocument()
-      expect(section.getAttribute('data-test')).toBe(sectionId)
+      expect(section.getAttribute('data-testid')).toBe(sectionId)
     })
   })
 
@@ -167,15 +167,15 @@ describe('RegisterFormStep Component', () => {
     // Assert - Verificar atributos de los inputs
     const firstNameInput = screen.getByTestId('input:first-name')
     expect(firstNameInput).toBeInTheDocument()
-    expect(firstNameInput.getAttribute('data-test')).toBe('input:first-name')
+    expect(firstNameInput.getAttribute('data-testid')).toBe('input:first-name')
 
     const usernameInput = screen.getByTestId('input:username')
     expect(usernameInput).toBeInTheDocument()
-    expect(usernameInput.getAttribute('data-test')).toBe('input:username')
+    expect(usernameInput.getAttribute('data-testid')).toBe('input:username')
 
     const countrySelect = screen.getByTestId('select:country')
     expect(countrySelect).toBeInTheDocument()
-    expect(countrySelect.getAttribute('data-test')).toBe('select:country')
+    expect(countrySelect.getAttribute('data-testid')).toBe('select:country')
   })
 
   it('should render form with proper accessibility attributes', () => {

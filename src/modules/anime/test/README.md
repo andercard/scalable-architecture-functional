@@ -205,7 +205,7 @@ Los tests de componentes simulan interacciones reales:
 ```typescript
 // Simular click del usuario
 await user.click(screen.getByRole('button', { name: 'Agregar a favoritos' }))
-
+    
 // Simular entrada de texto
 await user.type(screen.getByPlaceholderText('Buscar...'), 'anime')
 

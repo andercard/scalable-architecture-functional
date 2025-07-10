@@ -12,13 +12,22 @@ export interface LoginCredentials {
 export interface RegisterCredentials {
   // Datos básicos
   username: string
+  email: string
+  password: string
+  confirmPassword: string
   firstName: string
+  lastName: string
+  dateOfBirth: string
   
   // Residencia
   country: string
+  state: string
   city: string
+  address: string
+  postalCode: string
   
   // Información de contacto
+  phone: string
   emergencyContact: string
   emergencyPhone: string
   

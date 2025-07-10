@@ -6,26 +6,26 @@ import { createTestingPinia } from '@pinia/testing'
 const RegisterFormStep = {
   name: 'RegisterFormStep',
   template: `
-    <div data-test="view:register-form-step">
+    <div data-testid="view:register-form-step">
       <h1>Crear Cuenta</h1>
       <p>Completa los siguientes datos para crear tu cuenta</p>
       
-      <el-form data-test="form:main">
-        <div data-test="step:complete">
-          <div data-test="section:basic">
+      <el-form data-testid="form:main">
+        <div data-testid="step:complete">
+          <div data-testid="section:basic">
             <el-input 
-              data-test="input:first-name" 
+              data-testid="input:first-name" 
               placeholder="Nombre" 
             />
             <el-input 
-              data-test="input:username" 
+              data-testid="input:username" 
               placeholder="Usuario" 
             />
           </div>
           
-          <div data-test="section:residence">
+          <div data-testid="section:residence">
             <el-select 
-              data-test="select:country" 
+              data-testid="select:country" 
               placeholder="Selecciona tu país"
             >
               <el-option label="Colombia" value="colombia" />
@@ -33,31 +33,31 @@ const RegisterFormStep = {
               <el-option label="Argentina" value="argentina" />
             </el-select>
             <el-input 
-              data-test="input:city" 
+              data-testid="input:city" 
               placeholder="Ciudad" 
             />
           </div>
           
-          <div data-test="section:contact">
+          <div data-testid="section:contact">
             <el-input 
-              data-test="input:emergency-contact" 
+              data-testid="input:emergency-contact" 
               placeholder="Contacto de emergencia" 
             />
             <el-input 
-              data-test="input:emergency-phone" 
+              data-testid="input:emergency-phone" 
               placeholder="Teléfono de emergencia" 
             />
           </div>
           
-          <div data-test="section:preferences">
+          <div data-testid="section:preferences">
             <el-switch 
-              data-test="switch:newsletter" 
+              data-testid="switch:newsletter" 
             />
             <el-switch 
-              data-test="switch:marketing" 
+              data-testid="switch:marketing" 
             />
             <el-checkbox 
-              data-test="checkbox:terms"
+              data-testid="checkbox:terms"
             >
               Acepto los términos
             </el-checkbox>
@@ -65,7 +65,7 @@ const RegisterFormStep = {
         </div>
         
         <el-button 
-          data-test="button:submit" 
+          data-testid="button:submit" 
           type="success"
         >
           Crear Cuenta
@@ -79,7 +79,7 @@ const RegisterFormStep = {
 const RegisterSuccessStep = {
   name: 'RegisterSuccessStep',
   template: `
-    <div data-test="view:register-success-step">
+    <div data-testid="view:register-success-step">
       <h1>¡Cuenta Creada Exitosamente!</h1>
       <p>Tu cuenta ha sido creada exitosamente para el usuario <strong>{{ username }}</strong></p>
     </div>
@@ -170,7 +170,7 @@ describe('Register Form Integration', () => {
       // Assert - Verificar que se usan los mocks de Element Plus
       const form = screen.getByTestId('form:main')
       expect(form.tagName.toLowerCase()).toBe('el-form')
-      expect(form).toHaveAttribute('data-test', 'form:main')
+      expect(form).toHaveAttribute('data-testid', 'form:main')
 
       const submitButton = screen.getByTestId('button:submit')
       expect(submitButton.tagName.toLowerCase()).toBe('el-button')
@@ -196,7 +196,7 @@ describe('Register Form Integration', () => {
       sections.forEach(sectionId => {
         const section = screen.getByTestId(sectionId)
         expect(section).toBeInTheDocument()
-        expect(section.getAttribute('data-test')).toBe(sectionId)
+        expect(section.getAttribute('data-testid')).toBe(sectionId)
       })
     })
   })

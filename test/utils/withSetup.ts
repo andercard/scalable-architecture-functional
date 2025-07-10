@@ -1,4 +1,4 @@
-import { createApp, type Component, provide } from 'vue'
+import { createApp, h, type Component, provide } from 'vue'
 import type { App, Plugin } from 'vue'
 
 // vi está disponible globalmente en el contexto de testing
@@ -287,5 +287,47 @@ export function createMockRouter() {
         fullPath: '/test'
       }
     }
+  }
+} 
+
+/**
+ * Helper para testear patrones provide/inject entre componentes padre-hijo
+ * Ejecuta el provide en el componente padre y el inject en el hijo, devolviendo ambos resultados
+ *
+ * @param provideSetup - función que ejecuta el provide en el padre
+ * @param injectSetup - función que ejecuta el inject en el hijo
+ * @returns { provideResult, injectResult, app }
+ */
+export function withProvideInject<T, U>(
+  provideSetup: () => T,
+  injectSetup: () => U
+): { provideResult: T; injectResult: U; app: ReturnType<typeof createApp> } {
+  let provideResult: T | undefined
+  let injectResult: U | undefined
+
+  const Child = {
+    setup() {
+      injectResult = injectSetup()
+      return {}
+    },
+    render() { return h('div') }
+  }
+
+  const Parent = {
+    setup() {
+      provideResult = provideSetup()
+      return {}
+    },
+    render() { return h(Child) }
+  }
+
+  const app = createApp(Parent)
+  const container = document.createElement('div')
+  app.mount(container)
+
+  return {
+    provideResult: provideResult as T,
+    injectResult: injectResult as U,
+    app
   }
 } 
