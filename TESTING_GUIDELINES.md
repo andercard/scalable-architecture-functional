@@ -1074,6 +1074,248 @@ describe('Form Validation with Inject Pattern', () => {
 - Ignorar cleanup en tests con `withSetup`
 - Mezclar testing unitario e integración en el mismo test
 
+### Selectores y Atributos para Testing de Componentes
+
+**¿Por qué es crucial elegir el selector correcto en testing de componentes?**
+Los selectores determinan qué tan robustos, accesibles y mantenibles serán tus tests. Testing Library proporciona múltiples métodos de consulta, cada uno con un propósito específico que se alinea con nuestro enfoque centrado en el usuario.
+
+#### **Jerarquía de Preferencia de Selectores**
+
+**Orden recomendado (de mejor a peor):**
+
+1. **`getByRole()`** - Aunque el role es lo mejor para accesibilidad y semántica pero como queremos dar compatibilidad para plataformas que van usar los QA para pruebas automatizadas usaremos los otros tres para ser mas específicos con el selector
+2. **`getByLabelText()`** - Para formularios y elementos con labels
+3. **`getByText()`** - Para contenido visible y legible
+4. **`getByTestId()`** - Último recurso para elementos sin significado semántico
+
+#### **2. getByLabelText() - Para Formularios y Elementos con Labels**
+
+**¿Qué hace?** Busca elementos por el texto de su label asociado.
+
+**Funciona con:**
+- Labels con `for` + `id`
+- Labels que envuelven inputs
+- `aria-label`
+- `aria-labelledby`
+
+```vue
+<!-- Diferentes formas de label -->
+<label for="email">Email</label>
+<input id="email" />
+
+<label>
+  Contraseña
+  <input type="password" />
+</label>
+
+<input aria-label="Usuario" />
+
+<label id="name-label">Nombre</label>
+<input aria-labelledby="name-label" />
+```
+
+```typescript
+// Todos funcionan igual
+screen.getByLabelText('Email')     // ✅ Label con for
+screen.getByLabelText('Contraseña') // ✅ Label envolviendo  
+screen.getByLabelText('Usuario')    // ✅ aria-label
+screen.getByLabelText('Nombre')     // ✅ aria-labelledby
+```
+
+#### **3. getByText() - Para Contenido Visible**
+
+**¿Qué hace?** Busca elementos por su texto visible.
+
+```typescript
+// Buscar por texto exacto
+screen.getByText('Crear Cuenta')
+
+// Buscar por regex
+screen.getByText(/crear cuenta/i)
+
+// Buscar por función
+screen.getByText((content, element) => {
+  return element.tagName.toLowerCase() === 'h1' && content.includes('Título')
+})
+```
+
+#### **4. getByTestId() - Último Recurso**
+
+**¿Qué hace?** Busca elementos por el atributo `data-testid`.
+
+**Cuándo usar:**
+- Elementos sin significado semántico
+- Contenedores de layout
+- Estados específicos
+- Elementos que no tienen rol natural
+
+```vue
+<!-- Elementos sin rol semántico -->
+<div data-testid="loading-skeleton">
+  <div class="skeleton"></div>
+</div>
+
+<!-- Contenedores de layout -->
+<div data-testid="anime-grid-container">
+  <AnimeCard v-for="anime in animes" :key="anime.id" :anime="anime" />
+</div>
+
+<!-- Estados específicos -->
+<div data-testid="error-message" v-if="error">
+  {{ error }}
+</div>
+```
+
+```typescript
+// En el test
+expect(screen.getByTestId('loading-skeleton')).toBeInTheDocument()
+```
+
+#### **Convención de Nomenclatura para data-testid**
+
+**Estructura recomendada: `tipo:propósito`**
+
+```vue
+<!-- Formularios -->
+data-testid="form:register"
+data-testid="form:login"
+
+<!-- Secciones -->
+data-testid="section:basic"
+data-testid="section:contact"
+
+<!-- Inputs -->
+data-testid="input:username"
+data-testid="input:email"
+data-testid="input:password"
+
+<!-- Selects -->
+data-testid="select:country"
+data-testid="select:city"
+
+<!-- Botones -->
+data-testid="button:submit"
+data-testid="button:cancel"
+data-testid="button:toggle-favorite"
+
+<!-- Contenedores -->
+data-testid="container:anime-grid"
+data-testid="container:loading-skeleton"
+
+<!-- Estados -->
+data-testid="state:loading"
+data-testid="state:error"
+data-testid="state:empty"
+```
+
+#### **Patrón Completo de Ejemplo para Componentes**
+
+```typescript
+// Formulario de registro completo
+<form role="form" aria-label="Formulario de registro de usuario">
+  <fieldset>
+    <legend>Información Personal</legend>
+    
+    <!-- Inputs básicos -->
+    <label for="firstName">Nombre</label>
+    <input id="firstName" type="text" required />
+    
+    <label for="lastName">Apellido</label>
+    <input id="lastName" type="text" required />
+    
+    <label for="email">Correo electrónico</label>
+    <input id="email" type="email" required />
+    
+    <!-- Select -->
+    <label for="country">País</label>
+    <select id="country" required>
+      <option value="">Selecciona tu país</option>
+      <option value="colombia">Colombia</option>
+      <option value="mexico">México</option>
+    </select>
+    
+    <!-- Checkboxes -->
+    <label>
+      <input type="checkbox" />
+      Acepto recibir newsletter
+    </label>
+    
+    <label>
+      <input type="checkbox" required />
+      Acepto los términos y condiciones
+    </label>
+  </fieldset>
+  
+  <!-- Botones -->
+  <button type="submit" aria-label="Crear cuenta de usuario">
+    Crear Cuenta
+  </button>
+  
+  <button type="button" aria-label="Cancelar registro">
+    Cancelar
+  </button>
+</form>
+```
+
+```typescript
+// Testing completo del formulario
+describe('RegisterForm', () => {
+  it('should handle complete form submission', async () => {
+    const user = userEvent.setup()
+    
+    render(RegisterForm)
+    
+    // Llenar formulario usando getByLabelText
+    await user.type(screen.getByLabelText('Nombre'), 'Juan')
+    await user.type(screen.getByLabelText('Apellido'), 'Pérez')
+    await user.type(screen.getByLabelText('Correo electrónico'), 'juan@email.com')
+    await user.selectOptions(screen.getByLabelText('País'), 'colombia')
+    
+    // Checkboxes
+    await user.click(screen.getByLabelText('Acepto recibir newsletter'))
+    await user.click(screen.getByLabelText('Acepto los términos y condiciones'))
+    
+    // Submit usando getByRole
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta de usuario' }))
+    
+    // Verificar resultado
+    expect(screen.getByText('Cuenta creada exitosamente')).toBeInTheDocument()
+  })
+})
+```
+
+#### **Compatibilidad con Herramientas de QA**
+
+**Para máxima compatibilidad con herramientas de QA como Autonoma:**
+No se recomería normalmente aplicar testid en los elementos con role por default pero para permitir compatibilidad con QA quedaría de la siguiente manera
+
+```vue
+<button aria-label="Enviar">Enviar</button>
+o
+<button data-testid="submit-button">Enviar</button>
+
+<input data-testid="email-input" />
+```
+
+#### **Mejores Prácticas para Testing de Componentes**
+
+**SÍ hacer:**
+- **Usar `getByLabelText()` para formularios** - Más semántico
+- **Usar `getByText()` para contenido visible** - Más natural
+- **Usar `getByTestId()` solo cuando es necesario** - tratar de usar para siempre híbrido para que funcione también QA automatizado
+- **Seguir convenciones de nomenclatura** - Consistencia
+- **Testear comportamiento observable** - Lo que el usuario ve y puede hacer
+
+**NO hacer:**
+- **Usar `getByRole()` primero** - Por compatibilidad con QA
+- **Usar `getByClassName()` o `getById()`** - Frágil y no accesible
+- **Usar `aria-label` cuando hay texto visible** - Confunde lectores de pantalla
+- **Testear detalles internos** - Estado privado, variables internas
+
+**Regla simple:**
+- **Sin texto visible** → Usar `aria-label`
+- **Con texto descriptivo** → NO usar `aria-label`
+
 ### Factories testing data
 
 **¿Por qué usar factories para testing?**
@@ -1317,7 +1559,7 @@ describe('Complex Form with Sections', () => {
 
 #### **2. Mocks Avanzados para Element Plus**
 
-**Patrón recomendado**: Mocks que simulan comportamiento real de formularios.
+**Patrón recomendado**: Mocks que simulan comportamiento real de formularios. Ejemplo para el uso de componentes como el del design system
 
 ```typescript
 // src/modules/auth/test/setup.ts
@@ -1600,7 +1842,6 @@ describe('Form Integration Testing', () => {
 - **Testing en capas**: Unitario para lógica, integración para UI
 - **Mocks avanzados**: Simular comportamiento real de componentes
 - **Validación separada**: Testing unitario de reglas de validación
-- **Accesibilidad**: Usar `getByRole()` y `getByLabelText()`
 - **Factories**: Usar datos consistentes y reutilizables
 
 **NO hacer:**
@@ -1609,37 +1850,8 @@ describe('Form Integration Testing', () => {
 - Ignorar accesibilidad en tests de formularios
 - Crear tests frágiles que dependen de estructura específica
 
-**Patrón recomendado para formularios complejos:**
-```typescript
-// 1. Testing unitario de lógica
-describe('Form Logic', () => {
-  it('should validate form data')
-  it('should handle form state changes')
-})
-
-// 2. Testing de componentes individuales
-describe('Form Components', () => {
-  it('should render form sections')
-  it('should handle user interactions')
-})
-
-// 3. Testing de integración
-describe('Form Integration', () => {
-  it('should handle complete form flow')
-  it('should validate form submission')
-})
-```
-
 ### Testing de Inject/provide (analizar - crear)
 Se debe indicar como hacer las pruebas cuando un componente padre o hijo utiliza inject y provider y en que caso se debe usar el withSetup y en que caso se debe usar el real entre componentes
-
-### Testing de Formularios (analizar - crear)
-Se debe validar como se prueba un formario que tiene sus sections separadas por componentes y el padre se encarga de orquestar todo.
-
-
-### Pruebas de componentes (analizar - crear)
-Esplicar que se debe probar en los testing de componentes. Que se debe dar prioridad al usuario. se debe hacer unas pruebas mixtas entre probar los compoenntes hijos si no tienen logica compleja con solictud a API o alguna herramienta externa.y probar los hijos que tiene componentes mas sencillos. Acalara que si con un padre ya se probo un hijo se deberia probar o ya queda asumido como que se probo usando Vue Testing Library
-No testees detalles internos ni accedas a estado privado. Simula siempre la interacción real del usuario y valida lo que ve en la UI
 
 ### userEvent: Enfoque Principal del Proyecto
 
@@ -1692,10 +1904,6 @@ it('should handle DOM events', async () => {
 - **Limitado para accesibilidad**: No incluye navegación por teclado
 - **Puede ocultar problemas**: No detecta eventos faltantes o mal configurados
 - **Menos alineado con testing centrado en usuario**: Se enfoca en eventos DOM en lugar de comportamiento observable
-
-
-### Factories testing data
-Debemos hablar del patron factory para las pruebas explicar las ventajas indicar que se debe trabajar por modulo. y dar un par de ejemplos pequeños con
 
 ### Testing de Stores Pinia (analizar)
 
