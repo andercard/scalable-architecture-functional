@@ -99,13 +99,13 @@ it('should compute anime subtitle correctly', () => {
 
 ### Usuario Final: Testing de Componentes
 
-¿Quién es?  
+**¿Quién es?**  
 El usuario final es quien interactúa directamente con la interfaz de usuario de tu aplicación. Puede ser un cliente, un administrador, o cualquier persona que use la aplicación para realizar tareas específicas.
 
-¿Qué necesita?  
+**¿Qué necesita?**  
 El usuario final necesita que la aplicación funcione como espera. No le importa cómo está implementado el código, solo quiere poder completar sus tareas de manera eficiente y sin errores.
 
-¿Qué probamos?  
+**¿Qué probamos?**  
 Simulamos las interacciones reales que un usuario tendría con la aplicación:
 
 - Clicks en botones, enlaces y elementos interactivos
@@ -130,22 +130,17 @@ Características técnicas:
 
 ### Beneficios de esta separación
 
-Claridad de responsabilidades
+- **Claridad de responsabilidades**
 Cada tipo de test tiene un propósito específico y bien definido. Los tests de componentes validan la experiencia del usuario, mientras que los tests unitarios validan la lógica de negocio.
-
-Mantenibilidad mejorada
+- **Mantenibilidad mejorada**
 Los desarrolladores pueden refactorizar lógica interna sin romper tests de UI. Los tests unitarios siguen siendo válidos mientras la interfaz pública se mantenga consistente.
-
-Confianza en la calidad
+- **Confianza en la calidad**
 Los usuarios finales tienen garantía de que la interfaz funciona como esperan, mientras que los desarrolladores tienen confianza en que la lógica es robusta y correcta.
-
-Eficiencia en el desarrollo
+- **Eficiencia en el desarrollo**
 Los tests unitarios son rápidos y permiten desarrollo iterativo, mientras que los tests de componentes validan la integración completa cuando es necesario.
-
-Validación completa del sistema
+- **Validación completa del sistema**
 Cubrimos tanto la lógica interna como la experiencia de usuario, nos ayuda a tener mas estable la aplicación.
-
-Detección temprana de problemas
+- **Detección temprana de problemas**
 Los tests de componentes detectan problemas de integración entre lógica y template que los tests unitarios no pueden identificar.
 
 ### ¿Por qué no solo pruebas unitarias?
