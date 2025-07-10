@@ -1,22 +1,18 @@
 # Guía de Testing
 
-**Última actualización**: Enero 2025  
-**Autor actualización**: Anderson Mesa
-**Autor**: Andersson Mesa
+**Última actualización**: Julio 10 2025  
+**Autor actualización**: Anderson Mesa  
+**Autor**: Andersson Mesa  
 **Responsable**: Equipo de Desarrollo  
-**Versión**: 1.0.0  
+**Versión**: 1.0.0 
 
 ## Índice
 
 - [Introducción](#introducción)
 - [Enfoque: Dos Tipos de Usuarios](#enfoque-dos-tipos-de-usuarios)
 - [Patrones y Mejores Prácticas](#patrones-y-mejores-prácticas)
-- [Arquitectura de Testing](#arquitectura-de-testing)
-- [Ejemplos Prácticos](#ejemplos-prácticos)
-- [Anti-Patrones a Evitar](#anti-patrones-a-evitar)
 - [Herramientas y Configuración](#herramientas-y-configuración)
 - [Checklist de Calidad](#checklist-de-calidad)
-- [Métricas de Éxito](#métricas-de-éxito)
 - [Recursos y Referencias](#recursos-y-referencias)
 
 ---
@@ -646,7 +642,7 @@ export const createRouterFactory = {
 4. **Testing específico** - Permite testing de rutas específicas del dominio
 5. **Reutilización** - Factories pueden ser compartidas entre tests similares
 
-#### **9. Estructura de Factories Organizada**
+#### **1. Estructura de Factories Organizada**
 
 **Nueva estructura recomendada:**
 ```
@@ -731,7 +727,7 @@ describe('Component with Router', () => {
 })
 ```
 
-#### **7. Factory Pattern Funcional**
+#### **2. Factory Pattern Funcional**
 
 **Basándonos en las mejores prácticas de [Oscar Reyes](https://oscar-reyes.medium.com/factory-functions-functional-mixins-with-typescript-83793195391d) y [Matt Unhjem](https://dev.to/mattu/make-a-factory-creating-reliable-tests-with-factory-functions-in-typescript-and-react-eh), hemos implementado un factory pattern funcional que mantiene la consistencia con el resto del proyecto:**
 
@@ -814,7 +810,7 @@ const extendedFactory = baseFactory
   .withOptions({ basePath: '/app' })
 ```
 
-#### **8. Mejores Prácticas para Factories de Rutas**
+#### **3. Mejores Prácticas para Factories de Rutas**
 
 **Basándonos en las mejores prácticas de [Focused.io](https://focused.io/lab/vue-router-testing-strategies) y [Vasanthan K](https://medium.com/@vasanthancomrads/unit-testing-vue-3-components-with-vitest-and-testing-library-part-3-985d9c3585c8):**
 
@@ -1399,7 +1395,7 @@ describe('Form Validation with Inject Pattern', () => {
 **¿Por qué es crucial elegir el selector correcto en testing de componentes?**
 Los selectores determinan qué tan robustos, accesibles y mantenibles serán tus tests. Testing Library proporciona múltiples métodos de consulta, cada uno con un propósito específico que se alinea con nuestro enfoque centrado en el usuario.
 
-#### **Jerarquía de Preferencia de Selectores**
+#### **1. Jerarquía de Preferencia de Selectores**
 
 **Orden recomendado (de mejor a peor):**
 
@@ -3015,7 +3011,7 @@ export default defineConfig({
 - [ ] ¿El test es legible y mantenible?
 - [ ] ¿El test no se rompe con refactoring?
 
-## Anti-Patrones a Evitar (analizar - crear)
+
 
 ## Recursos y Referencias
 
