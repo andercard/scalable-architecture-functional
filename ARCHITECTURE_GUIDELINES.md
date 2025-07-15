@@ -92,8 +92,8 @@ Para mejorar la testabilidad y mantenibilidad, cada componente se divide en tres
 Evitamos anidamientos excesivos que complican la navegación. Todos los archivos de un mismo tipo (pages, sections, components, views, types, stores, services, errors) se mantienen al mismo nivel dentro del módulo.
 
 #### **5. Core y Shared Centralizados**
-- **`core/`**: Lógica estructural global (router, API, plugins)
-- **`shared/`**: Módulos y componentes reutilizables entre dominios
+- **`core/`**: Infraestructura fundamental que define cómo opera la aplicación (router, API, patrones arquitectónicos, configuración global)
+- **`shared/`**: Recursos específicos de la aplicación reutilizables entre módulos (componentes UI, composables, utilidades del proyecto)
 
 #### **Beneficios Estratégicos**
 
@@ -126,16 +126,51 @@ Cada módulo debe ser una unidad de software independiente y cohesiva, responsab
 - **Minimizar dependencias:** Un módulo solo debe depender de `shared` para reutilizar módulos o utilidades compartidas, o de forma muy controlada, de otros módulos a través de su API Pública (`index.ts`).
 - **Alta cohesión interna, bajo acoplamiento externo:** Los elementos dentro de un módulo deben estar fuertemente relacionados. Las conexiones entre módulos deben ser mínimas y explícitas.
 
-### 2.2. El Módulo `shared` (Centralización de recursos compartidos)
+### 2.2. Core vs Shared: Separación de Responsabilidades
 
-El módulo `shared` es el espacio donde se centralizan los recursos, componentes y utilidades que son **reutilizables entre varios features** o dominios de negocio, pero que **no pertenecen a ninguno en particular**. Su objetivo es evitar duplicidad y promover la reutilización efectiva en toda la aplicación.
+La aplicación separa los recursos compartidos en dos categorías principales, cada una con propósitos distintos y complementarios:
 
-- **¿Qué va en `shared`?**
-    - Componentes de UI genéricos que no están en la librería de UI del Design System y se usan en 3 o más módulos.
-    - Funciones utils universales (por ejemplo, `formatDate`, `formatCurrency`).
-    - Tipos e interfaces genéricos.
-    - Stores de Pinia para el estado global de la aplicación (por ejemplo, `notificationsStore`).
-- **Regla de oro:** Si tienes dudas, mantenlo dentro del módulo específico. Solo trasládalo a `shared` cuando la reutilización en un tercer módulo sea evidente.
+#### **El Módulo `core` (Configuración Global)**
+
+Contiene toda la **configuración global que afecta cómo funciona la aplicación completa**.
+
+**Pregunta clave:** *"¿Es configuración global de la aplicación?"*
+
+**Qué va en `core`:**
+- **Router**: Configuración de navegación de toda la app
+- **API**: Configuración HTTP que usa toda la app  
+- **Patrones arquitectónicos**: Como Either para manejo de errores
+- **Plugins globales**: Configuración que afecta toda la app
+
+**Regla simple:** Si cambias algo aquí, puede impactar toda la aplicación.
+
+#### **El Módulo `shared` (Recursos Reutilizables)**
+
+Contiene **recursos que se usan en múltiples módulos** pero no son configuración global.
+
+**Pregunta clave:** *"¿Es recurso reutilizable entre módulos?"*
+
+**Qué va en `shared`:**
+- **Componentes**: BaseCard, Modal, etc. (usados en múltiples módulos)
+- **Composables**: useModal, useNotification, etc. (usados en múltiples módulos)  
+- **Utilidades**: formatDate, validation, etc. (usados en múltiples módulos)
+- **Stores globales**: Estado que necesitan múltiples módulos
+
+**Regla simple:** Si cambias algo aquí, afecta múltiples componentes pero no toda la app.
+
+
+#### **Criterios de Decisión Simplificados**
+
+Nuevo archivo/funcionalidad:
+
+1. ¿Configura toda la app? (router, api, patterns) → core/
+2. ¿Lo usan múltiples módulos? (components, utils)  → shared/  
+3. ¿Solo un módulo lo usa? → modules/[module]/
+
+#### Regla de impacto:
+- Toco core/ = puede romper toda la app
+- Toco shared/ = puede afectar múltiples componentes  
+- Toco modules/ = solo afecta ese módulo
 
 ### 2.3. Dependencias y la API Pública (`index.ts`)
 
@@ -165,13 +200,12 @@ components/
 ```
 **Nomenclatura y estructura del Componentes:**
 - **Regla**: Los nombres deben comenzar con las palabras de nivel más alto y terminar con modificadores descriptivos
-- **Patrón**: `[Componente]`  ||  `[Componente][Contexto]`  ||  `[Componente][Contexto][Modificador]`
-- **Ejemplos**: `AnimeListItem/`, `SearchButtonClear/`, `SettingsCheckboxLaunchOnStartup/`
+- **Patrón**: `[Componente]`  o  `[Componente][Contexto]`  o  `[Componente][Contexto][Modificador]`
+- **Ejemplos**: `Anime/`, `AnimeList/`, `AnimeListItem/`
 
 - **`index.vue`**: Capa de Presentación (`.vue`) su única responsabilidad es mostrar la interfaz y capturar las interacciones del usuario. No contiene lógica de negocio compleja. No se debe hacer cálculos en el template
-- **`use[Component].ts`**: Capa de Lógica y Estado (`use[contexto].ts`) Cada componente que necesite tener lógica lo debe separar en un composable con el prefijo use y con el nombre del componente.vue. Su responsabilidad es manejar el estado reactivo, la lógica de negocio y orquestar las llamadas a los servicios.
-- **`[component].styles.scss`**: Exclusivamente los estilos específicos del componente
-- Aunque `props` y `emits` sus tipos de datos están definidos en los types. La instancia debe esta en el archivos.vue
+- **`use[Component].ts`**: Capa de Lógica y Estado (`use[contexto].ts`) Cada componente que necesite tener lógica lo debe separar en un composable con el prefijo use y con el nombre del componente. Ej. `useAnime.ts`, `useAnimeLis.ts`, `useAnimeListItem.ts` Su responsabilidad es manejar el estado reactivo, la lógica de negocio y orquestar las llamadas a los servicios.
+- **`[component].styles.scss`**: Exclusivamente los estilos específicos del componente. Ej: `anime.scss`, `animeList.scss`, `animeListItem.scss`
 - Si un componente necesita exportar su información se debe usar `defineExpose`
 
 ### **3.2. Organización de Composables**
@@ -179,7 +213,7 @@ components/
 Los composables se organizan en la carpeta `composables/` del módulo con nomenclatura específica:
 
 **Composables Específicos de Componente:**
-El composable principal del componente (`use[Component].ts`) se mantiene en la misma carpeta que el componente. Sin embargo, cuando se requiere separar lógica adicional en composables específicos, se debe seguir el siguiente patrón:
+El composable principal del componente (`use[Component].ts`) se mantiene en la misma carpeta que el componente. Sin embargo, cuando se requiere separar lógica adicional en composables específicos se debe agregar en la carpeta principal de composable del modulo y se debe seguir el siguiente patrón:
 - **Patrón**: `use[Componente][Funcionalidad].ts`
 - **Ejemplo**: `useAnimeListItemFavorite.ts` (para funcionalidad de favoritos del componente AnimeListItem)
 
@@ -189,34 +223,33 @@ El composable principal del componente (`use[Component].ts`) se mantiene en la m
 
 ### **3.3. Reglas de Nomenclatura**
 
-**Componentes Relacionados:**
-- **Agrupación por contexto**: Componentes que trabajan juntos deben tener nombres relacionados
-- **Ejemplo**: `TodoList.vue`, `TodoListItem.vue`, `TodoListItemButton.vue`
+**Componentes Relacionados entre sí:**
 
-**Orden de Palabras:**
-- **Incorrecto**: `ClearSearchButton.vue`, `ExcludeFromSearchInput.vue`
-- **Correcto**: `SearchButtonClear.vue`, `SearchInputExclude.vue`
+Los componentes que forman parte de una misma funcionalidad deben seguir una jerarquía de nombres clara que refleje su relación.
+
+- **Regla de jerarquía**: Usar el contexto principal como prefijo, agregando especificidad
+- **Beneficio**: Facilita la búsqueda y comprensión de la relación entre componentes
+
+**Ejemplos correctos:**
+```
+AnimeList.vue           # Componente principal
+AnimeListItem.vue       # Item de la lista  
+AnimeListFilter.vue     # Filtro de la lista
+AnimeListEmpty.vue      # Estado vacío de la lista
+```
+
+**Ejemplos incorrectos:**
+```
+ListAnime.vue           # Contexto al final
+FilterAnime.vue         # Contexto al final  
+EmptyAnimeList.vue      # Orden inconsistente
+AnimeFilter.vue         # No indica que es del List
+```
 
 **Para Otros Tipos de Archivos:**
 - **Tipos e Interfaces**: Pueden agruparse en un mismo archivo cuando comparten el mismo contexto o dominio (ej. `user.types.ts` puede contener `User`, `UserProfile`, `UserPreferences`)
 - **Utilidades**: Funciones relacionadas pueden coexistir en un archivo cuando pertenecen al mismo contexto (ej. `date.utils.ts` puede contener `formatDate`, `parseDate`, `isValidDate`)
-- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`). Se recomienda usar `objetos as const` en lugar de `enum` porque los enums generan código adicional en el bundle final, no permiten tree-shaking efectivo y pueden causar problemas de tipado. Los objetos `as const` proporcionan mejor tree-shaking, tipado más preciso y menor tamaño de bundle:
-
-```typescript
-// Recomendado: objeto as const
-export const STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  PENDING: 'pending'
-} as const
-
-// No recomendado: enum
-enum Status {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  PENDING = 'pending'
-}
-```
+- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`). 
 
 ### Estructura de Carpetas
 
@@ -297,14 +330,14 @@ src/
 └── types/
 ```
 
-- **`core/`**: Es el núcleo de la aplicación, responsable de la **orquestación y configuración global**.
-    - `api/`: Contiene la configuración de la instancia global de Axios, interceptores y patrones de manejo de errores.
-    - `either/`: Implementa el patrón Either para el manejo robusto de errores en las operaciones asíncronas.
-    - `router/`: Contiene la configuración principal de Vue Router y guardias de navegación.
-- **`modules/`**: Aquí reside toda la lógica de negocio, organizada por dominio. Cada módulo es independiente y contiene su propia estructura completa (components, pages, services, stores, etc.).
-- **`shared/`**: Centraliza recursos, componentes y utilidades reutilizables entre módulos.
-    - `common/`: Componentes de UI genéricos, composables universales y utilidades compartidas.
-    - `layout/`: Componentes estructurales de la aplicación como headers, footers y layouts base.
+- **`core/`**: Contiene la **infraestructura fundamental** de la aplicación que define cómo opera estructuralmente.
+    - `api/`: Configuración de infraestructura HTTP (instancia Axios, interceptores, patrones de error)
+    - `either/`: Patrón funcional Either para manejo robusto de errores en operaciones asíncronas
+    - `router/`: Configuración del router y sistema de guards globales
+- **`modules/`**: Lógica de negocio organizada por dominio. Cada módulo es independiente y contiene su estructura completa (components, pages, services, stores, etc.).
+- **`shared/`**: Recursos **específicos de la aplicación** reutilizables entre módulos de negocio.
+    - `common/`: Componentes UI de Vue, composables del proyecto y utilidades específicas de la aplicación
+    - `layout/`: Componentes estructurales específicos de esta aplicación (headers, footers, layouts)
 - **`main.ts`**: Punto de entrada que monta la aplicación Vue y configura plugins globales.
 - **`App.vue`**: El componente raíz que contiene `<router-view>` y la estructura base de la aplicación.
 - **`styles/`**: Estilos globales y configuración de Element Plus.
@@ -349,32 +382,6 @@ Las siguientes convenciones se aplican a los **nombres de los archivos** para ga
 | **Factories** | `/test/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
 | **Documentación** | `/` | `README.md` | `README.md` (en cada módulo) |
 | **Carpetas** | N/A | `camelCase` | `animeCard`, `registerForm` |
-
-#### **Reglas Específicas de Nomenclatura**
-
-**Componentes y Views:**
-- Usar `PascalCase` para todos los archivos `.vue`
-- Los nombres deben ser descriptivos y específicos del contexto
-- Para componentes base compartidos, usar prefijo `Base` (ej. `BaseCard.vue`)
-
-**Composables:**
-- Siempre usar prefijo `use`
-- Para composables específicos de componente: `use[Component].ts`
-- Para composables de módulo: `use[Funcionalidad].ts`
-- Para composables compartidos: `useBase[Nombre].ts`
-
-**Archivos de Configuración:**
-- Usar `camelCase` para todos los archivos de configuración (ej. `vite.config.ts`, `tsconfig.json`)
-- Usar `camelCase` para archivos específicos de módulo
-
-**Estructura de Carpetas de Componentes:**
-```
-components/
-├── AnimeCard/
-│   ├── index.vue
-│   ├── useAnimeCard.ts
-│   └── animeCard.styles.scss
-```
 
 ## **Sección 7: Gestión de la Capa de API**
 
@@ -545,30 +552,40 @@ src/
 
 ## **Sección 9: Gestión de Dependencias Externas**
 
-### 9.1. Librerías Reutilizables (Patrón `shared`)
+### 9.1. Configuración Global de Librerías → `core/`
 
-Si una librería necesita ser configurada (ej. `dayjs`, `lodash`, `date-fns`), esta configuración debe centralizarse en un helper dentro de `shared/common/utils/`. Cualquier módulo deberá importarla desde la API Pública de `shared/common` (`@/shared/common`).
+**Pregunta:** ¿Es configuración global que afecta toda la aplicación?
 
-**Ejemplo de estructura:**
+**Ejemplos:**
+```
+core/
+├── plugins/
+│   ├── element-plus.ts      # app.use() - afecta toda la app
+│   ├── pinia.ts            # Estado global - afecta toda la app
+│   └── index.ts            
+└── api/
+    ├── instance.ts         # HTTP global - afecta toda la app
+    └── interceptors.*.ts   # Interceptores - afectan toda la app
+```
+
+### 9.2. Utilidades Reutilizables de Librerías → `shared/`
+
+**Pregunta:** ¿Es utilidad que usan múltiples módulos?
+
+**Ejemplos:**
 ```
 shared/
 └── common/
     ├── utils/
-    │   ├── date.utils.ts        # Configuración de dayjs/date-fns
-    │   ├── format.utils.ts      # Configuración de lodash
-    │   └── validation.utils.ts  # Configuración de yup/zod
-    └── index.ts                 # API Pública de shared/common
+    │   ├── date.utils.ts        # formatDate() - usado en múltiples módulos
+    │   ├── format.utils.ts      # formatCurrency() - usado en múltiples módulos
+    │   └── validation.utils.ts  # validaciones - usadas en múltiples módulos
+    └── index.ts                 
 ```
 
-**Razones para usar `shared/`:**
-- Las librerías externas son recursos reutilizables entre módulos
-- No pertenecen al núcleo de la aplicación (router, API, etc.)
-- Siguen el principio de centralización de recursos compartidos
-- Facilitan la reutilización y mantenimiento
-
-### 9.2. Plugins y Estilos Globales (Patrón `core`)
-
-Si una librería requiere ser registrada globalmente (`app.use()`), esta inicialización debe ocurrir en el núcleo de la aplicación, dentro de `core/plugins/`, y ser llamada desde `main.ts`.
+**Regla simple:** 
+- Si configuras la librería globalmente → `core/`
+- Si creas helpers que se reutilizan → `shared/`
 
 ## **Sección 10: Testing**
 

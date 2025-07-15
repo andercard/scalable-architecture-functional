@@ -25,22 +25,6 @@ Esta guía reúne las mejores prácticas, patrones y ejemplos para escribir test
 - A cualquier desarrollador que trabaje en el proyecto, sin importar su nivel de experiencia.
 - A quienes deseen entender el porqué de las decisiones de testing y cómo aplicarlas en la práctica.
 
-¿Qué encontrarás aquí?
-- Explicaciones sobre la diferencia entre tests unitarios y de componentes.
-- Ejemplos prácticos y patrones para testear composables, stores, servicios y componentes Vue.
-- Estrategias para mockear dependencias, usar utilidades globales y crear datos de prueba reutilizables.
-- Técnicas específicas para testing de inject/provide, formularios complejos y lifecycle de componentes.
-- Patrones para testing de operaciones asíncronas, watchers y reactividad.
-- Testing de Vue Router con factories de rutas y mocks selectivos.
-- Testing de localStorage real y operaciones del navegador.
-- Testing con patrón Either para manejo funcional de errores.
-- Selectores y atributos para testing de componentes centrado en el usuario.
-- Testing de formularios complejos con Element Plus y validaciones.
-- Testing de stores Pinia con diferentes enfoques según el contexto.
-- Métricas de cobertura recomendadas y criterios de calidad.
-- Comandos y scripts de testing organizados por módulos.
-- Herramientas y configuración global con utilidades reutilizables.
-- Referencias a artículos y repositorios de ejemplo para profundizar.
 
 Esta documentación es un recurso vivo: se actualiza y mejora continuamente con la experiencia del equipo y los avances de la comunidad. Si tienes sugerencias o detectas áreas de mejora, ¡no dudes en contribuir!
 
@@ -81,21 +65,22 @@ Verificamos funciones puras, composables y lógica de negocio:
 - Manejo de errores y casos edge
 
 Características técnicas:
-- **Sin DOM**: No renderizan componentes, solo prueban lógica
+- **DOM mínimo**: Usan jsdom para reactividad de Vue y APIs del navegador, pero no renderizan templates completos
 - **Aisladas**: Sin dependencias externas o efectos secundarios
-- **Rápidas**: < 1ms por test
+- **Rápidas**: < 1ms por test (funciones puras) o < 10ms (composables)
 - **Determinísticas**: Mismo input siempre produce el mismo output
 
 Ejemplo práctico:
 ```typescript
-// Test unitario - Prueba lógica pura
+// Test unitario - Prueba lógica pura de composable
 it('should compute anime subtitle correctly', () => {
   const props = { anime: createMockAnime({ type: 'TV', status: 'Airing' }) }
   const emit = vi.fn()
   
-  const { result } = renderComposable(() => useAnimeCard(props, emit))
+  const { result, app } = withSetup(() => useAnimeCard(props, emit))
   
-  expect(result.current.animeSubtitle).toBe('TV • Airing')
+  expect(result.animeSubtitle.value).toBe('TV • Airing')
+  app.unmount()
 })
 ```
 
@@ -182,10 +167,26 @@ describe('useAnimeCard', () => {
     const emit = vi.fn()
     
     // Act - Ejecutar la función
-    const { result } = renderComposable(() => useAnimeCard(props, emit))
+    const { result, app } = withSetup(() => useAnimeCard(props, emit))
     
     // Assert - Verificar resultado
-    expect(result.current.animeSubtitle).toBe('TV • Airing')
+    expect(result.animeSubtitle.value).toBe('TV • Airing')
+    app.unmount()
+  })
+
+  it('should handle favorite toggle interaction', async () => {
+    // Arrange
+    const props = { anime: createMockAnime({ mal_id: 1 }) }
+    const emit = vi.fn()
+    const { result, app } = withSetup(() => useAnimeCard(props, emit))
+    
+    // Act
+    await result.toggleFavorite()
+    
+    // Assert
+    expect(result.isFavorite.value).toBe(true)
+    expect(emit).toHaveBeenCalledWith('toggle-favorite', props.anime)
+    app.unmount()
   })
 })
 ```
@@ -305,7 +306,7 @@ describe('useFavorites with spying', () => {
 
 **¿Cuándo sí mockear localStorage?**
 Solo en casos específicos:
-- Simular errores de quota excedida
+- Simular errores de cuota excedida
 - Testing de comportamiento cuando localStorage falla
 - Control total sobre respuestas en casos edge
 
@@ -326,7 +327,7 @@ import { render, screen } from '@testing-library/vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { describe, it, expect } from 'vitest'
 import NavigationMenu from '@/components/NavigationMenu.vue'
-import { userEvent } from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event'
 
 // Helper simplificado para crear router de test
 const createTestRouter = (routes = []) => {
@@ -344,9 +345,9 @@ const createTestRouter = (routes = []) => {
 describe('NavigationMenu', () => {
   it('should navigate using router links', async () => {
     const router = createTestRouter([
-      { path: '/dashboard', component: { template: 'Dashboard' } },
-      { path: '/settings', component: { template: 'Settings' } },
-      { path: '/profile', component: { template: 'Profile' } }
+      { path: '/dashboard', component: { template: '<div>Dashboard</div>' } },
+      { path: '/settings', component: { template: '<div>Settings</div>' } },
+      { path: '/profile', component: { template: '<div>Profile</div>' } }
     ])
 
     render(NavigationMenu, {
@@ -374,7 +375,7 @@ import { render, screen } from '@testing-library/vue'
 import { useRouter, type Router } from 'vue-router'
 import { describe, it, expect, vi } from 'vitest'
 import NavigationMenu from '@/components/NavigationMenu.vue'
-import { userEvent } from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event'
 
 const mockPush = vi.fn()
 vi.mock('vue-router', () => ({
@@ -450,7 +451,7 @@ export const RouterLinkStub: Component = {
 **Patrón 4: Testing de navigation guards**
 ```typescript
 import { render, screen } from '@testing-library/vue'
-import { userEvent } from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 import RouteLeaveGuardDemo from '@/components/RouteLeaveGuardDemo.vue'
@@ -741,58 +742,11 @@ describe('Component with Router', () => {
 })
 ```
 
-#### **2. Factory Pattern Simplificado**
 
-**Basándonos en las mejores prácticas de [Oscar Reyes](https://oscar-reyes.medium.com/factory-functions-functional-mixins-with-typescript-83793195391d) y [Matt Unhjem](https://dev.to/mattu/make-a-factory-creating-reliable-tests-with-factory-functions-in-typescript-and-react-eh), hemos simplificado el factory pattern para ser más práctico:**
-
-**Características del factory pattern simplificado:**
-- **Funciones simples**: Fáciles de entender y mantener
-- **Object composition**: Usa composición de objetos en lugar de herencia
-- **Overrides flexibles**: Permite personalización sin complejidad
-- **Reutilización**: Factories específicas por dominio
-- **Mantenibilidad**: Fácil de modificar y extender
-
-**Factory functions disponibles:**
-```typescript
-// Factory base simplificada
-createRouterFactory
-
-// Factories específicas por dominio
-createAnimeRouterFactory
-createAuthRouterFactory
-createFormsRouterFactory
-
-// Helper para rutas personalizadas
-createTestRouter
-```
-
-**Ejemplos de uso simplificado:**
-```typescript
-// 1. Uso básico con factory function
-const animeRoutes = createAnimeRouterFactory()
-
-// 2. Uso con rutas personalizadas
-const customRoutes = createTestRouter([
-  { path: '/custom', component: { template: '<div>Custom Page</div>' } }
-])
-
-// 3. Uso con overrides
-const authRoutes = createAuthRouterFactory({
-  includePasswordRecovery: true,
-  customRoutes: [
-    { path: '/dashboard', component: { template: '<div>Dashboard</div>' } }
-  ]
-})
-
-// 4. Uso simple para casos básicos
-const basicRouter = createTestRouter([
-  { path: '/about', component: { template: '<div>About</div>' } }
-])
-```
 
 #### **3. Mejores Prácticas para Factories de Rutas**
 
-**Basándonos en las mejores prácticas de [Focused.io](https://focused.io/lab/vue-router-testing-strategies) y [Vasanthan K](https://medium.com/@vasanthancomrads/unit-testing-vue-3-components-with-vitest-and-testing-library-part-3-985d9c3585c8):**
+**Mejores prácticas:**
 
 **SÍ hacer:**
 - **Usar factories específicas por dominio** - `anime`, `auth`, `forms`
@@ -916,7 +870,7 @@ import '../setup'
 describe('Async Operations', () => {
   it('should handle async data loading', async () => {
     // Arrange
-    const mockResponse = createSuccessMock({ data: [] })
+    const mockResponse = right({ data: [] })
     vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockResponse)
     
     // Act
@@ -929,7 +883,7 @@ describe('Async Operations', () => {
 
   it('should show loading state while fetching data', async () => {
     // Arrange
-    const mockResponse = createSuccessMock({ data: [] })
+    const mockResponse = right({ data: [] })
     vi.mocked(animeApi.getAnimeList).mockImplementation(() => 
       new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
     )
@@ -949,7 +903,7 @@ describe('Async Operations', () => {
 
   it('should handle API errors gracefully', async () => {
     // Arrange
-    const mockError = createFailureMock('Network Error')
+    const mockError = left({ message: 'Network Error' })
     vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockError)
     
     // Act
@@ -966,14 +920,15 @@ describe('Async Operations', () => {
     // Arrange
     const props = { anime: createMockAnime() }
     const emit = vi.fn()
-    const { result } = renderComposable(() => useAnimeCard(props, emit))
+    const { result, app } = withSetup(() => useAnimeCard(props, emit))
     
     // Act
-    await result.current.toggleFavorite()
+    await result.toggleFavorite()
     
     // Assert
-    expect(result.current.isFavorite.value).toBe(true)
+    expect(result.isFavorite.value).toBe(true)
     expect(emit).toHaveBeenCalledWith('toggle-favorite', props.anime)
+    app.unmount()
   })
 })
 ```
@@ -1106,8 +1061,8 @@ it('should handle Either with isRight/isLeft pattern like in composables', async
   vi.mocked(animeApi.getAnimeCharacters).mockResolvedValue(failureResponse)
   const errorResult = await animeApi.getAnimeCharacters(1)
   
-  if (result.isLeft()) {
-    expect(result.value.message).toBe('API Error')
+  if (errorResult.isLeft()) {
+    expect(errorResult.value.message).toBe('API Error')
   } else {
     fail('Expected failure but got success')
   }
@@ -1202,18 +1157,19 @@ describe('AnimeList Component', () => {
     
     // Act & Assert - Success case
     vi.mocked(animeApi.getAnimeList).mockResolvedValue(successResponse)
-    const { result } = renderComposable(() => useAnimeList())
-    await result.current.loadAnimeList()
+    const { result, app } = withSetup(() => useAnimeList())
+    await result.loadAnimeList()
     
-    expect(result.current.animes.value).toHaveLength(1)
-    expect(result.current.error.value).toBeNull()
+    expect(result.animes.value).toHaveLength(1)
+    app.unmount()
+    expect(result.error.value).toBeNull()
     
     // Act & Assert - Failure case
     vi.mocked(animeApi.getAnimeList).mockResolvedValue(failureResponse)
-    await result.current.loadAnimeList()
+    await result.loadAnimeList()
     
-    expect(result.current.error.value).toBe('Error en el módulo de anime')
-    expect(result.current.animes.value).toHaveLength(0)
+    expect(result.error.value).toBe('Error en el módulo de anime')
+    expect(result.animes.value).toHaveLength(0)
   })
 })
 ```
@@ -1226,10 +1182,10 @@ El patrón provide/inject es común en formularios complejos donde múltiples co
 
 #### **1. Testing de Composables con Provide/Inject**
 
-**Patrón recomendado**: Usar `withSetup` para testing unitario de composables que usan provide/inject, ya que `renderComposable` no maneja automáticamente el contexto de provide/inject.
+**Patrón recomendado**: Usar `withSetup` para testing unitario de composables que usan provide/inject, ya que es la forma estándar de testear composables con contexto de Vue.
 
 ```typescript
-import { withSetup } from '@/test/setup'
+import { withSetup } from '@/test/utils/withSetup'
 import { useRegisterFormProvider } from '@/modules/auth/composables/useRegisterFormProvider'
 import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
 
@@ -1238,25 +1194,22 @@ describe('Register Form Provider/Inject Pattern', () => {
     // Arrange
     const emit = vi.fn()
     
-    // Act - Provider setup
-    const { result: providerResult, app: providerApp } = withSetup(() => 
-      useRegisterFormProvider(emit)
-    )
-    
-    // Act - Inject setup (mismo contexto Vue)
-    const { result: injectResult, app: injectApp } = withSetup(() => 
-      useRegisterFormStepValidation()
-    )
+    // Act - Provider setup dentro del mismo contexto
+    const { result, app } = withSetup(() => {
+      const provider = useRegisterFormProvider(emit)
+      const validation = useRegisterFormStepValidation() // Usa el contexto del provider
+      
+      return { provider, validation }
+    })
     
     // Assert - Verificar que el provider funciona
-    expect(providerResult.provide).toBeDefined()
-    expect(providerResult.form).toBeDefined()
-    expect(providerResult.form.username).toBe('')
-    expect(injectResult.form).toBeDefined()
+    expect(result.provider.provide).toBeDefined()
+    expect(result.provider.form).toBeDefined()
+    expect(result.provider.form.username).toBe('')
+    expect(result.validation.form).toBeDefined() // Debe acceder al mismo formulario
     
     // Cleanup
-    providerApp.unmount()
-    injectApp.unmount()
+    app.unmount()
   })
 
   it('should validate form data through inject pattern', () => {
@@ -1337,7 +1290,7 @@ import { createValidRegisterForm } from '@/modules/auth/test/factories/register.
 describe('Form Validation with Inject Pattern', () => {
   it('should validate complete form data', () => {
     // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const { result, app } = withSetup(() => useRegisterFormStepValidation())
     const validForm = createValidRegisterForm()
     
     // Act
@@ -1345,11 +1298,12 @@ describe('Form Validation with Inject Pattern', () => {
     
     // Assert
     expect(isValid).toBe(true)
+    app.unmount()
   })
 
   it('should reject form with missing required fields', () => {
     // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const { result, app } = withSetup(() => useRegisterFormStepValidation())
     const invalidForm = createValidRegisterForm({ username: '' }) // Username vacío
     
     // Act
@@ -1357,17 +1311,19 @@ describe('Form Validation with Inject Pattern', () => {
     
     // Assert
     expect(isValid).toBe(false)
+    app.unmount()
   })
 
   it('should provide validation rules for all form fields', () => {
     // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
+    const { result, app } = withSetup(() => useRegisterFormStepValidation())
     
     // Act & Assert
     expect(result.validationRules).toBeDefined()
     expect(result.validationRules.username).toBeDefined()
     expect(result.validationRules.firstName).toBeDefined()
     expect(result.validationRules.country).toBeDefined()
+    app.unmount()
   })
 })
 ```
@@ -1376,13 +1332,13 @@ describe('Form Validation with Inject Pattern', () => {
 
 **SÍ hacer:**
 - **Composables con provide/inject**: Usar `withSetup` para testing unitario
-- **Composables simples**: Usar `renderComposable` para testing simple
+- **Composables simples**: Usar `withSetup` para testing simple
 - **Integración real**: Testing entre componentes padre/hijo
 - **Validación separada**: Testing unitario de lógica de validación
 - **Cleanup**: Siempre hacer `app.unmount()` con `withSetup`
 
 **NO hacer:**
-- Usar `renderComposable` para provide/inject (no funciona)
+- Usar métodos incorrectos para provide/inject (siempre usar `withSetup`)
 - Mockear provide/inject en tests de integración
 - Testear detalles internos de la inyección
 - Ignorar cleanup con `withSetup`
@@ -1621,10 +1577,10 @@ o
 - **Testear comportamiento observable** - Lo que el usuario ve y puede hacer
 
 **NO hacer:**
-- **Usar `getByRole()` primero** - Por compatibilidad con QA
 - **Usar `getByClassName()` o `getById()`** - Frágil y no accesible
-- **Usar `aria-label` cuando hay texto visible** - Confunde lectores de pantalla
+- **Usar `aria-label` cuando hay texto visible suficientemente descriptivo** - Confunde lectores de pantalla
 - **Testear detalles internos** - Estado privado, variables internas
+- **Ignorar la jerarquía de selectores** - Siempre preferir labelText y text antes que testId
 
 **Regla simple:**
 - **Sin texto visible** → Usar `aria-label`
@@ -1952,55 +1908,7 @@ vi.mock('element-plus', () => ({
 }))
 ```
 
-#### **3. Testing de Validación de Formularios**
 
-**Patrón recomendado**: Testing unitario de lógica de validación + testing de integración de UI.
-
-```typescript
-import { useRegisterFormStepValidation } from '@/modules/auth/composables/useRegisterFormStepValidation'
-import { createValidRegisterForm, createInvalidRegisterForm } from '../factories/register.factory'
-
-describe('Form Validation Testing', () => {
-  it('should validate complete form successfully', () => {
-    // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
-    const validForm = createValidRegisterForm()
-    
-    // Act
-    const isValid = result.validateForm(validForm)
-    
-    // Assert
-    expect(isValid).toBe(true)
-  })
-
-  it('should reject form with missing required fields', () => {
-    // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
-    const invalidForm = createInvalidRegisterForm()
-    
-    // Act
-    const isValid = result.validateForm(invalidForm)
-    
-    // Assert
-    expect(isValid).toBe(false)
-  })
-
-  it('should provide validation rules for all form fields', () => {
-    // Arrange
-    const { result } = renderComposable(() => useRegisterFormStepValidation())
-    
-    // Act & Assert
-    expect(result.validationRules).toBeDefined()
-    expect(result.validationRules.username).toBeDefined()
-    expect(result.validationRules.firstName).toBeDefined()
-    expect(result.validationRules.country).toBeDefined()
-    expect(result.validationRules.city).toBeDefined()
-    expect(result.validationRules.emergencyContact).toBeDefined()
-    expect(result.validationRules.emergencyPhone).toBeDefined()
-    expect(result.validationRules.termsAccepted).toBeDefined()
-  })
-})
-```
 
 #### **4. Testing de Estado de Formularios**
 
@@ -2325,7 +2233,7 @@ describe('useAnimeCard composable', () => {
 
 #### **3. Patrón de Testing de Stores Completo**
 
-**Basándonos en las mejores prácticas de testing de stores**, implementamos un patrón completo que cubre todos los aspectos:
+**Patrón completo que cubre todos los aspectos:**
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia'
@@ -2432,7 +2340,7 @@ describe('Anime Store - Testing Completo', () => {
     it('should handle loading state during API calls', async () => {
       // Arrange
       const store = useAnimeStore()
-      const mockResponse = createSuccessMock({ data: [] })
+      const mockResponse = right({ data: [] })
       vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockResponse)
       
       // Act
@@ -2451,7 +2359,7 @@ describe('Anime Store - Testing Completo', () => {
     it('should handle API errors gracefully', async () => {
       // Arrange
       const store = useAnimeStore()
-      const mockError = createFailureMock('API Error')
+      const mockError = left({ message: 'API Error' })
       vi.mocked(animeApi.getAnimeList).mockResolvedValue(mockError)
       
       // Act
@@ -2506,7 +2414,7 @@ authStore.isAuthenticated = true // Error: Cannot assign to read only property
 
 #### **6. Mejoras Implementadas**
 
-**Basándonos en las mejores prácticas de [Fotis Adamakis](https://fadamakis.com/unit-testing-a-pinia-component-37d045582aed?gi=644ecb388b0a), hemos implementado las siguientes mejoras:**
+**Mejoras implementadas:**
 
 **Configuración Global Mejorada:**
 ```typescript
@@ -2591,8 +2499,8 @@ yarn test --coverage
 # Ejecutar tests en modo watch
 yarn test --watch
 
-# Ejecutar tests con UI
-yarn test --ui (revisar)
+# Ejecutar tests con UI (interfaz visual de Vitest)
+yarn test --ui
 
 # Ejecutar tests en modo verbose
 yarn test --reporter=verbose
@@ -2624,11 +2532,7 @@ yarn test src/modules/anime/test/services/
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
-    "test:anime": "vitest src/modules/anime/test/",
-    "test:auth": "vitest src/modules/auth/test/",
-    "test:shared": "vitest src/shared/test/",
     "test:unit": "vitest --run src/**/*.spec.ts",
-    "test:components": "vitest --run src/**/index.spec.ts"
   }
 }
 ```
@@ -2757,44 +2661,60 @@ Las utilidades globales proporcionan funciones reutilizables que simplifican la 
 
 **Utilidades para Testing de Composables (test/utils/withSetup.ts)**
 
-Basándonos en las mejores prácticas de [Vue Testing Library](https://testing-library.com/docs/vue-testing-library/intro/) y [Dylan Britz](https://dev.to/britzdm/mastering-vue-3-composables-testing-with-vitest-1bk3), hemos simplificado las utilidades para ser más prácticas:
+Implementamos el patrón `withSetup` para testing de composables:
 
 ```typescript
-import { renderComposable } from '@testing-library/vue'
-import { withSetup } from '@/test/setup'
+// test/utils/withSetup.ts
+import { createApp } from 'vue'
 
-// 1. Composable simple (recomendado)
-const { result } = renderComposable(() => useMyComposable())
-expect(result.isReady.value).toBe(true)
+export function withSetup<T>(composable: () => T, options: any = {}) {
+  let result: T
+  
+  const app = createApp({
+    setup() {
+      result = composable()
+      return () => {}
+    },
+  })
 
-// 2. Composable con lifecycle hooks (solo cuando sea necesario)
-const { result, app } = withSetup(() => useMyComposable())
-expect(result.isReady.value).toBe(true)
-app.unmount() // Solo cuando hay lifecycle hooks
-
-// 3. Composable con plugins (Pinia, Router)
-const { result } = renderComposable(() => useMyStore(), {
-  global: {
-    plugins: [createTestingPinia()]
+  // Configurar plugins si se proporcionan
+  if (options.plugins) {
+    options.plugins.forEach(plugin => app.use(plugin))
   }
-})
+
+  app.mount(document.createElement('div'))
+  
+  return { result, app }
+}
 ```
 
-**¿Cuándo usar cada utilidad?**
+**Uso práctico:**
 
-| Tipo de Composable | Utilidad | Cuándo usar |
-|-------------------|----------|-------------|
-| Solo reactividad | `renderComposable` | **Recomendado para la mayoría de casos** |
-| Con provide/inject | `withSetup` | **Obligatorio para provide/inject** |
-| Con lifecycle hooks | `withSetup` | Solo cuando hay `onMounted`, `onUnmounted` |
-| Con plugins | `renderComposable` con global | Composables que usan Pinia, Router |
+```typescript
+import { withSetup } from '@/test/utils/withSetup'
+
+// 1. Composable simple (recomendado)
+const { result, app } = withSetup(() => useMyComposable())
+expect(result.isReady.value).toBe(true)
+app.unmount()
+
+// 2. Composable con lifecycle hooks
+const { result, app } = withSetup(() => useMyComposable())
+expect(result.isReady.value).toBe(true)
+app.unmount() // Cleanup obligatorio
+
+// 3. Composable con plugins (Pinia, Router)
+const { result, app } = withSetup(() => useMyStore(), {
+  plugins: [createTestingPinia()]
+})
+expect(result.data.value).toBeDefined()
+app.unmount()
+```
 
 **Mejores prácticas:**
-- **Usar `renderComposable` por defecto**: Es más simple y suficiente para la mayoría de casos
-- **Usar `withSetup` para provide/inject**: Obligatorio para composables que usan provide/inject
-- **Usar `withSetup` para lifecycle hooks**: Solo cuando hay `onMounted`, `onUnmounted`
+- **Usar `withSetup` para todos los composables**: Es el patrón estándar del proyecto
+- **Cleanup obligatorio**: Siempre hacer `app.unmount()` después del test
 - **Testear comportamiento observable**: No detalles de implementación
-- **Cleanup obligatorio con `withSetup`**: Siempre hacer `app.unmount()`
 
 **Utilidad para testing de formularios (test/utils/formTesting.ts)**
 ```typescript
@@ -2886,7 +2806,7 @@ expect(router.currentRoute.value.path).toBe('/anime/1')
 ```typescript
 // Limpiar todos los mocks entre tests
 beforeEach(() => {
-  clearMocks()
+  vi.clearAllMocks()
 })
 ```
 
@@ -2982,22 +2902,51 @@ export default defineConfig({
 })
 ```
 
-## Checklist de Calidad (analizar)
+## Preguntas para Crear Tests de Calidad
 
-### **Antes de Crear un Test**
-- [ ] ¿El código tiene lógica de negocio compleja?
-- [ ] ¿El test valida comportamiento observable?
-- [ ] ¿El test es independiente de otros tests?
-- [ ] ¿El test es rápido (< 100ms)?
-- [ ] ¿El test agrega valor real?
+### **¿Vale la pena testear esto?**
 
-### **Después de Crear un Test**
-- [ ] ¿El test sigue el patrón AAA?
-- [ ] ¿El test usa factories para datos?
-- [ ] ¿El test tiene mocks apropiados?
-- [ ] ¿El test es legible y mantenible?
-- [ ] ¿El test no se rompe con refactoring?
+#### **Preguntas de Valor de Negocio**
+- **¿Qué pasa si esto falla en producción?** Si la respuesta es "nada grave", probablemente no necesita test
+- **¿Cuántos usuarios se verían afectados?** Funcionalidad crítica para muchos usuarios = alta prioridad
+- **¿Cuánto dinero se perdería si falla?** Checkout, pagos, facturación = testing obligatorio
+- **¿Qué tan difícil es detectar el error manualmente?** Errores sutiles o casos edge necesitan tests
 
+#### **Preguntas de Complejidad**
+- **¿Tiene lógica de negocio compleja?** Cálculos, validaciones, transformaciones = sí testear
+- **¿Es un getter/setter simple?** `get name() { return this.name }` = no testear
+- **¿Tiene múltiples condiciones o casos edge?** Más de 2-3 `if/else` = probablemente sí
+- **¿Es código que escribiste rápido y no estás 100% seguro?** Mejor testearlo
+
+#### **¿Solo Lógica o También UX?**
+- **Solo lógica si**: Es una función pura, cálculo, validación, transformación de datos
+- **También UX si**: El usuario interactúa directamente, hay formularios, navegación, o estados visuales
+- **Ejemplo lógica**: `calculateTax(price, rate)` → test unitario
+- **Ejemplo UX**: Formulario de login → test de componente
+- **Ejemplo mixto**: Carrito de compras → test lógica (cálculos) + UX (agregar/quitar items)
+
+#### **Preguntas de Costo/Beneficio**
+- **¿Cuánto tiempo tomaría escribir el test?** Si es más de 30 min, evalúa si vale la pena
+- **¿Cuánto tiempo tomaría arreglar bugs sin test?** Si es mucho tiempo de debugging, mejor testear
+- **¿Estás en modo "ship rápido"?** Si necesitas lanzar urgente, prioriza tests de flujos críticos
+- **¿Es código que cambia mucho?** Si cambia semanalmente, los tests pueden ser contraproducentes
+
+### **¿Está bien arquitecturado mi test?**
+- **¿Puedo entender qué hace el test en 5 segundos?** Si no, necesita ser más claro
+- **¿El test falla con un mensaje útil?** El mensaje de error debe explicar qué salió mal, no solo que falló
+- **¿Es fácil de mantener?** Si cambias la implementación (sin cambiar el comportamiento), ¿el test sigue funcionando?
+- **¿Usa factories para datos complejos?** Evita crear objetos mock enormes inline
+
+### **¿Está bien estructurado mi test?**
+- **¿Sigue el patrón AAA?** Arrange, Act, Assert debe ser claro
+- **¿Tiene un solo propósito?** Un test debe probar una sola cosa
+- **¿El nombre del test explica qué hace?** Debe ser descriptivo: `should calculate total price with tax when item is taxable`
+- **¿Es independiente de otros tests?** Debe poder ejecutarse solo sin depender de orden o estado
+
+### **¿Está optimizado para debugging?**
+- **¿Si falla, sabré inmediatamente por qué?** Los mensajes de error deben ser claros y específicos
+- **¿Usa `expect().toBe()` en lugar de `expect().toBeTruthy()`?** Aserciones específicas dan mejor feedback
+- **¿Evita lógica compleja en el test?** Los tests deben ser simples y lineales
 
 
 ## Recursos y Referencias
