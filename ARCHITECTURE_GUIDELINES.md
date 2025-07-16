@@ -6,61 +6,17 @@
 **Responsable**: Equipo de Desarrollo  
 **Versión**: 1.0.0 
 
-## Tabla de Contenido
+## Índice
 
-### [Sección 1: Visión General](#sección-1-visión-general)
-- [Nuestra Arquitectura: Una Fusión de Mejores Prácticas](#nuestra-arquitectura-una-fusión-de-mejores-prácticas)
-  - [Arquitectura Modular por Dominios](#1-arquitectura-modular-por-dominios)
-  - [Atomic Design Adaptado](#2-atomic-design-adaptado)
-  - [Separación SCF (Script-Component-File)](#3-separación-scf-script-component-file)
-  - [Estructura Flat Inteligente](#4-estructura-flat-inteligente)
-  - [Core y Shared Centralizados](#5-core-y-shared-centralizados)
-- [Beneficios Estratégicos](#beneficios-estratégicos)
-- [Objetivo Principal](#objetivo-principal)
-
-### [Sección 2: Principios de la Arquitectura Modular](#sección-2-principios-de-la-arquitectura-modular)
-- [Encapsulación y Cohesión](#21-encapsulación-y-cohesión)
-- [El Módulo `shared` (Centralización de recursos compartidos)](#22-el-módulo-shared-centralización-de-recursos-compartidos)
-- [Dependencias y la API Pública (`index.ts`)](#23-dependencias-y-la-api-pública-indexts)
-
-### [Sección 3: Estructura Plana Inteligente](#sección-3-estructura-plana-inteligente)
-- [Organización de Componentes](#31-organización-de-componentes)
-- [Organización de Composables](#32-organización-de-composables)
-- [Reglas de Nomenclatura](#33-reglas-de-nomenclatura)
-- [Estructura de Carpetas](#estructura-de-carpetas)
-- [Estructura General del Proyecto (`src`)](#estructura-general-del-proyecto-src)
-- [Beneficios de la Estructura Plana Inteligente](#34-beneficios-de-la-estructura-plana-inteligente)
-
-### [Sección 4: Gestión de Estado Local Complejo](#sección-4-gestión-de-estado-local-complejo-patrón-provideinject)
-
-### [Sección 5: Convenciones de Nomenclatura de Archivos](#sección-5-convenciones-de-nomenclatura-de-archivos)
-- [Reglas Específicas de Nomenclatura](#reglas-específicas-de-nomenclatura)
-
-### [Sección 7: Gestión de la Capa de API](#sección-7-gestión-de-la-capa-de-api)
-- [Instancia Global de Axios (`core/api`)](#71-instancia-global-de-axios-coreapi)
-- [Patrón Either para Manejo de Errores (`core/either`)](#72-patrón-either-para-manejo-de-errores-coreeither)
-- [Servicios por Módulo (`modules/.../services`)](#73-servicios-por-módulo-modulesservices)
-- [Ventajas de esta Arquitectura](#74-ventajas-de-esta-arquitectura)
-
-### [Sección 8: Gestión de Estilos (CSS)](#sección-8-gestión-de-estilos-css)
-- [Jerarquía de Estilos](#81-jerarquía-de-estilos)
-- [Estructura de Archivos de Estilos](#82-estructura-de-archivos-de-estilos)
-- [Convenciones de Nomenclatura](#83-convenciones-de-nomenclatura)
-- [Reglas de Importación](#84-reglas-de-importación)
-- [Ejemplo de Implementación](#85-ejemplo-de-implementación)
-- [Ventajas de esta Arquitectura](#86-ventajas-de-esta-arquitectura)
-
-### [Sección 9: Gestión de Dependencias Externas](#sección-9-gestión-de-dependencias-externas)
-- [Librerías Reutilizables (Patrón `shared`)](#91-librerías-reutilizables-patrón-shared)
-- [Plugins y Estilos Globales (Patrón `core`)](#92-plugins-y-estilos-globales-patrón-core)
-
-### [Sección 10: Testing](#sección-10-testing)
-- [Filosofía de Testing](#101-filosofía-de-testing)
-- [Estructura de Testing](#102-estructura-de-testing)
-- [Tipos de Pruebas](#103-tipos-de-pruebas)
-- [Convenciones de Nomenclatura](#104-convenciones-de-nomenclatura)
-- [Principios de Testing](#105-principios-de-testing)
-- [Configuración Global](#106-configuración-global)
+- Sección 1: Visión General
+- Sección 2: Principios de la Arquitectura Modular
+- Sección 3: Estructura Plana Inteligente
+- Sección 4: Gestión de Estado Local Complejo (Patrón `provide`/`inject`)
+- Sección 5: Convenciones de Nomenclatura de Archivos
+- Sección 7: Gestión de la Capa de API
+- Sección 8: Gestión de Estilos (CSS)
+- Sección 9: Gestión de Dependencias Externas
+- Sección 10: Testing
 
 ---
 
@@ -86,7 +42,7 @@ Hemos adaptado los principios de Atomic Design con una nomenclatura más intuiti
 Para mejorar la testabilidad y mantenibilidad, cada componente se divide en tres archivos:
 - **`index.vue`**: Template y estructura
 - **`use[Component].ts`**: Lógica reactiva y composables
-- **`[component].styles.scss`**: Estilos específicos
+- **`[component].style.scss`**: Estilo específico
 
 #### **4. Estructura Flat Inteligente**
 Evitamos anidamientos excesivos que complican la navegación. Todos los archivos de un mismo tipo (pages, sections, components, views, types, stores, services, errors) se mantienen al mismo nivel dentro del módulo.
@@ -192,11 +148,11 @@ components/
 ├── AnimeListItem/
 │   ├── index.vue
 │   ├── useAnimeListItem.ts
-│   └── animeListItem.styles.scss
+│   └── animeListItem.style.scss
 ├── SearchButtonClear/
 │   ├── index.vue
 │   ├── useSearchButtonClear.ts
-│   └── searchButtonClear.styles.scss
+│   └── searchButtonClear.style.scss
 ```
 **Nomenclatura y estructura del Componentes:**
 - **Regla**: Los nombres deben comenzar con las palabras de nivel más alto y terminar con modificadores descriptivos
@@ -205,7 +161,7 @@ components/
 
 - **`index.vue`**: Capa de Presentación (`.vue`) su única responsabilidad es mostrar la interfaz y capturar las interacciones del usuario. No contiene lógica de negocio compleja. No se debe hacer cálculos en el template
 - **`use[Component].ts`**: Capa de Lógica y Estado (`use[contexto].ts`) Cada componente que necesite tener lógica lo debe separar en un composable con el prefijo use y con el nombre del componente. Ej. `useAnime.ts`, `useAnimeLis.ts`, `useAnimeListItem.ts` Su responsabilidad es manejar el estado reactivo, la lógica de negocio y orquestar las llamadas a los servicios.
-- **`[component].styles.scss`**: Exclusivamente los estilos específicos del componente. Ej: `anime.scss`, `animeList.scss`, `animeListItem.scss`
+- **`[component].style.scss`**: Exclusivamente el estilo específico del componente. Ej: `anime.style.scss`, `animeList.style.scss`, `animeListItem.style.scss`
 - Si un componente necesita exportar su información se debe usar `defineExpose`
 
 ### **3.2. Organización de Composables**
@@ -247,9 +203,9 @@ AnimeFilter.vue         # No indica que es del List
 ```
 
 **Para Otros Tipos de Archivos:**
-- **Tipos e Interfaces**: Pueden agruparse en un mismo archivo cuando comparten el mismo contexto o dominio (ej. `user.types.ts` puede contener `User`, `UserProfile`, `UserPreferences`)
-- **Utilidades**: Funciones relacionadas pueden coexistir en un archivo cuando pertenecen al mismo contexto (ej. `date.utils.ts` puede contener `formatDate`, `parseDate`, `isValidDate`)
-- **Constantes**: Valores relacionados pueden agruparse por dominio (ej. `auth.constants.ts` puede contener `VALIDATION_RULES`). 
+- **Tipo e Interfaces**: Pueden agruparse en un mismo archivo cuando comparten el mismo contexto o dominio (ej. `user.type.ts` puede contener `User`, `UserProfile`, `UserPreferences`)
+- **Utilidad**: Funciones relacionadas pueden coexistir en un archivo cuando pertenecen al mismo contexto (ej. `date.util.ts` puede contener `formatDate`, `parseDate`, `isValidDate`)
+- **Constante**: Valores relacionados pueden agruparse por dominio (ej. `auth.constant.ts` puede contener `VALIDATION_RULES`). 
 
 ### Estructura de Carpetas
 
@@ -284,7 +240,7 @@ modules/
 - **`README.md`** Documentación base del modulo.
 - **`errors/`**: Contiene objetos que definen los posibles errores del dominio.
 - **`utils/`**: Funciones puras (sin estado).
-- **`router/`**: Define las rutas del módulo, separadas en `private.routes.ts` y `public.routes.ts`.
+- **`router/`**: Define las rutas del módulo, separadas en `private.route.ts` y `public.route.ts`.
 - **`services/`**: Servicios del modulo.
 - **`store/`**: El store de Pinia para el estado del módulo.
 - **`types/`**: Contiene **todas** las definiciones `interface` y `type` de TypeScript del módulo
@@ -306,8 +262,8 @@ src/
 │   │   └── interceptors.response.ts
 │   ├── either/
 │   │   ├── index.ts
-│   │   ├── types.ts
-│   │   └── utils.ts
+│   │   ├── type.ts
+│   │   └── util.ts
 │   └── router/
 │       ├── guards.ts
 │       └── index.ts
@@ -360,6 +316,9 @@ Cuando se requiere compartir estado entre un componente padre y sus descendiente
 
 Las siguientes convenciones se aplican a los **nombres de los archivos** para garantizar la consistencia y facilitar la navegación en el proyecto.
 
+- Las carpetas siempre deben ir en plural (agrupan varios elementos).
+- Los archivos deben ir en singular (definen una sola entidad).
+
 | **Tipo de Archivo** | **Ubicación** | **Patrón de Nomenclatura** | **Ejemplo** |
 | --- | --- | --- | --- |
 | **Pages** | `/pages` | `PascalCase.vue` | `AnimeList.vue`, `AnimeDetail.vue` |
@@ -370,18 +329,21 @@ Las siguientes convenciones se aplican a los **nombres de los archivos** para ga
 | **Composables** | `/composables` | `use[Contexto].ts` | `useAnimeList.ts`, `useRegisterForm.ts` |
 | **Composables de Componente** | `/components/[Component]/` | `use[Component].ts` | `useAnimeCard.ts`, `useAnimeGrid.ts` |
 | **Store** | `/stores` | `[contexto].store.ts` | `anime.store.ts`, `auth.store.ts` |
-| **Services** | `/services` | `[contexto].services.ts` | `anime.services.ts`, `auth.services.ts` |
-| **Tipos (incl. Props)** | `/types` | `[contexto].types.ts` | `anime.types.ts`, `auth.types.ts` |
-| **Utils** | `/utils` | `[contexto].utils.ts` | `format.ts`, `logger.ts` |
-| **Errors** | `/errors` | `[contexto].errors.ts` | `anime.errors.ts`, `auth.errors.ts` |
-| **Constants** | `/constants` | `[contexto].constants.ts` | `countries.ts`, `forms.ts` |
-| **Archivos de Rutas** | `/routes` | `[contexto].routes.ts`, `[contexto].guards.ts` | `anime.private.routes.ts`, `anime.public.routes.ts`, `anime.guards.ts` |
+| **Services** | `/services` | `[contexto].service.ts` | `anime.service.ts`, `auth.service.ts`, `notification.service.ts` |
+| **Factories** | `/test/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
+| **Interceptors** | `/core/api/` | `[contexto].interceptor.ts` | `auth.interceptor.ts`, `error.interceptor.ts` |
+| **Tipos (incl. Props)** | `/types` | `[contexto].type.ts` | `anime.type.ts`, `auth.type.ts` |
+| **Utils** | `/utils` | `[contexto].util.ts` | `format.util.ts`, `logger.util.ts` |
+| **Errors** | `/errors` | `[contexto].error.ts` | `anime.error.ts`, `auth.error.ts` |
+| **Constants** | `/constants` | `[contexto].constant.ts` | `country.constant.ts`, `form.constant.ts` |
+| **Archivos de Rutas** | `/routes` | `[contexto].route.ts`, `[contexto].guard.ts` | `anime.route.ts`, `auth.route.ts`, `anime.guard.ts` |
 | **Core API** | `core/api/` | `[nombre].instance.ts`, `[tipo].interceptor.ts` | `instance.ts`, `interceptors.request.ts` |
-| **Core Either** | `core/either/` | `[nombre].ts` | `index.ts`, `types.ts`, `utils.ts` |
+| **Core Either** | `core/either/` | `[nombre].ts` | `index.ts`, `type.ts`, `util.ts` |
 | **Pruebas** | `/test` | `[archivo-a-probar].spec.ts` | `useAnimeList.spec.ts`, `AnimeCard.spec.ts` |
 | **Factories** | `/test/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
 | **Documentación** | `/` | `README.md` | `README.md` (en cada módulo) |
 | **Carpetas** | N/A | `camelCase` | `animeCard`, `registerForm` |
+| **Style** | `/components` | `[componente].style.scss` | `animeCard.style.scss`, `registerForm.style.scss` |
 
 ## **Sección 7: Gestión de la Capa de API**
 
@@ -492,7 +454,7 @@ components/
 ├── AnimeCard/
 │   ├── index.vue
 │   ├── useAnimeCard.ts
-│   └── animeCard.styles.scss    # Estilos específicos del componente
+│   └── animeCard.style.scss    # Estilos específicos del componente
 ```
 
 **Estilos Globales:**
@@ -511,7 +473,7 @@ src/
 
 ### **8.3. Convenciones de Nomenclatura**
 
-- **Archivos de estilos de componente**: `[component].styles.scss`
+- **Archivo de estilo de componente**: `[component].style.scss`
 - **Variables CSS globales**: Definidas en `:root` en `src/core/styles/global.css`
 - **Clases semánticas**: Usar `@apply` para agrupar clases de Tailwind
 
@@ -577,9 +539,9 @@ core/
 shared/
 └── common/
     ├── utils/
-    │   ├── date.utils.ts        # formatDate() - usado en múltiples módulos
-    │   ├── format.utils.ts      # formatCurrency() - usado en múltiples módulos
-    │   └── validation.utils.ts  # validaciones - usadas en múltiples módulos
+    │   ├── date.util.ts        # formatDate() - usado en múltiples módulos
+    │   ├── format.util.ts      # formatCurrency() - usado en múltiples módulos
+    │   └── validation.util.ts  # validaciones - usadas en múltiples módulos
     └── index.ts                 
 ```
 
@@ -620,7 +582,7 @@ modules/[module]/test/
 ├── factories/                    # Factories para datos de prueba
 │   └── [contexto].factory.ts
 └── utils/                        # Utilidades para testing
-    └── test-utils.ts
+    └── test-util.ts
 ```
 
 ### **10.3. Tipos de Pruebas**
@@ -649,7 +611,7 @@ modules/[module]/test/
 
 - **Archivos de prueba**: `[archivo-a-probar].spec.ts`
 - **Factories**: `[contexto].factory.ts`
-- **Utilidades**: `test-utils.ts`
+- **Utilidad de test**: `test-util.ts`
 - **Setup**: `setup.ts` (configuración específica del módulo)
 
 ### **10.5. Principios de Testing**
