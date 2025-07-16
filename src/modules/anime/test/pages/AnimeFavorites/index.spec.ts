@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/vue'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/vue'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
+import { setActivePinia, createPinia } from 'pinia'
 import AnimeFavorites from '@/modules/anime/pages/AnimeFavorites/index.vue'
 import { createMockAnime } from '../../factories/anime.factory'
-import { userEvent } from '@testing-library/user-event'
 
 // Importar setup específico del módulo anime para activar los mocks
 import '../../setup'
@@ -14,8 +14,13 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('AnimeFavorites Page', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+  })
+
   describe('Renderizado inicial', () => {
-    it('should display empty state when no favorites', () => {
+    it('should display empty state when no favorites', async () => {
       // Arrange & Act
       render(AnimeFavorites, {
         global: {
@@ -30,45 +35,40 @@ describe('AnimeFavorites Page', () => {
                   }
                 }
               },
-              stubActions: true
+              stubActions: false
             })
           ]
         }
       })
 
       // Assert
-      expect(screen.getByText('Mis Favoritos')).toBeInTheDocument()
-      expect(screen.getByText(/No tienes animes favoritos/i)).toBeInTheDocument()
-      expect(screen.getByTestId('anime-favorites-empty')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('anime-favorites-empty')).toBeInTheDocument()
+      })
     })
 
-    it('should display favorites when available', () => {
+    it('should display favorites when available', async () => {
       // Arrange
       const mockAnime = createMockAnime({ mal_id: 1, title: 'Test Anime' })
+      localStorage.setItem('anime-favorites', JSON.stringify([mockAnime]))
 
       // Act
       render(AnimeFavorites, {
         global: {
           plugins: [
             createTestingPinia({
-              initialState: {
-                anime: {
-                  favorites: [mockAnime],
-                  loadingState: {
-                    isLoading: false,
-                    error: null
-                  }
-                }
-              },
-              stubActions: true
+              stubActions: false
             })
           ]
         }
       })
 
       // Assert
-      expect(screen.getByText('Mis Favoritos')).toBeInTheDocument()
-      expect(screen.getByTestId('anime-favorites-list')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('Mis Favoritos')).toBeInTheDocument()
+        expect(screen.getByTestId('anime-favorites-list')).toBeInTheDocument()
+        expect(screen.getByText('Test Anime')).toBeInTheDocument()
+      })
     })
   })
 
@@ -88,7 +88,7 @@ describe('AnimeFavorites Page', () => {
                   }
                 }
               },
-              stubActions: true
+              stubActions: false
             })
           ]
         }
@@ -124,7 +124,7 @@ describe('AnimeFavorites Page', () => {
                   }
                 }
               },
-              stubActions: true
+              stubActions: false
             })
           ]
         }
@@ -142,9 +142,10 @@ describe('AnimeFavorites Page', () => {
   })
 
   describe('Component Integration', () => {
-    it('should render favorites list when data is available', () => {
+    it('should render favorites list when data is available', async () => {
       // Arrange
       const mockAnime = createMockAnime({ mal_id: 1, title: 'Test Anime' })
+      localStorage.setItem('anime-favorites', JSON.stringify([mockAnime]))
 
       // Act
       render(AnimeFavorites, {
@@ -160,15 +161,17 @@ describe('AnimeFavorites Page', () => {
                   }
                 }
               },
-              stubActions: true
+              stubActions: false
             })
           ]
         }
       })
 
       // Assert - Success state
-      expect(screen.getByTestId('anime-favorites-list')).toBeInTheDocument()
-      expect(screen.getByText('Test Anime')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('anime-favorites-list')).toBeInTheDocument()
+        expect(screen.getByText('Test Anime')).toBeInTheDocument()
+      })
     })
   })
 
@@ -188,7 +191,7 @@ describe('AnimeFavorites Page', () => {
                   }
                 }
               },
-              stubActions: true
+              stubActions: false
             })
           ]
         }

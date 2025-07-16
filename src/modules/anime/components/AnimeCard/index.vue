@@ -19,7 +19,7 @@
         
         <el-button
           v-if="isAuthenticated"
-          data-test="button:toggle-favorite"
+          data-testid="toggle-favorite-button"
           role="button"
           :aria-label="isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'"
           :type="isFavorite ? 'danger' : 'default'"
@@ -31,7 +31,7 @@
         />
         <el-button
           v-else
-          data-test="button:login-required"
+          data-testid="login-required-button"
           role="button"
           aria-label="Inicia sesión para agregar a favoritos"
           type="info"

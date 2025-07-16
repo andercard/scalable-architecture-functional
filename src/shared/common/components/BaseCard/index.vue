@@ -2,6 +2,7 @@
   <div 
     class="base-card"
     :class="{ 'base-card--loading': loading, 'base-card--clickable': clickable }"
+    data-testid="base-card"
     @click="handleClick"
   >
     <div class="base-card__image-container">

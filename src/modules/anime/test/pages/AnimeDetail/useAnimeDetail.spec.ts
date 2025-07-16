@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useRoute } from 'vue-router'
 
 // Importar setup específico del módulo anime para activar mocks
 import '../../setup'
@@ -16,16 +15,12 @@ import {
   createMockAnime, 
   createMockAnimeCharacterList 
 } from '../../factories/anime.factory'
-import { createMockAnimeStore } from '../../factories/store.factory'
 
 // Importar utilidades de testing
 import { createSuccessMock, createFailureMock } from '../../setup'
 
 // Importar el servicio para mockearlo
 import { animeApi } from '../../../services/anime.services'
-
-// Importar el store para mockearlo
-import { useAnimeStore } from '../../../stores/anime.store'
 
 // Mock de vue-router
 const mockRoute = {
@@ -36,20 +31,7 @@ vi.mock('vue-router', () => ({
   useRoute: () => mockRoute
 }))
 
-/**
- * Tests unitarios para useAnimeDetail composable
- * 
- * Este composable maneja la lógica de la página de detalle de anime,
- * incluyendo carga de personajes, manejo de favoritos, y estado de UI.
- * 
- * Patrones de testing aplicados:
- * - Testing directo de composables (lógica de negocio)
- * - Uso de Either real (no mockeado)
- * - Patrón isRight/isLeft para manejo de Either
- * - Factories para datos de prueba
- * - Testing de comportamiento observable
- * - Casos de éxito y fallo
- */
+
 describe('useAnimeDetail', () => {
   beforeEach(() => {
     setActivePinia(createPinia())

@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/vue'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/vue'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
+import { setActivePinia, createPinia } from 'pinia'
 import AnimeGrid from '@/modules/anime/components/AnimeGrid/index.vue'
 import { createMockAnime } from '../../factories/anime.factory'
 import { userEvent } from '@testing-library/user-event'
@@ -14,6 +15,10 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('AnimeGrid Component', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
   describe('Renderizado básico', () => {
     it('should render anime grid with anime cards', () => {
       // Arrange
