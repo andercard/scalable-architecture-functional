@@ -1,17 +1,16 @@
 # Lineamientos de Arquitectura Modular para el Frontend B2B
 
-**Última actualización**: Julio 9 2025  
+**Última actualización**: Julio 16 2025  
 **Autor actualización**: Anderson Mesa  
 **Autor**: Andersson Mesa  
-**Responsable**: Equipo de Desarrollo  
-**Versión**: 1.0.0 
+**Responsable**: Equipo de Desarrollo
 
 ## Índice
 
 - Sección 1: Visión General
 - Sección 2: Principios de la Arquitectura Modular
 - Sección 3: Estructura Plana Inteligente
-- Sección 4: Gestión de Estado Local Complejo (Patrón `provide`/`inject`)
+- Sección 4: Gestión de Estado Local Complejo
 - Sección 5: Convenciones de Nomenclatura de Archivos
 - Sección 7: Gestión de la Capa de API
 - Sección 8: Gestión de Estilos (CSS)
@@ -225,7 +224,7 @@ modules/
     ├── utils/
     ├── router/
     ├── services/
-    ├── store/
+    ├── stores/
     ├── types/
     ├── views/
     └── tests/
@@ -242,11 +241,9 @@ modules/
 - **`utils/`**: Funciones puras (sin estado).
 - **`router/`**: Define las rutas del módulo, separadas en `private.route.ts` y `public.route.ts`.
 - **`services/`**: Servicios del modulo.
-- **`store/`**: El store de Pinia para el estado del módulo.
+- **`stores/`**: El store de Pinia para el estado del módulo.
 - **`types/`**: Contiene **todas** las definiciones `interface` y `type` de TypeScript del módulo
 - **`tests/`**: Pruebas unitarias para los archivos del módulo.
-
-**Regla de Oro**: Un archivo debe contener elementos que están conceptualmente relacionados y que cambian por las mismas razones. La separación excesiva en archivos individuales puede crear fragmentación innecesaria.
 
 ### Estructura General del Proyecto (`src`)
 
@@ -264,9 +261,20 @@ src/
 │   │   ├── index.ts
 │   │   ├── type.ts
 │   │   └── util.ts
-│   └── router/
-│       ├── guards.ts
-│       └── index.ts
+│   ├── router/
+│   │   ├── guards.ts
+│   │   └── index.ts
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── element/
+│   │       └── index.scss
+│   ├── types/
+│   │   └── index.ts
+│   └── test/
+│       ├── setup.ts
+│       ├── api/
+│       ├── either/
+│       └── router/
 ├── modules/
 │   ├── anime/
 │   ├── auth/
@@ -280,24 +288,21 @@ src/
 │   └── layout/
 │       └── components/
 ├── main.ts
-├── App.vue
-├── style.css
-├── styles/
-└── types/
+└── App.vue
 ```
 
 - **`core/`**: Contiene la **infraestructura fundamental** de la aplicación que define cómo opera estructuralmente.
     - `api/`: Configuración de infraestructura HTTP (instancia Axios, interceptores, patrones de error)
     - `either/`: Patrón funcional Either para manejo robusto de errores en operaciones asíncronas
     - `router/`: Configuración del router y sistema de guards globales
+    - `styles/`: Estilos globales y configuración de Element Plus
+    - `test/`: Pruebas unitarias de la infraestructura core (api, either, router)
 - **`modules/`**: Lógica de negocio organizada por dominio. Cada módulo es independiente y contiene su estructura completa (components, pages, services, stores, etc.).
 - **`shared/`**: Recursos **específicos de la aplicación** reutilizables entre módulos de negocio.
     - `common/`: Componentes UI de Vue, composables del proyecto y utilidades específicas de la aplicación
     - `layout/`: Componentes estructurales específicos de esta aplicación (headers, footers, layouts)
 - **`main.ts`**: Punto de entrada que monta la aplicación Vue y configura plugins globales.
 - **`App.vue`**: El componente raíz que contiene `<router-view>` y la estructura base de la aplicación.
-- **`styles/`**: Estilos globales y configuración de Element Plus.
-- **`types/`**: Tipos TypeScript globales de la aplicación.
 
 #### **3.4. Beneficios de la Estructura Plana Inteligente**
 
@@ -307,9 +312,158 @@ src/
 - **Predictibilidad**: Nomenclatura consistente facilita la búsqueda y comprensión
 - **Mantenibilidad**: Cambios y refactorizaciones se realizan con mayor facilidad
 
-## Sección 4: Gestión de Estado Local Complejo (Patrón `provide`/`inject`)
+## Sección 4: Gestión de Estado Local Complejo
 
-Cuando se requiere compartir estado entre un componente padre y sus descendientes (por ejemplo, en formularios complejos o flujos de pasos), se debe emplear el patrón `provide`/`inject` de Vue. Toda la lógica para gestionar este estado compartido **debe** estar encapsulada en un único Composable, facilitando su testeo y reutilización.
+Cuando se requiere compartir estado entre un componente padre y sus descendientes (por ejemplo, en flujos de pasos, configuraciones complejas o estados de UI compartidos), se debe emplear el patrón `provide`/`inject` de Vue. Toda la lógica para gestionar este estado compartido **debe** estar encapsulada en un único Composable, facilitando su testeo y reutilización.
+
+### 4.1. Patrón Provider/Inject con Composable
+
+Para estados complejos que requieren ser compartidos entre múltiples componentes en un árbol de componentes, se implementa un patrón que combina `provide`/`inject` con composables:
+
+**Estructura del Composable Provider:**
+```typescript
+// use[Context]Provider.ts
+import { reactive, provide, inject, type InjectionKey } from 'vue'
+import type { [Context]Provider } from '../types'
+import { INITIAL_[CONTEXT]_STATE } from '../constants'
+
+export function use[Context]Provider(): [Context]Provider {
+  const state = reactive({ ...INITIAL_[CONTEXT]_STATE })
+
+  const provider: [Context]Provider = {
+    state,
+    // Métodos para manipular el estado
+    updateState: (updates: Partial<typeof state>) => {
+      Object.assign(state, updates)
+    },
+    resetState: () => {
+      Object.assign(state, INITIAL_[CONTEXT]_STATE)
+    }
+  }
+
+  return provider
+}
+
+// Injection key para el provider
+export const [CONTEXT]_PROVIDER_KEY: InjectionKey<[Context]Provider> = Symbol('[context]Provider')
+
+// Función para proveer el estado
+export function provide[Context](): [Context]Provider {
+  const provider = use[Context]Provider()
+  provide([CONTEXT]_PROVIDER_KEY, provider)
+  return provider
+}
+
+// Función para inyectar el estado
+export function inject[Context](): [Context]Provider {
+  const provider = inject([CONTEXT]_PROVIDER_KEY)
+  if (!provider) {
+    throw new Error('use[Context]Provider debe ser usado dentro de un componente que proporcione el estado')
+  }
+  return provider
+}
+```
+
+**Tipos del Provider:**
+```typescript
+// types/providers.types.ts
+import type { [Context]State } from './[Context].types'
+
+export interface [Context]Provider {
+  state: [Context]State
+  updateState: (updates: Partial<[Context]State>) => void
+  resetState: () => void
+}
+```
+
+**Constantes del Estado Inicial:**
+```typescript
+// constants/state.ts
+import type { [Context]State } from '../types/[Context].types'
+
+export const INITIAL_[CONTEXT]_STATE: [Context]State = {
+  // Propiedades iniciales del estado
+}
+```
+
+### 4.2. Ejemplos de Uso en Componentes
+
+**Ejemplo 1: Flujo de Pasos (Wizard)**
+```vue
+<!-- Componente Padre (Provider) -->
+<template>
+  <div class="wizard-container">
+    <WizardStep1 />
+    <WizardStep2 />
+    <WizardStep3 />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { provideWizard } from '../composables/useWizardProvider'
+
+// Proporciona el estado compartido del wizard
+provideWizard()
+</script>
+```
+
+**Ejemplo 2: Configuración Compleja**
+```vue
+<!-- Componente Padre (Provider) -->
+<template>
+  <div class="settings-container">
+    <GeneralSettings />
+    <AdvancedSettings />
+    <NotificationSettings />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { provideSettings } from '../composables/useSettingsProvider'
+
+// Proporciona el estado compartido de configuración
+provideSettings()
+</script>
+```
+
+**Componente Hijo (Consumer):**
+```vue
+<template>
+  <div>
+    <input v-model="state.currentStep" />
+    <button @click="updateState({ currentStep: state.currentStep + 1 })">
+      Siguiente
+    </button>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { injectWizard } from '../composables/useWizardProvider'
+
+// Inyecta el estado compartido
+const { state, updateState } = injectWizard()
+</script>
+```
+
+### 4.3. Beneficios del Patrón
+
+- **Encapsulación**: Toda la lógica del estado compartido está en un solo composable
+- **Testabilidad**: Fácil testing del provider y consumer por separado
+- **Reutilización**: El mismo patrón se puede aplicar a diferentes contextos
+- **Type Safety**: TypeScript garantiza que los tipos sean consistentes
+- **Error Handling**: Validación explícita de que el provider esté disponible
+- **Reactividad**: El estado es reactivo y se propaga automáticamente
+- **Métodos de Control**: Funciones para manipular el estado de forma controlada
+
+### 4.4. Casos de Uso Aplicables
+
+- **Flujos de pasos (Wizards)**: Onboarding, checkout, configuración guiada
+- **Formularios multi-paso**: Registro, encuestas complejas, procesos de validación
+- **Configuraciones complejas**: Ajustes que afectan múltiples componentes
+- **Estados de UI compartidos**: Modo oscuro/claro, idioma, tema
+- **Procesos de validación**: Estados de validación que se comparten entre pasos
+- **Estados de carga**: Indicadores de progreso compartidos
+- **Filtros y búsquedas**: Estados de filtrado que afectan múltiples componentes
 
 
 ## **Sección 5: Convenciones de Nomenclatura de Archivos**
@@ -330,7 +484,7 @@ Las siguientes convenciones se aplican a los **nombres de los archivos** para ga
 | **Composables de Componente** | `/components/[Component]/` | `use[Component].ts` | `useAnimeCard.ts`, `useAnimeGrid.ts` |
 | **Store** | `/stores` | `[contexto].store.ts` | `anime.store.ts`, `auth.store.ts` |
 | **Services** | `/services` | `[contexto].service.ts` | `anime.service.ts`, `auth.service.ts`, `notification.service.ts` |
-| **Factories** | `/test/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
+| **Factories** | `/tests/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
 | **Interceptors** | `/core/api/` | `[contexto].interceptor.ts` | `auth.interceptor.ts`, `error.interceptor.ts` |
 | **Tipos (incl. Props)** | `/types` | `[contexto].type.ts` | `anime.type.ts`, `auth.type.ts` |
 | **Utils** | `/utils` | `[contexto].util.ts` | `format.util.ts`, `logger.util.ts` |
@@ -339,8 +493,8 @@ Las siguientes convenciones se aplican a los **nombres de los archivos** para ga
 | **Archivos de Rutas** | `/routes` | `[contexto].route.ts`, `[contexto].guard.ts` | `anime.route.ts`, `auth.route.ts`, `anime.guard.ts` |
 | **Core API** | `core/api/` | `[nombre].instance.ts`, `[tipo].interceptor.ts` | `instance.ts`, `interceptors.request.ts` |
 | **Core Either** | `core/either/` | `[nombre].ts` | `index.ts`, `type.ts`, `util.ts` |
-| **Pruebas** | `/test` | `[archivo-a-probar].spec.ts` | `useAnimeList.spec.ts`, `AnimeCard.spec.ts` |
-| **Factories** | `/test/factories` | `[contexto].factory.ts` | `anime.factory.ts`, `store.factory.ts` |
+| **Pruebas** | `/tests` | `[archivoProbar].spec.ts` | `useAnimeList.spec.ts`, `AnimeCard.spec.ts` |
+|
 | **Documentación** | `/` | `README.md` | `README.md` (en cada módulo) |
 | **Carpetas** | N/A | `camelCase` | `animeCard`, `registerForm` |
 | **Style** | `/components` | `[componente].style.scss` | `animeCard.style.scss`, `registerForm.style.scss` |
@@ -437,9 +591,9 @@ Para mantener los estilos organizados y evitar conflictos, se sigue una jerarqu�
 
 3. **Abstracción con `<style scoped>` y `@apply`:** Si un conjunto de clases de Tailwind se repite **múltiples veces dentro del mismo componente**, se puede crear una clase semántica usando `@apply` dentro del archivo `.styles.scss` del componente.
 
-4. **Estilos de Librerías de UI (`src/styles/`):** Configuración y personalización de librerías de UI como Element Plus.
+4. **Estilos de Librerías de UI (`src/core/styles/`):** Configuración y personalización de librerías de UI como Element Plus.
    ```
-   src/styles/
+   src/core/styles/
    ├── element/
    │   └── index.scss    # Configuración de Element Plus
    ```
@@ -559,7 +713,6 @@ Nuestro enfoque se basa en **"Write tests. Not too many. Mostly integration."** 
 - **Pruebas de integración ligera** para composables y stores  
 - **Pruebas de comportamiento observable** para interacciones de usuario
 - **Evitar** pruebas unitarias excesivas de servicios simples
-- **Evitar** pruebas de detalles de implementación
 
 ### **10.2. Estructura de Testing**
 
@@ -585,43 +738,7 @@ modules/[module]/test/
     └── test-util.ts
 ```
 
-### **10.3. Tipos de Pruebas**
-
-**Pruebas de Componentes:**
-- **Enfoque**: Testing de comportamiento observable e interacciones de usuario
-- **Herramientas**: `@testing-library/vue`, `@testing-library/user-event`
-- **Patrón**: AAA (Arrange, Act, Assert)
-
-**Pruebas de Composables:**
-- **Enfoque**: Testing de lógica reactiva y manejo de estado
-- **Herramientas**: `vitest`, `@vue/test-utils`
-- **Patrón**: Testing con lifecycle de Vue
-
-**Pruebas de Stores:**
-- **Enfoque**: Testing de gestión de estado y acciones
-- **Herramientas**: `@pinia/testing`, `createTestingPinia`
-- **Patrón**: Testing de estado antes y después de acciones
-
-**Pruebas de Servicios:**
-- **Enfoque**: Testing de integración con APIs y manejo de errores
-- **Herramientas**: `vitest`, mocks de Axios
-- **Patrón**: Testing del patrón Either
-
-### **10.4. Convenciones de Nomenclatura**
-
-- **Archivos de prueba**: `[archivo-a-probar].spec.ts`
-- **Factories**: `[contexto].factory.ts`
-- **Utilidad de test**: `test-util.ts`
-- **Setup**: `setup.ts` (configuración específica del módulo)
-
-### **10.5. Principios de Testing**
-
-1. **Test Behavior, Not Implementation** - Probar comportamiento observable, no detalles internos
-2. **Factory Pattern** - Usar factories para datos consistentes y reutilizables
-3. **Black Box Testing** - Enfocarse en inputs/outputs, no en cómo se logran
-4. **AAA Pattern** - Arrange, Act, Assert para estructura clara
-
-### **10.6. Configuración Global**
+### **10.3. Configuración Global**
 
 **Archivo de configuración global (`test/setup.ts`):**
 - Configuración de Vitest
