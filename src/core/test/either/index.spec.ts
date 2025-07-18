@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { right, left } from './index'
+import { right, left } from '../../either/index'
 
 describe('Either', () => {
   it('right() debe crear un Right', () => {
@@ -74,9 +74,9 @@ describe('Either', () => {
   })
 
   it('flatMap() anidado en Right funciona correctamente', () => {
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const first = right(5).flatMap((x: number) => right(x + 1))
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const second = first.flatMap((x: number) => right(x * 2))
     expect(second.isRight()).toBe(true)
     expect(second.fold(() => 0, (v: number) => v)).toBe(12)
@@ -84,16 +84,16 @@ describe('Either', () => {
 
   it('flatMap() no ejecuta la función en Left', () => {
     let called = false
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const e = left('fail').flatMap((_: number) => { called = true; return right(123) })
     expect(called).toBe(false)
     expect(e.isLeft()).toBe(true)
   })
 
   it('flatMap() puede retornar Left en la cadena', () => {
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const first = right(5).flatMap((x: number) => right(x + 1))
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const second = first.flatMap((_: number) => left('error en la cadena'))
     expect(second.isLeft()).toBe(true)
     expect(second.fold((err: string) => err, () => 'ok')).toBe('error en la cadena')
@@ -101,7 +101,7 @@ describe('Either', () => {
 
   it('combinación de map() y flatMap() funciona correctamente', () => {
     const mapped = right(5).map((x: number) => x + 1)
-    // @ts-ignore - Error de tipos complejos en Either
+    // @ts-expect-error - Error de tipos complejos en Either
     const flatMapped = mapped.flatMap((x: number) => right(x * 2))
     const final = flatMapped.map((x: number) => x.toString())
     expect(final.isRight()).toBe(true)
