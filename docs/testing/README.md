@@ -20,18 +20,18 @@ Esta documentación es un recurso vivo: se actualiza y mejora continuamente con 
 
 Este es el índice principal de la documentación de testing. Selecciona la sección que deseas consultar:
 
-- [Tipos de usuario](./user-types.md)
-- [Mejores prácticas](./best-practices.md)
-- [LocalStorage](./localstorage.md)
-- [Vue Router](./vue-router.md)
-- [Factories](./factories.md)
-- [Formularios](./forms.md)
-- [userEvent](./user-event.md)
-- [Stores Pinia](./stores.md)
-- [Mockeo de composables](./composables-mocking.md)
-- [Cobertura](./coverage.md)
-- [Herramientas y configuración](./tools-config.md)
-- [Preguntas de calidad](./quality-questions.md)
+- [Enfoque: Dos Tipos de Usuarios](./user-types.md)
+- [Patrones y Mejores Prácticas](./best-practices.md)
+- [Testing de localStorage](./localstorage.md)
+- [Testing de Vue Router](./vue-router.md)
+- [Factories testing data](./factories.md)
+- [Testing de Formularios](./forms.md)
+- [Testing de eventos de usuario (userEvent)](./user-event.md)
+- [Testing de Stores Pinia](./stores.md)
+- [Mockeo de Composables en Tests de Integración de Páginas](./composables-mocking.md)
+- [Métricas de Cobertura](./coverage.md)
+- [Herramientas y Configuración](./tools-config.md)
+- [Preguntas para Crear Tests de Calidad](./quality-questions.md)
 
 ---
 

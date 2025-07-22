@@ -1,6 +1,6 @@
 [⬅️ Volver al índice](./README.md)
 
-## userEvent: Enfoque Principal del Proyecto
+## Testing de eventos de usuario (userEvent)
 
 #### ¿Por qué recomendamos userEvent?
 
