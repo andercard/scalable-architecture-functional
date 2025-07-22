@@ -543,3 +543,9 @@ describe('Component with Router', () => {
   })
 })
 ``` 
+### Ejemplo de uso
+
+Puedes ver ejemplos prácticos de testing de Vue Router en:
+
+- [`src/modules/anime/test/routes/anime.guards.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/routes/anime.guards.spec.ts)
+- [`src/modules/anime/test/routes/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/routes/index.spec.ts) 

@@ -75,4 +75,8 @@ describe('AnimeCard con Testing Pinia', () => {
 })
 ```
 
-... (continúa con el resto de la sección de stores del README original) 
+### Ejemplo de uso
+
+Puedes ver cómo se testean stores Pinia en:
+
+- [`src/modules/anime/test/stores/anime.store.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/stores/anime.store.spec.ts) 

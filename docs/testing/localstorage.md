@@ -84,3 +84,9 @@ Solo en casos específicos:
 - Simular errores de cuota excedida
 - Testing de comportamiento cuando localStorage falla
 - Control total sobre respuestas en casos edge 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de testing de localStorage en:
+
+- [`src/modules/anime/test/integration/localStorage.integration.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/integration/localStorage.integration.spec.ts) 

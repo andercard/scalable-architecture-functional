@@ -74,3 +74,11 @@ vi.mock('vue-router', async () => {
 
 **Regla importante:**
 Siempre importa `import '../setup'` al inicio de tus tests para que los mocks se combinen correctamente. 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de mejores prácticas de testing (patrón AAA, setup de mocks, separación de Arrange/Act/Assert y uso de utilidades del proyecto) en los siguientes archivos del repositorio público [`scalable-architecture-functional`](https://github.com/andercard/scalable-architecture-functional):
+
+- [`src/modules/anime/test/components/AnimeCard/useAnimeCard.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/useAnimeCard.spec.ts)
+- [`src/modules/anime/test/components/AnimeCard/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/index.spec.ts)
+- [`src/modules/anime/test/pages/AnimeList/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeList/index.spec.ts) 

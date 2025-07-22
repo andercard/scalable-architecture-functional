@@ -51,3 +51,10 @@ Beneficios de fireEvent:
 - **Limitado para accesibilidad**: No incluye navegación por teclado
 - **Puede ocultar problemas**: No detecta eventos faltantes o mal configurados
 - **Menos alineado con testing centrado en usuario**: Se enfoca en eventos DOM en lugar de comportamiento observable 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos prácticos del uso de userEvent en:
+
+- [`src/modules/anime/test/components/AnimeCard/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/index.spec.ts)
+- [`src/modules/anime/test/pages/AnimeList/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeList/index.spec.ts) 

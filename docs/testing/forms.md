@@ -130,4 +130,9 @@ vi.mock('element-plus', () => ({
 }))
 ```
 
-... (continúa con el resto de la sección de formularios del README original) 
+### Ejemplo de uso
+
+Consulta ejemplos de testing de formularios de registro en:
+
+- [`src/modules/auth/test/pages/Register/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/auth/test/pages/Register/index.spec.ts)
+- [`src/modules/auth/test/views/RegisterFormStep/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/auth/test/views/RegisterFormStep/index.spec.ts) 

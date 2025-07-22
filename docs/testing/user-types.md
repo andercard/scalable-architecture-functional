@@ -119,3 +119,10 @@ Los tests unitarios pueden generar dos tipos de errores problemáticos:
 - **Falsos positivos**: El test pasa pero la funcionalidad está rota para el usuario. Por ejemplo, un test unitario puede verificar que `toggleFavorite()` se llama correctamente, pero si el botón no está visible o no responde al click, el usuario no puede usar la funcionalidad.
 
 - **Falsos negativos**: El test falla pero la funcionalidad funciona correctamente. Esto sucede cuando testeas detalles de implementación que cambian durante el desarrollo, como nombres de variables internas o estructura de datos específica. 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de tests orientados a usuario final y desarrollador en:
+
+- [`src/modules/anime/test/components/AnimeCard/useAnimeCard.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/useAnimeCard.spec.ts)
+- [`src/modules/anime/test/pages/AnimeList/useAnimeList.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeList/useAnimeList.spec.ts) 

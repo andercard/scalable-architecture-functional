@@ -191,3 +191,10 @@ export const createRegisterFormVariants = {
   })
 }
 ``` 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos prácticos de factories en los siguientes archivos del repositorio público [`scalable-architecture-functional`](https://github.com/andercard/scalable-architecture-functional):
+
+- [`src/modules/anime/test/factories/anime.factory.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/factories/anime.factory.ts)
+- [`src/modules/anime/test/components/AnimeCard/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/index.spec.ts) 

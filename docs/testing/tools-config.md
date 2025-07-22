@@ -364,3 +364,10 @@ export default defineConfig({
   }
 })
 ``` 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de configuración y helpers globales de testing en:
+
+- [`src/modules/anime/test/setup.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/setup.ts)
+- [`src/modules/anime/test/utils/test-utils.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/utils/test-utils.ts) 

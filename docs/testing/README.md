@@ -1,6 +1,6 @@
 # Guía de Testing
 
-**Última actualización**: Julio 10 2025  
+**Última actualización**: Julio 22 2025  
 **Autor actualización**: Anderson Mesa  
 **Autor**: Andersson Mesa  
 **Responsable**: Equipo de Desarrollo  
@@ -16,9 +16,7 @@ Esta guía reúne las mejores prácticas, patrones y ejemplos para escribir test
 
 Esta documentación es un recurso vivo: se actualiza y mejora continuamente con la experiencia del equipo y los avances de la comunidad. Si tienes sugerencias o detectas áreas de mejora, ¡no dudes en contribuir!
 
----
-
-Este es el índice principal de la documentación de testing. Selecciona la sección que deseas consultar:
+### Menu
 
 - [Enfoque: Dos Tipos de Usuarios](./user-types.md)
 - [Patrones y Mejores Prácticas](./best-practices.md)
@@ -33,9 +31,13 @@ Este es el índice principal de la documentación de testing. Selecciona la secc
 - [Herramientas y Configuración](./tools-config.md)
 - [Preguntas para Crear Tests de Calidad](./quality-questions.md)
 
----
+
+### Ejemplo de uso
+
+Puedes revisar el repositorio público [`scalable-architecture-functional`](https://github.com/andercard/scalable-architecture-functional) para consultar ejemplos reales y actualizados de patrones, utilidades y buenas prácticas de testing aplicadas en un proyecto modular con Vue 3, Pinia y Vitest.
 
 ## Recursos y Referencias
+Esta documentación está basada en las mejores prácticas establecidas por la comunidad Vue y los principios de testing moderno. Todas las referencias han sido seleccionadas por su relevancia y autoridad en el tema. La frase clave "Si un usuario no puede hacerlo, tu prueba tampoco debería poder hacerlo" es fundamental para entender el enfoque de testing centrado en el usuario.
 
 ### **Artículos Fundamentales**
 - [Write tests. Not too many. Mostly integration](https://kentcdodds.com/blog/write-tests) - Kent C. Dodds
@@ -68,8 +70,6 @@ Este es el índice principal de la documentación de testing. Selecciona la secc
 - [How I Started Writing Unit Tests for Vue Components](https://www.byteminds.co.uk/blog/how-i-started-writing-unit-tests-for-vue-components) - Byteminds
 - [Vue.js Testing with Vue Test Utils and Vitest](https://vueschool.io/articles/vuejs-tutorials/vue-js-testing-with-vue-test-utils-and-vitest/) - Vue School
 - [Realiza Pruebas Unitarias con Vitest y Vue Test Utils](https://codingpr.com/es/realiza-pruebas-unitarias-con-vitest-y-vue-test-utils/) - CodingPR
-
-**Nota sobre las referencias**: Esta documentación está basada en las mejores prácticas establecidas por la comunidad Vue y los principios de testing moderno. Todas las referencias han sido seleccionadas por su relevancia y autoridad en el tema. La frase clave "Si un usuario no puede hacerlo, tu prueba tampoco debería poder hacerlo" es fundamental para entender el enfoque de testing centrado en el usuario.
 
 ### **Pinia Testing**
 - [Pinia Testing Documentation](https://pinia.vuejs.org/cookbook/testing.html) - Documentación oficial de Pinia

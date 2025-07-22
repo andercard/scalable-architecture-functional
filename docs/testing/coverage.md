@@ -92,3 +92,10 @@ Scripts de package.json
   }
 }
 ``` 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de cómo se ejecutan y reportan los tests con coverage en:
+
+- [`src/modules/anime/test/services/anime.services.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/services/anime.services.spec.ts)
+- [`src/modules/anime/test/stores/anime.store.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/stores/anime.store.spec.ts) 

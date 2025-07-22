@@ -38,5 +38,6 @@ Ventajas:
 - Puedes forzar cualquier estado y probar el renderizado de la página de forma aislada.
 - El test es más rápido y predecible.
 
-Ejemplo de uso:
+### Ejemplo de uso
+
 - Ver los archivos de este proyecto [`src/modules/anime/test/pages/AnimeList/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeList/index.spec.ts) y [`src/modules/anime/test/pages/AnimeDetail/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeDetail/index.spec.ts) para ejemplos prácticos en el contexto de [`scalable-architecture-functional`](https://github.com/andercard/scalable-architecture-functional). 

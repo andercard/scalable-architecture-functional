@@ -45,3 +45,10 @@
 - ¿Si falla, sabré inmediatamente por qué? Los mensajes de error deben ser claros y específicos
 - ¿Usa `expect().toBe()` en lugar de `expect().toBeTruthy()`? Aserciones específicas dan mejor feedback
 - ¿Evita lógica compleja en el test? Los tests deben ser simples y lineales 
+
+### Ejemplo de uso
+
+Puedes ver ejemplos de cómo se abordan preguntas de calidad y criterios de aceptación en los siguientes archivos del repositorio público [`scalable-architecture-functional`](https://github.com/andercard/scalable-architecture-functional):
+
+- [`src/modules/anime/test/components/AnimeCard/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/components/AnimeCard/index.spec.ts)
+- [`src/modules/anime/test/pages/AnimeList/index.spec.ts`](https://github.com/andercard/scalable-architecture-functional/blob/main/src/modules/anime/test/pages/AnimeList/index.spec.ts) 
